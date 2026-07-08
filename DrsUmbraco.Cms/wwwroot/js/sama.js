@@ -50,3 +50,67 @@
         backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 })();
+
+// For Saving Demo Form
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("consultRequestForm");
+    const messageBox = document.getElementById("consultRequestMessage");
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        if (messageBox) {
+            messageBox.textContent = "در حال ثبت درخواست...";
+            messageBox.className = "form-message";
+        }
+
+        const formData = new FormData(form);
+
+        const payload = {
+            fullName: formData.get("fullName"),
+            mobile: formData.get("mobile"),
+            requestType: formData.get("requestType"),
+            message: formData.get("message")
+        };
+
+        try {
+            const response = await fetch("/api/consult-requests", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let result = null;
+
+            try {
+                result = await response.json();
+            } catch {
+                result = null;
+            }
+
+            if (!response.ok) {
+                throw new Error(result?.title || "خطا در ثبت درخواست");
+            }
+
+            if (messageBox) {
+                messageBox.textContent = result?.message || "درخواست شما با موفقیت ثبت شد.";
+                messageBox.className = "form-message success";
+            }
+
+            form.reset();
+        } catch (error) {
+            if (messageBox) {
+                messageBox.textContent = "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.";
+                messageBox.className = "form-message error";
+            }
+
+            console.error(error);
+        }
+    });
+});

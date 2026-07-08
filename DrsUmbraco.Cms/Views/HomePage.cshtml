@@ -150,12 +150,16 @@
                 <h2>درخواست دمو یا مشاوره</h2>
                 <p>در صورت نیاز به مشاوره یا درخواست دمو فرم را پرکنید تا با شما تماس بگیریم.</p>
             </div>
-            <form class="demo-form">
-                <label>نام و نام خانوادگی<input type="text" placeholder="نام و نام خانوادگی" /></label>
-                <label>شماره تماس<input type="tel" placeholder="شماره تماس" /></label>
-                <label>نوع درخواست<select><option>دمو</option><option>مشاوره</option></select></label>
-                <label>پیغام<textarea placeholder="پیغام"></textarea></label>
-                <button type="button">ارسال</button>
+            <form id="consultRequestForm" class="demo-form sama-consult-form">
+                <label>نام و نام خانوادگی<input type="text" placeholder="نام و نام خانوادگی" name="fullName" required /></label>
+                <label>شماره تماس<input type="tel" placeholder="شماره تماس" name="mobile" required /></label>
+                <label>نوع درخواست<select name="requestType" required><option value="دمو">دمو</option><option value="مشاوره">مشاوره</option></select></label>
+                <label>پیام</label><textarea name="message" placeholder="پیام"></textarea>
+
+                <button type="submit">ارسال</button>
+
+                <div id="consultRequestMessage"></div>
+
             </form>
         </section>
     </main>

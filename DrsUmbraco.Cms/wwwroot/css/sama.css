@@ -595,3 +595,17 @@ img {
         border-radius: 0;
     }
 }
+
+.form-message {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.form-message.success {
+    color: #1f8f4d;
+}
+
+.form-message.error {
+    color: #c0392b;
+}
