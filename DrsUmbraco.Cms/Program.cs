@@ -1,5 +1,9 @@
+using DrsUmbraco.Cms.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
@@ -24,5 +28,7 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
+app.MapControllers();
 
 await app.RunAsync();

@@ -1,0 +1,106 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
+
+@{
+    Layout = null;
+
+    var title = Model.Value<string>("title");
+    if (string.IsNullOrWhiteSpace(title))
+    {
+        title = Model.Name;
+    }
+
+    var summary = Model.Value<string>("summary");
+    var body = Model.Value("body");
+    var publishDate = Model.Value<DateTime?>("publishDate");
+    var coverImage = Model.Value<MediaWithCrops>("coverImage");
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>@title</title>
+    <link rel="stylesheet" href="/css/sama.css" />
+
+    <style>
+        .news-detail-page {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 20px;
+            direction: rtl;
+            text-align: right;
+            line-height: 2;
+        }
+
+        .news-detail-page h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .news-date {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .news-cover {
+            width: 100%;
+            max-height: 480px;
+            object-fit: cover;
+            border-radius: 18px;
+            margin: 24px 0;
+        }
+
+        .news-summary {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 28px;
+        }
+
+        .news-body {
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="news-detail-page">
+        <article>
+            <h1>@title</h1>
+
+            @if (publishDate.HasValue)
+            {
+                <div class="news-date">
+                    تاریخ انتشار: @publishDate.Value.ToString("yyyy/MM/dd")
+                </div>
+            }
+
+            @if (coverImage != null)
+            {
+                <img class="news-cover" src="@coverImage.MediaUrl()" alt="@title" />
+            }
+
+            @if (!string.IsNullOrWhiteSpace(summary))
+            {
+                <p class="news-summary">@summary</p>
+            }
+
+            <div class="news-body">
+                @body
+            </div>
+
+            <a class="back-link" href="/اخبار/">بازگشت به اخبار</a>
+        </article>
+    </main>
+
+    <script src="/js/sama.js"></script>
+</body>
+</html>
