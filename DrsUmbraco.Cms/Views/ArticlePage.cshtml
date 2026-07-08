@@ -1,0 +1,86 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = null;
+
+    var title = Model.Value<string>("title") ?? Model.Name;
+    var summary = Model.Value<string>("summary");
+    var publishDate = Model.Value<DateTime?>("publishDate");
+    var seoTitle = Model.Value<string>("seoTitle");
+    var seoDescription = Model.Value<string>("seoDescription");
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>@(string.IsNullOrWhiteSpace(seoTitle) ? title : seoTitle)</title>
+
+    @if (!string.IsNullOrWhiteSpace(seoDescription))
+    {
+        <meta name="description" content="@seoDescription" />
+    }
+
+    <style>
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            line-height: 2;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .summary {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 24px;
+        }
+
+        .date {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        main {
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>@title</h1>
+
+        @if (publishDate.HasValue)
+        {
+            <div class="date">
+                تاریخ انتشار: @publishDate.Value.ToString("yyyy/MM/dd")
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(summary))
+        {
+            <div class="summary">@summary</div>
+        }
+
+        @{
+            var coverImage = Model.Value<Umbraco.Cms.Core.Models.MediaWithCrops>("coverImage");
+        }
+
+        @if (coverImage != null)
+        {
+            <img src="@coverImage.MediaUrl()" alt="@title" />
+        }
+
+        <main>
+            @Model.Value("body")
+        </main>
+    </article>
+</body>
+</html>

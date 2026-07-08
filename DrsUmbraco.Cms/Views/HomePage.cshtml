@@ -1,0 +1,191 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = null;
+    var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@pageTitle</title>
+    <link rel="stylesheet" href="/css/sama.css" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="/" aria-label="دیدگاه رایانه سما">
+                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
+            </a>
+
+            <nav class="main-nav" aria-label="منوی اصلی">
+                <a href="/products">محصولات</a>
+                <a href="/recruitment">فرصت های شغلی</a>
+                <a href="/contact-us">تماس با ما</a>
+                <a href="/about-us">درباره ما</a>
+            </nav>
+
+            <div class="header-phone">
+                <span>☎</span>
+                <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
+            </div>
+        </div>
+    </header>
+
+    <aside class="floating-actions" aria-label="دسترسی سریع">
+        <a href="#" class="floating-action">
+            <img src="/assets/sama/uploads/2024/11/support-2.svg" alt="" />
+            <span>ثبت تیکت</span>
+        </a>
+        <a href="#demo-form" class="floating-action">
+            <img src="/assets/sama/uploads/2024/11/counseling-1.svg" alt="" />
+            <span>درخواست دمو یا مشاوره</span>
+        </a>
+    </aside>
+
+    <main>
+        <section class="hero-slider" data-slider>
+            <div class="hero-slide is-active" style="background-image:url('/assets/sama/uploads/2024/11/slider-1.jpg')"></div>
+            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/slider2.jpg')"></div>
+            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/slider3.jpg')"></div>
+
+            <button class="slider-arrow prev" type="button" data-prev aria-label="اسلاید قبلی">‹</button>
+            <button class="slider-arrow next" type="button" data-next aria-label="اسلاید بعدی">›</button>
+
+            <div class="slider-dots" data-dots>
+                <button type="button" class="is-active" aria-label="اسلاید ۱"></button>
+                <button type="button" aria-label="اسلاید ۲"></button>
+                <button type="button" aria-label="اسلاید ۳"></button>
+            </div>
+        </section>
+
+        <section class="container service-cards reveal-section">
+            <article class="service-card">
+                <img src="/assets/sama/uploads/2024/11/support.svg" alt="" />
+                <h2>پشتیبانی</h2>
+                <p>ارائه خدمات پس از فروش به صورت آنلاین</p>
+            </article>
+            <article class="service-card">
+                <img src="/assets/sama/uploads/2024/11/chalkboard-teacher.svg" alt="" />
+                <h2>آموزش</h2>
+                <p>فراهم کردن امکان یادگیری نرم افزارها</p>
+            </article>
+            <article class="service-card">
+                <img src="/assets/sama/uploads/2024/11/idea-sharing.svg" alt="" />
+                <h2>مشاوره</h2>
+                <p>ارائه راهکار مناسب متناسب با نیازهای شما</p>
+            </article>
+        </section>
+
+        <section class="container clients-section reveal-section">
+            <h2 class="section-title"><span>۳۰ سال تجربه و اعتماد</span></h2>
+            <div class="logo-strip">
+                <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="ایران خودرو" />
+                <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="شهرداری کاشان" />
+                <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="شهرداری گرگان" />
+                <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="شهرداری ارومیه" />
+            </div>
+        </section>
+
+        <section class="container reveal-section">
+            <h2 class="section-title"><span>محصولات</span></h2>
+            <div class="product-grid">
+                <a class="product-card" href="/financials-system">
+                    <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                    <strong>حوزه مالی و حسابداری</strong>
+                    <span>مشاهده</span>
+                </a>
+                <a class="product-card" href="/sales-and-revenue">
+                    <img src="/assets/sama/uploads/2024/11/income-1-2.svg" alt="" />
+                    <strong>حوزه فروش و درآمد</strong>
+                    <span>مشاهده</span>
+                </a>
+                <a class="product-card" href="/human-resource-system">
+                    <img src="/assets/sama/uploads/2024/11/hr.svg" alt="" />
+                    <strong>حوزه منابع انسانی</strong>
+                    <span>مشاهده</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="container reveal-section">
+            <h2 class="section-title"><span>اخبار</span></h2>
+            <div class="news-grid">
+                <article class="news-card">
+                    <img src="/assets/sama/uploads/2024/11/1.jpg" alt="اخبار یک" />
+                    <div>
+                        <h3>اخبار یک</h3>
+                        <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ.</p>
+                    </div>
+                </article>
+                <article class="news-card">
+                    <img src="/assets/sama/uploads/2024/11/slider3.jpg" alt="اخبار دو" />
+                    <div>
+                        <h3>اخبار دو</h3>
+                        <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ.</p>
+                    </div>
+                </article>
+                <article class="news-card">
+                    <img src="/assets/sama/uploads/2024/11/HRM-software.jpg" alt="اخبار سه" />
+                    <div>
+                        <h3>اخبار سه</h3>
+                        <p>لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="container testimonial-section reveal-section">
+            <h2 class="section-title"><span>نظرات شما درباره دیدگاه رایانه سما</span></h2>
+            <div class="testimonial">
+                <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="جان دوو" />
+                <p>برای تغییر این متن بر روی دکمه ویرایش کلیک کنید. لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.</p>
+                <strong>جان دوو</strong>
+                <span>مدیر</span>
+            </div>
+        </section>
+
+        <section id="demo-form" class="container demo-section reveal-section">
+            <div class="demo-text">
+                <h2>درخواست دمو یا مشاوره</h2>
+                <p>در صورت نیاز به مشاوره یا درخواست دمو فرم را پرکنید تا با شما تماس بگیریم.</p>
+            </div>
+            <form class="demo-form">
+                <label>نام و نام خانوادگی<input type="text" placeholder="نام و نام خانوادگی" /></label>
+                <label>شماره تماس<input type="tel" placeholder="شماره تماس" /></label>
+                <label>نوع درخواست<select><option>دمو</option><option>مشاوره</option></select></label>
+                <label>پیغام<textarea placeholder="پیغام"></textarea></label>
+                <button type="button">ارسال</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>دسترسی سریع</h3>
+                <a href="/recruitment">فرصت های شغلی</a>
+                <a href="/contact-us">تماس با ما</a>
+                <a href="/about-us">درباره ما</a>
+                <a href="/products">محصولات</a>
+            </div>
+            <div>
+                <h3>تماس با ما</h3>
+                <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
+                <p>تلفن: ۰۲۱-۸۸۳۳۴۱۱۷</p>
+            </div>
+            <div>
+                <h3>نمادها و مجوزها</h3>
+                <div class="footer-logos">
+                    <img src="/assets/sama/uploads/2024/11/logo-right-inv4.png" alt="مجوز" />
+                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+                </div>
+            </div>
+        </div>
+        <p class="copyright">کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.</p>
+    </footer>
+
+    <button class="back-to-top" type="button" data-back-to-top>⌃</button>
+    <script src="/js/sama.js"></script>
+</body>
+</html>
