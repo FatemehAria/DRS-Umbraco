@@ -3,13 +3,15 @@
 @using Umbraco.Extensions
 
 @{
-    Layout = null;
+    Layout = "Master.cshtml";
 
     var pageTitle = Model.Value<string>("pageTitle");
     if (string.IsNullOrWhiteSpace(pageTitle))
     {
         pageTitle = Model.Name;
     }
+
+    ViewData["PageTitle"] = pageTitle;
 
     var introText = Model.Value<string>("introText");
 
@@ -19,147 +21,77 @@
         .ToList();
 }
 
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<section class="inner-page-hero news-hero-clean">
+    <div class="container">
+        <span class="inner-page-badge">اخبار و مقالات</span>
 
-    <title>@pageTitle</title>
+        <h1>@pageTitle</h1>
 
-    <link rel="stylesheet" href="/css/sama.css" />
-</head>
+        @if (!string.IsNullOrWhiteSpace(introText))
+        {
+            <p>@introText</p>
+        }
+        else
+        {
+            <p>
+                تازه‌ترین اخبار، مقاله‌ها و مطالب منتشرشده درباره نرم‌افزارهای سازمانی،
+                تحول دیجیتال و راهکارهای دیدگاه رایانه سما.
+            </p>
+        }
+    </div>
+</section>
 
-<body>
-    <header class="site-header">
-        <div class="container header-inner">
-            <a class="logo" href="/" aria-label="دیدگاه رایانه سما">
-                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
-            </a>
-
-            <nav class="main-nav" aria-label="منوی اصلی">
-                <a href="/products">محصولات</a>
-                <a href="/recruitment">فرصت های شغلی</a>
-                <a href="/contact-us">تماس با ما</a>
-                <a href="/about-us">درباره ما</a>
-            </nav>
-
-            <div class="header-phone">
-                <span>☎</span>
-                <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
-            </div>
+<section class="container news-list-page reveal-section">
+    @if (newsItems.Count == 0)
+    {
+        <div class="news-empty-state">
+            <h2>هنوز خبری منتشر نشده است</h2>
+            <p>بعد از انتشار خبرها در Umbraco، در این بخش نمایش داده می‌شوند.</p>
         </div>
-    </header>
-
-    <main>
-        <section class="inner-page-hero news-hero-clean">
-            <div class="container">
-                <span class="inner-page-badge">اخبار و مقالات</span>
-
-                <h1>@pageTitle</h1>
-
-                @if (!string.IsNullOrWhiteSpace(introText))
-                {
-                    <p>@introText</p>
-                }
-                else
-                {
-                    <p>
-                        تازه‌ترین اخبار، مقاله‌ها و مطالب منتشرشده درباره نرم‌افزارهای سازمانی،
-                        تحول دیجیتال و راهکارهای دیدگاه رایانه سما.
-                    </p>
-                }
-            </div>
-        </section>
-
-        <section class="container news-list-page reveal-section">
-            @if (newsItems.Count == 0)
+    }
+    else
+    {
+        <div class="news-grid news-grid-premium">
+            @foreach (var item in newsItems)
             {
-                <div class="news-empty-state">
-                    <h2>هنوز خبری منتشر نشده است</h2>
-                    <p>بعد از انتشار خبرها در Umbraco، در این بخش نمایش داده می‌شوند.</p>
-                </div>
-            }
-            else
-            {
-                <div class="news-grid news-grid-premium">
-                    @foreach (var item in newsItems)
-                    {
-                        var title = item.Value<string>("title");
-                        if (string.IsNullOrWhiteSpace(title))
+                var title = item.Value<string>("title");
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = item.Name;
+                }
+
+                var summary = item.Value<string>("summary");
+                var publishDate = item.Value<DateTime?>("publishDate");
+                var image = item.Value<MediaWithCrops>("coverImage");
+
+                <article class="news-card news-card-premium">
+                    <a href="@item.Url()" class="news-image-link">
+                        @if (image != null)
                         {
-                            title = item.Name;
+                            <img src="@image.MediaUrl()" alt="@title" />
+                        }
+                        else
+                        {
+                            <img src="/assets/sama/uploads/2024/11/1.jpg" alt="@title" />
+                        }
+                    </a>
+
+                    <div class="news-card-body">
+                        <span class="news-meta">
+                            @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
+                        </span>
+
+                        <h3>@title</h3>
+
+                        @if (!string.IsNullOrWhiteSpace(summary))
+                        {
+                            <p>@summary</p>
                         }
 
-                        var summary = item.Value<string>("summary");
-                        var publishDate = item.Value<DateTime?>("publishDate");
-                        var image = item.Value<MediaWithCrops>("coverImage");
-
-                        <article class="news-card news-card-premium">
-                            <a href="@item.Url()" class="news-image-link">
-                                @if (image != null)
-                                {
-                                    <img src="@image.MediaUrl()" alt="@title" />
-                                }
-                                else
-                                {
-                                    <img src="/assets/sama/uploads/2024/11/1.jpg" alt="@title" />
-                                }
-                            </a>
-
-                            <div class="news-card-body">
-                                <span class="news-meta">
-                                    @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
-                                </span>
-
-                                <h3>@title</h3>
-
-                                @if (!string.IsNullOrWhiteSpace(summary))
-                                {
-                                    <p>@summary</p>
-                                }
-
-                                <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
-                            </div>
-                        </article>
-                    }
-                </div>
+                        <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
+                    </div>
+                </article>
             }
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-grid">
-            <div>
-                <h3>دسترسی سریع</h3>
-                <a href="/recruitment">فرصت های شغلی</a>
-                <a href="/contact-us">تماس با ما</a>
-                <a href="/about-us">درباره ما</a>
-                <a href="/products">محصولات</a>
-            </div>
-
-            <div>
-                <h3>تماس با ما</h3>
-                <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
-                <p>تلفن: ۰۲۱-۸۸۳۳۴۱۱۷</p>
-            </div>
-
-            <div>
-                <h3>نمادها و مجوزها</h3>
-                <div class="footer-logos">
-                    <img src="/assets/sama/uploads/2024/11/logo-right-inv4.png" alt="مجوز" />
-                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
-                </div>
-            </div>
         </div>
-
-        <p class="copyright">
-            کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.
-        </p>
-    </footer>
-
-    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">⌃</button>
-
-    <script src="/js/sama.js"></script>
-</body>
-</html>
+    }
+</section>
