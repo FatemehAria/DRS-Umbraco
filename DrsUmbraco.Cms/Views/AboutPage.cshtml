@@ -21,22 +21,15 @@
 }
 
 <section class="inner-page-hero about-hero-clean">
-    <div class="container about-hero-grid">
-        <div>
-            <span class="inner-page-badge">درباره ما</span>
+    <div class="container">
+        <span class="inner-page-badge">درباره ما</span>
 
-            <h1>@pageTitle</h1>
+        <h1>@pageTitle</h1>
 
-            @if (!string.IsNullOrWhiteSpace(introText))
-            {
-                <p>@introText</p>
-            }
-        </div>
-
-        <div class="about-hero-card">
-            <strong>۳۰+</strong>
-            <span>سال تجربه در طراحی و پشتیبانی راهکارهای سازمانی</span>
-        </div>
+        @if (!string.IsNullOrWhiteSpace(introText))
+        {
+            <p>@introText</p>
+        }
     </div>
 </section>
 
