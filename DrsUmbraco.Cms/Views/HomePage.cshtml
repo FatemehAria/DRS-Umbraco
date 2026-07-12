@@ -14,6 +14,13 @@
         .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
         .Take(3)
         .ToList();
+
+    var homeProducts = Umbraco.ContentAtRoot()
+        .SelectMany(x => x.DescendantsOrSelf())
+        .Where(x => x.ContentType.Alias == "productItem")
+        .OrderBy(x => x.SortOrder)
+        .Take(3)
+        .ToList();
 }
 
 
@@ -166,37 +173,59 @@
                 <p>محصولات سما برای پوشش فرایندهای کلیدی سازمان‌ها طراحی شده‌اند.</p>
             </div>
 
-            <div class="product-grid product-grid-polished">
-                <a class="product-card product-card-polished" href="/financials-system">
-                    <div class="product-icon">
-                        <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
-                    </div>
+            @if (homeProducts.Any())
+            {
+                <div class="product-grid product-grid-polished">
+                    @for (var i = 0; i < homeProducts.Count; i++)
+                    {
+                        var product = homeProducts[i];
 
-                    <h3>حوزه مالی و حسابداری</h3>
-                    <p>راهکارهایی برای مدیریت مالی، حسابداری، گزارش‌گیری و کنترل فرایندهای مالی سازمان.</p>
-                    <span>مشاهده جزئیات</span>
-                </a>
+                        var title = product.Value<string>("title");
+                        if (string.IsNullOrWhiteSpace(title))
+                        {
+                            title = product.Name;
+                        }
 
-                <a class="product-card product-card-polished is-featured" href="/sales-and-revenue">
-                    <div class="product-icon">
-                        <img src="/assets/sama/uploads/2024/11/income-1-2.svg" alt="" />
-                    </div>
+                        var summary = product.Value<string>("summary");
+                        var icon = product.Value<MediaWithCrops>("icon");
 
-                    <h3>حوزه فروش و درآمد</h3>
-                    <p>مدیریت فرایندهای فروش، درآمد، صدور اسناد و تحلیل اطلاعات عملیاتی.</p>
-                    <span>مشاهده جزئیات</span>
-                </a>
+                        var cardClass = "product-card product-card-polished";
+                        if (i == 1)
+                        {
+                            cardClass += " is-featured";
+                        }
 
-                <a class="product-card product-card-polished" href="/human-resource-system">
-                    <div class="product-icon">
-                        <img src="/assets/sama/uploads/2024/11/hr.svg" alt="" />
-                    </div>
+                        <a class="@cardClass" href="@product.Url()">
+                            <div class="product-icon">
+                                @if (icon != null)
+                                {
+                                    <img src="@icon.MediaUrl()" alt="" />
+                                }
+                                else
+                                {
+                                    <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                                }
+                            </div>
 
-                    <h3>حوزه منابع انسانی</h3>
-                    <p>پشتیبانی از فرایندهای منابع انسانی، اطلاعات پرسنلی و گردش‌های اداری سازمان.</p>
-                    <span>مشاهده جزئیات</span>
-                </a>
-            </div>
+                            <h3>@title</h3>
+
+                            @if (!string.IsNullOrWhiteSpace(summary))
+                            {
+                                <p>@summary</p>
+                            }
+
+                            <span>مشاهده جزئیات</span>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="news-empty-state">
+                    <h2>هنوز محصولی ثبت نشده است</h2>
+                    <p>بعد از اضافه کردن محصولات در Umbraco، محصولات در صفحه اصلی نمایش داده می‌شوند.</p>
+                </div>
+            }
         </section>
 
         <!-- News -->
