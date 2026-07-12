@@ -1,0 +1,113 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var pageTitle = Model.Value<string>("pageTitle");
+    if (string.IsNullOrWhiteSpace(pageTitle))
+    {
+        pageTitle = Model.Name;
+    }
+
+    ViewData["PageTitle"] = pageTitle;
+
+    var introText = Model.Value<string>("introText");
+    var address = Model.Value<string>("address");
+    var phone = Model.Value<string>("phone");
+    var workingHours = Model.Value<string>("workingHours");
+}
+
+<section class="inner-page-hero contact-hero-clean">
+    <div class="container">
+        <span class="inner-page-badge">ارتباط با ما</span>
+
+        <h1>@pageTitle</h1>
+
+        @if (!string.IsNullOrWhiteSpace(introText))
+        {
+            <p>@introText</p>
+        }
+        else
+        {
+            <p>
+                برای دریافت مشاوره، درخواست دمو یا ارتباط با تیم دیدگاه رایانه سما،
+                از طریق اطلاعات تماس یا فرم زیر با ما در ارتباط باشید.
+            </p>
+        }
+    </div>
+</section>
+
+<section class="container contact-page reveal-section">
+    <div class="contact-grid">
+        <div class="contact-info-panel">
+            <span class="section-mini-badge">اطلاعات تماس</span>
+
+            <h2>راه‌های ارتباطی</h2>
+
+            <div class="contact-info-list">
+                <div class="contact-info-item">
+                    <strong>آدرس</strong>
+                    <p>@(string.IsNullOrWhiteSpace(address) ? "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱" : address)</p>
+                </div>
+
+                <div class="contact-info-item">
+                    <strong>تلفن</strong>
+                    <p>@(string.IsNullOrWhiteSpace(phone) ? "۰۲۱-۸۸۳۳۴۱۱۷" : phone)</p>
+                </div>
+
+                <div class="contact-info-item">
+                    <strong>ساعات کاری</strong>
+                    <p>@(string.IsNullOrWhiteSpace(workingHours) ? "شنبه تا چهارشنبه، ساعت ۸ تا ۱۶" : workingHours)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-panel">
+			<span class="section-mini-badge">فرم تماس</span>
+
+			<h2>ارسال پیام</h2>
+
+			<p>
+				پیام، سوال یا درخواست خود را ارسال کنید. تیم ما پس از بررسی، در صورت نیاز با شما تماس می‌گیرد.
+			</p>
+
+			<form id="consultRequestForm"
+				class="demo-form sama-consult-form contact-form"
+				data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
+				<div class="form-row">
+					<label>
+						نام و نام خانوادگی
+						<input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" required />
+					</label>
+
+					<label>
+						شماره تماس
+						<input type="tel" placeholder="مثلاً: 09120000000" name="mobile" required />
+					</label>
+				</div>
+
+				<label>
+					موضوع پیام
+					<select name="requestType" required>
+						<option value="ارتباط عمومی">ارتباط عمومی</option>
+						<option value="پشتیبانی">پشتیبانی</option>
+						<option value="پیگیری درخواست">پیگیری درخواست</option>
+						<option value="سایر">سایر</option>
+					</select>
+				</label>
+
+				<label>
+					پیام شما
+					<textarea name="message" placeholder="پیام یا سوال خود را بنویسید..."></textarea>
+				</label>
+
+				<button type="submit" data-submit-text="ارسال پیام">
+					ارسال پیام
+				</button>
+
+				<div id="consultRequestMessage"></div>
+			</form>
+		</div>
+    </div>
+</section>

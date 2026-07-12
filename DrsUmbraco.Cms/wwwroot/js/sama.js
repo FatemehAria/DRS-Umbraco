@@ -284,11 +284,12 @@
           throw new Error(result?.title || "خطا در ثبت درخواست");
         }
 
-        showMessage(
-          messageBox,
-          result?.message || "درخواست شما با موفقیت ثبت شد.",
-          "success",
-        );
+        const successMessage =
+        form.dataset.successMessage ||
+        result?.message ||
+        "درخواست شما با موفقیت ثبت شد.";
+
+        showMessage(messageBox, successMessage, "success");
 
         form.reset();
       } catch (error) {
