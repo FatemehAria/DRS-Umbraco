@@ -1,0 +1,46 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var pageTitle = Model.Value<string>("pageTitle");
+    if (string.IsNullOrWhiteSpace(pageTitle))
+    {
+        pageTitle = "صفحه مورد نظر پیدا نشد";
+    }
+
+    ViewData["PageTitle"] = pageTitle;
+
+    var introText = Model.Value<string>("introText");
+}
+
+<section class="not-found-page">
+    <div class="container not-found-layout">
+        <div class="not-found-code">404</div>
+
+        <div class="not-found-card">
+            <span class="section-mini-badge">خطای ۴۰۴</span>
+
+            <h1>@pageTitle</h1>
+
+            @if (!string.IsNullOrWhiteSpace(introText))
+            {
+                <p>@introText</p>
+            }
+            else
+            {
+                <p>
+                    آدرسی که وارد کرده‌اید وجود ندارد یا ممکن است تغییر کرده باشد.
+                    می‌توانید به صفحه اصلی یا بخش‌های مهم سایت برگردید.
+                </p>
+            }
+
+            <div class="not-found-actions">
+                <a class="ui-btn ui-btn-primary-dark" href="/">بازگشت به صفحه اصلی</a>
+                <a class="ui-btn ui-btn-soft" href="/products/">مشاهده محصولات</a>
+                <a class="ui-btn ui-btn-soft" href="/contact-us/">تماس با ما</a>
+            </div>
+        </div>
+    </div>
+</section>
