@@ -4,6 +4,16 @@ A CMS-driven corporate website pilot built with **Umbraco CMS**, **ASP.NET Core*
 
 This project was created as a migration and modernization pilot from a WordPress/Elementor-based website to a more maintainable .NET-based CMS architecture.
 
+## Highlights
+
+- Migrated a WordPress/Elementor-style corporate website concept into an Umbraco CMS pilot.
+- Built reusable Razor templates with a shared master layout.
+- Created dynamic CMS-managed sections for products, news, recruitment, and job details.
+- Implemented a custom ASP.NET Core API for form submissions.
+- Integrated form submissions with existing legacy Elementor database tables.
+- Added SEO metadata, sitemap.xml, robots.txt, custom 404 page, and responsive navigation.
+- Documented deployment and final QA checklists for production readiness.
+
 ## Project Goal
 
 The goal of this project is to rebuild a company website using Umbraco CMS while keeping the content editable for non-technical users and preparing the codebase for future backend extensions.
@@ -196,7 +206,33 @@ Planned improvements:
 
 ## Screenshots
 
-Screenshots can be added later under:
+### Homepage
+
+![Homepage](docs/screenshots/homepage.png)
+
+### Products
+
+![Products](docs/screenshots/products.png)
+
+### Product Detail
+
+![Product Detail](docs/screenshots/product-detail.png)
+
+### Contact Page
+
+![Contact Page](docs/screenshots/contact.png)
+
+### Recruitment Page
+
+![Recruitment Page](docs/screenshots/recruitment.png)
+
+### Mobile Menu
+
+![Mobile Menu](docs/screenshots/mobile-menu.png)
+
+### Custom 404 Page
+
+![404 Page](docs/screenshots/404-page.png)
 
 ```text
 docs/screenshots/
