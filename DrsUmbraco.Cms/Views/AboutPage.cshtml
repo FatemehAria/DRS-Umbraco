@@ -1,0 +1,111 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var pageTitle = Model.Value<string>("pageTitle");
+    if (string.IsNullOrWhiteSpace(pageTitle))
+    {
+        pageTitle = Model.Name;
+    }
+
+    ViewData["PageTitle"] = pageTitle;
+
+    var introText = Model.Value<string>("introText");
+    var body = Model.Value("body");
+    var missionText = Model.Value<string>("missionText");
+    var visionText = Model.Value<string>("visionText");
+    var heroImage = Model.Value<MediaWithCrops>("heroImage");
+}
+
+<section class="inner-page-hero about-hero-clean">
+    <div class="container about-hero-grid">
+        <div>
+            <span class="inner-page-badge">درباره ما</span>
+
+            <h1>@pageTitle</h1>
+
+            @if (!string.IsNullOrWhiteSpace(introText))
+            {
+                <p>@introText</p>
+            }
+        </div>
+
+        <div class="about-hero-card">
+            <strong>۳۰+</strong>
+            <span>سال تجربه در طراحی و پشتیبانی راهکارهای سازمانی</span>
+        </div>
+    </div>
+</section>
+
+<section class="container about-page reveal-section">
+    <div class="about-layout">
+        <article class="about-content-card">
+            <span class="section-mini-badge">معرفی شرکت</span>
+
+            <h2>ما چه کاری انجام می‌دهیم؟</h2>
+
+            <div class="about-body">
+                @body
+            </div>
+        </article>
+
+        <aside class="about-side-panel">
+            @if (heroImage != null)
+            {
+                <img src="@heroImage.MediaUrl()" alt="@pageTitle" />
+            }
+            else
+            {
+                <img src="/assets/sama/uploads/2024/11/slider2.jpg" alt="@pageTitle" />
+            }
+
+            <div class="about-side-caption">
+                <strong>راهکارهای نرم‌افزاری سازمانی</strong>
+                <span>تمرکز بر پایداری، توسعه‌پذیری و پشتیبانی بلندمدت</span>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<section class="container about-values-section reveal-section">
+    <div class="about-values-grid">
+        <article class="about-value-card">
+            <span>ماموریت</span>
+            <h3>ارائه راهکارهای قابل اعتماد</h3>
+
+            @if (!string.IsNullOrWhiteSpace(missionText))
+            {
+                <p>@missionText</p>
+            }
+            else
+            {
+                <p>ارائه نرم‌افزارهایی پایدار، قابل توسعه و متناسب با نیاز سازمان‌ها.</p>
+            }
+        </article>
+
+        <article class="about-value-card">
+            <span>چشم‌انداز</span>
+            <h3>همراهی با تحول دیجیتال سازمان‌ها</h3>
+
+            @if (!string.IsNullOrWhiteSpace(visionText))
+            {
+                <p>@visionText</p>
+            }
+            else
+            {
+                <p>تبدیل شدن به انتخابی قابل اعتماد برای مدیریت فرایندهای سازمانی.</p>
+            }
+        </article>
+
+        <article class="about-value-card">
+            <span>رویکرد</span>
+            <h3>تمرکز بر نیاز واقعی سازمان</h3>
+            <p>
+                ما تلاش می‌کنیم راهکارها فقط از نظر فنی مناسب نباشند، بلکه با فرایندها و نیازهای واقعی سازمان نیز هماهنگ باشند.
+            </p>
+        </article>
+    </div>
+</section>
