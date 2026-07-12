@@ -1,254 +1,362 @@
 (function () {
-  const slider = document.querySelector("[data-slider]");
-  if (slider) {
-    const slides = [...slider.querySelectorAll(".hero-slide")];
-    const dots = [...slider.querySelectorAll("[data-dots] button")];
-    const next = slider.querySelector("[data-next]");
-    const prev = slider.querySelector("[data-prev]");
-    let index = 0;
-    let timer;
+  "use strict";
 
-    const goTo = (nextIndex) => {
-      slides[index].classList.remove("is-active");
-      dots[index].classList.remove("is-active");
-      index = (nextIndex + slides.length) % slides.length;
-      slides[index].classList.add("is-active");
-      dots[index].classList.add("is-active");
-    };
+  const SELECTORS = {
+    heroSlider: "[data-slider]",
+    heroSlide: ".hero-slide",
+    heroDots: "[data-dots] button",
+    heroNext: "[data-next]",
+    heroPrev: "[data-prev]",
 
-    const start = () => {
-      timer = window.setInterval(() => goTo(index + 1), 3000);
-    };
+    revealSection: ".reveal-section",
+    backToTop: "[data-back-to-top]",
 
-    const restart = () => {
-      window.clearInterval(timer);
-      start();
-    };
+    consultForm: "#consultRequestForm",
+    consultMessage: "#consultRequestMessage",
 
-    next?.addEventListener("click", () => {
-      goTo(index + 1);
-      restart();
+    testimonials: "[data-testimonials]",
+    testimonialSlide: ".testimonial-slide",
+    testimonialDots: "[data-testimonial-dots] button",
+    testimonialNext: "[data-testimonial-next]",
+    testimonialPrev: "[data-testimonial-prev]",
+  };
+
+  const ACTIVE_CLASS = "is-active";
+  const VISIBLE_CLASS = "is-visible";
+  const SCROLLED_CLASS = "is-scrolled";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initHeroSlider();
+    initRevealSections();
+    initBackToTop();
+    initConsultRequestForm();
+    initTestimonialSlider();
+    initHeaderScrollState();
+  });
+
+  function initHeroSlider() {
+    const slider = document.querySelector(SELECTORS.heroSlider);
+
+    if (!slider) {
+      return;
+    }
+
+    createSlider({
+      root: slider,
+      slideSelector: SELECTORS.heroSlide,
+      dotSelector: SELECTORS.heroDots,
+      nextSelector: SELECTORS.heroNext,
+      prevSelector: SELECTORS.heroPrev,
+      intervalMs: 3000,
     });
-    prev?.addEventListener("click", () => {
-      goTo(index - 1);
-      restart();
+  }
+
+  function initTestimonialSlider() {
+    const testimonialRoot = document.querySelector(SELECTORS.testimonials);
+
+    if (!testimonialRoot) {
+      return;
+    }
+
+    createSlider({
+      root: testimonialRoot,
+      slideSelector: SELECTORS.testimonialSlide,
+      dotSelector: SELECTORS.testimonialDots,
+      nextSelector: SELECTORS.testimonialNext,
+      prevSelector: SELECTORS.testimonialPrev,
+      intervalMs: 5000,
     });
-    dots.forEach((dot, i) =>
-      dot.addEventListener("click", () => {
-        goTo(i);
-        restart();
-      }),
+  }
+
+  function createSlider({
+    root,
+    slideSelector,
+    dotSelector,
+    nextSelector,
+    prevSelector,
+    intervalMs,
+  }) {
+    const slides = Array.from(root.querySelectorAll(slideSelector));
+    const dots = Array.from(root.querySelectorAll(dotSelector));
+    const nextButton = root.querySelector(nextSelector);
+    const prevButton = root.querySelector(prevSelector);
+
+    if (slides.length === 0) {
+      return;
+    }
+
+    let currentIndex = slides.findIndex((slide) =>
+      slide.classList.contains(ACTIVE_CLASS),
     );
-    start();
-  }
 
-  const sections = document.querySelectorAll(".reveal-section");
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.12 },
-  );
-  sections.forEach((section) => observer.observe(section));
+    if (currentIndex < 0) {
+      currentIndex = 0;
+    }
 
-  const backToTop = document.querySelector("[data-back-to-top]");
+    let timerId = null;
 
-  if (backToTop) {
-    window.addEventListener("scroll", () => {
-      backToTop.classList.toggle("is-visible", window.scrollY > 600);
+    showSlide(currentIndex);
+    startAutoPlay();
+
+    nextButton?.addEventListener("click", function () {
+      showSlide(currentIndex + 1);
+      restartAutoPlay();
     });
 
-    const scrollToTopSmoothly = () => {
-      const startPosition = window.scrollY;
-      const duration = 950;
-      const startTime = performance.now();
+    prevButton?.addEventListener("click", function () {
+      showSlide(currentIndex - 1);
+      restartAutoPlay();
+    });
 
-      const easeOutCubic = (progress) => {
-        return 1 - Math.pow(1 - progress, 3);
-      };
+    dots.forEach(function (dot, dotIndex) {
+      dot.addEventListener("click", function () {
+        showSlide(dotIndex);
+        restartAutoPlay();
+      });
+    });
 
-      const animateScroll = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easedProgress = easeOutCubic(progress);
+    root.addEventListener("mouseenter", stopAutoPlay);
+    root.addEventListener("mouseleave", startAutoPlay);
 
-        window.scrollTo(0, startPosition * (1 - easedProgress));
+    function showSlide(nextIndex) {
+      const normalizedIndex = normalizeIndex(nextIndex, slides.length);
 
-        if (progress < 1) {
-          requestAnimationFrame(animateScroll);
+      slides[currentIndex]?.classList.remove(ACTIVE_CLASS);
+      dots[currentIndex]?.classList.remove(ACTIVE_CLASS);
+
+      currentIndex = normalizedIndex;
+
+      slides[currentIndex]?.classList.add(ACTIVE_CLASS);
+      dots[currentIndex]?.classList.add(ACTIVE_CLASS);
+    }
+
+    function startAutoPlay() {
+      if (slides.length < 2) {
+        return;
+      }
+
+      stopAutoPlay();
+
+      timerId = window.setInterval(function () {
+        showSlide(currentIndex + 1);
+      }, intervalMs);
+    }
+
+    function stopAutoPlay() {
+      if (!timerId) {
+        return;
+      }
+
+      window.clearInterval(timerId);
+      timerId = null;
+    }
+
+    function restartAutoPlay() {
+      stopAutoPlay();
+      startAutoPlay();
+    }
+  }
+
+  function normalizeIndex(index, itemCount) {
+    return (index + itemCount) % itemCount;
+  }
+
+  function initRevealSections() {
+    const sections = document.querySelectorAll(SELECTORS.revealSection);
+
+    if (sections.length === 0) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      sections.forEach(function (section) {
+        section.classList.add(VISIBLE_CLASS);
+      });
+
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(VISIBLE_CLASS);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+
+    sections.forEach(function (section) {
+      observer.observe(section);
+    });
+  }
+
+  function initBackToTop() {
+    const backToTopButton = document.querySelector(SELECTORS.backToTop);
+
+    if (!backToTopButton) {
+      return;
+    }
+
+    updateBackToTopVisibility();
+
+    window.addEventListener("scroll", updateBackToTopVisibility, {
+      passive: true,
+    });
+
+    backToTopButton.addEventListener("click", scrollToTopSmoothly);
+
+    function updateBackToTopVisibility() {
+      backToTopButton.classList.toggle(VISIBLE_CLASS, window.scrollY > 600);
+    }
+  }
+
+  function scrollToTopSmoothly() {
+    const startPosition = window.scrollY;
+    const duration = 950;
+    const startTime = performance.now();
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+
+    root.style.scrollBehavior = "auto";
+
+    function easeOutCubic(progress) {
+      return 1 - Math.pow(1 - progress, 3);
+    }
+
+    function animateScroll(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutCubic(progress);
+
+      window.scrollTo(0, startPosition * (1 - easedProgress));
+
+      if (progress < 1) {
+        window.requestAnimationFrame(animateScroll);
+        return;
+      }
+
+      root.style.scrollBehavior = previousScrollBehavior;
+    }
+
+    window.requestAnimationFrame(animateScroll);
+  }
+
+  function initConsultRequestForm() {
+    const form = document.querySelector(SELECTORS.consultForm);
+    const messageBox = document.querySelector(SELECTORS.consultMessage);
+
+    if (!form) {
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    const defaultSubmitText =
+      submitButton?.dataset.submitText ||
+      submitButton?.textContent ||
+      "ثبت درخواست مشاوره";
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      setSubmitState({
+        submitButton,
+        messageBox,
+        isSubmitting: true,
+        text: "در حال ثبت درخواست...",
+      });
+
+      try {
+        const response = await fetch("/api/consult-requests", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(getConsultFormPayload(form)),
+        });
+
+        const result = await readJsonSafely(response);
+
+        if (!response.ok) {
+          throw new Error(result?.title || "خطا در ثبت درخواست");
         }
-      };
 
-      requestAnimationFrame(animateScroll);
-    };
+        showMessage(
+          messageBox,
+          result?.message || "درخواست شما با موفقیت ثبت شد.",
+          "success",
+        );
 
-    backToTop.addEventListener("click", scrollToTopSmoothly);
+        form.reset();
+      } catch (error) {
+        showMessage(
+          messageBox,
+          "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
+          "error",
+        );
+
+        console.error(error);
+      } finally {
+        setSubmitState({
+          submitButton,
+          messageBox: null,
+          isSubmitting: false,
+          text: defaultSubmitText,
+        });
+      }
+    });
   }
-})();
 
-// For Saving Demo Form
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("consultRequestForm");
-  const messageBox = document.getElementById("consultRequestMessage");
-
-  if (!form) {
-    return;
-  }
-
-  const submitButton = form.querySelector('button[type="submit"]');
-
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = "در حال ثبت درخواست...";
-    }
-
-    if (messageBox) {
-      messageBox.textContent = "در حال ثبت درخواست...";
-      messageBox.className = "form-message";
-    }
-
+  function getConsultFormPayload(form) {
     const formData = new FormData(form);
 
-    const payload = {
+    return {
       fullName: formData.get("fullName"),
       mobile: formData.get("mobile"),
       requestType: formData.get("requestType"),
       message: formData.get("message"),
     };
+  }
 
+  async function readJsonSafely(response) {
     try {
-      const response = await fetch("/api/consult-requests", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      let result = null;
-
-      try {
-        result = await response.json();
-      } catch {
-        result = null;
-      }
-
-      if (!response.ok) {
-        throw new Error(result?.title || "خطا در ثبت درخواست");
-      }
-
-      if (messageBox) {
-        messageBox.textContent =
-          result?.message || "درخواست شما با موفقیت ثبت شد.";
-        messageBox.className = "form-message success";
-      }
-
-      form.reset();
-    } catch (error) {
-      if (messageBox) {
-        messageBox.textContent =
-          "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.";
-        messageBox.className = "form-message error";
-      }
-
-      console.error(error);
-    } finally {
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent =
-          submitButton.dataset.submitText || "ثبت درخواست مشاوره";
-      }
+      return await response.json();
+    } catch {
+      return null;
     }
-  });
-});
-
-// Testimonial Slider
-document.addEventListener("DOMContentLoaded", function () {
-  const testimonialRoot = document.querySelector("[data-testimonials]");
-
-  if (!testimonialRoot) {
-    return;
   }
 
-  const slides = [...testimonialRoot.querySelectorAll(".testimonial-slide")];
-  const dots = [
-    ...testimonialRoot.querySelectorAll("[data-testimonial-dots] button"),
-  ];
-  const prev = testimonialRoot.querySelector("[data-testimonial-prev]");
-  const next = testimonialRoot.querySelector("[data-testimonial-next]");
-
-  if (slides.length === 0) {
-    return;
-  }
-
-  let index = 0;
-  let timer;
-
-  const goTo = function (nextIndex) {
-    slides[index].classList.remove("is-active");
-
-    if (dots[index]) {
-      dots[index].classList.remove("is-active");
+  function setSubmitState({ submitButton, messageBox, isSubmitting, text }) {
+    if (submitButton) {
+      submitButton.disabled = isSubmitting;
+      submitButton.textContent = text;
     }
 
-    index = (nextIndex + slides.length) % slides.length;
-
-    slides[index].classList.add("is-active");
-
-    if (dots[index]) {
-      dots[index].classList.add("is-active");
+    if (messageBox && isSubmitting) {
+      showMessage(messageBox, text, null);
     }
-  };
-
-  const start = function () {
-    timer = window.setInterval(function () {
-      goTo(index + 1);
-    }, 5000);
-  };
-
-  const restart = function () {
-    window.clearInterval(timer);
-    start();
-  };
-
-  if (prev) {
-    prev.addEventListener("click", function () {
-      goTo(index - 1);
-      restart();
-    });
   }
 
-  if (next) {
-    next.addEventListener("click", function () {
-      goTo(index + 1);
-      restart();
-    });
+  function showMessage(messageBox, text, status) {
+    if (!messageBox) {
+      return;
+    }
+
+    messageBox.textContent = text;
+    messageBox.className = status ? `form-message ${status}` : "form-message";
   }
 
-  dots.forEach(function (dot, dotIndex) {
-    dot.addEventListener("click", function () {
-      goTo(dotIndex);
-      restart();
+  function initHeaderScrollState() {
+    updateHeaderState();
+
+    window.addEventListener("scroll", updateHeaderState, {
+      passive: true,
     });
-  });
 
-  start();
-});
-
-// Header scroll state
-document.addEventListener("DOMContentLoaded", function () {
-  const updateHeaderState = function () {
-    document.body.classList.toggle("is-scrolled", window.scrollY > 40);
-  };
-
-  updateHeaderState();
-  window.addEventListener("scroll", updateHeaderState);
-});
+    function updateHeaderState() {
+      document.body.classList.toggle(SCROLLED_CLASS, window.scrollY > 40);
+    }
+  }
+})();

@@ -1,16 +1,21 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
 @{
     Layout = null;
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
 }
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>@pageTitle</title>
+
     <link rel="stylesheet" href="/css/sama.css" />
 </head>
+
 <body>
     <header class="site-header">
         <div class="container header-inner">
@@ -32,18 +37,8 @@
         </div>
     </header>
 
-    <aside class="floating-actions" aria-label="دسترسی سریع">
-        <a href="#" class="floating-action">
-            <img src="/assets/sama/uploads/2024/11/support-2.svg" alt="" />
-            <span>ثبت تیکت</span>
-        </a>
-        <a href="#demo-form" class="floating-action">
-            <img src="/assets/sama/uploads/2024/11/counseling-1.svg" alt="" />
-            <span>درخواست دمو یا مشاوره</span>
-        </a>
-    </aside>
-
     <main>
+        <!-- Hero -->
         <section class="hero-slider hero-showcase" data-slider>
             <div class="hero-slide is-active" style="background-image:url('/assets/sama/uploads/2024/11/slider-1.jpg')"></div>
             <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/slider2.jpg')"></div>
@@ -75,10 +70,12 @@
                         <strong>۳۰+</strong>
                         <span>سال تجربه</span>
                     </div>
+
                     <div>
                         <strong>سازمانی</strong>
                         <span>راهکارهای یکپارچه</span>
                     </div>
+
                     <div>
                         <strong>پشتیبانی</strong>
                         <span>همراه مشتریان</span>
@@ -96,37 +93,45 @@
             </div>
         </section>
 
+        <!-- Capabilities -->
         <section class="container capability-section reveal-section">
             <div class="capability-grid">
                 <article class="capability-card">
                     <span class="capability-number">01</span>
+
                     <div class="capability-icon">
                         <img src="/assets/sama/uploads/2024/11/support.svg" alt="" />
                     </div>
+
                     <h2>پشتیبانی سازمانی</h2>
                     <p>همراهی فنی و پاسخ‌گویی برای حفظ پایداری سیستم‌ها و کاهش اختلال در فرایندهای کاری.</p>
                 </article>
 
                 <article class="capability-card">
                     <span class="capability-number">02</span>
+
                     <div class="capability-icon">
                         <img src="/assets/sama/uploads/2024/11/chalkboard-teacher.svg" alt="" />
                     </div>
+
                     <h2>آموزش و استقرار</h2>
                     <p>کمک به کاربران برای استفاده بهتر از نرم‌افزارها و کاهش مقاومت سازمانی در زمان استقرار.</p>
                 </article>
 
                 <article class="capability-card">
                     <span class="capability-number">03</span>
+
                     <div class="capability-icon">
                         <img src="/assets/sama/uploads/2024/11/idea-sharing.svg" alt="" />
                     </div>
+
                     <h2>مشاوره فرایندی</h2>
                     <p>تحلیل نیاز سازمان و پیشنهاد راهکار مناسب برای ساده‌تر شدن گردش کارها و تصمیم‌گیری‌ها.</p>
                 </article>
             </div>
         </section>
 
+        <!-- Clients -->
         <section class="clients-section reveal-section">
             <div class="container">
                 <div class="section-heading">
@@ -141,33 +146,41 @@
                     <div class="logo-item">
                         <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="ایران خودرو" />
                     </div>
+
                     <div class="logo-item">
                         <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="شهرداری کاشان" />
                     </div>
+
                     <div class="logo-item">
                         <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="شهرداری گرگان" />
                     </div>
+
                     <div class="logo-item">
                         <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="شهرداری ارومیه" />
                     </div>
 
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="ایران خودرو" />
+                    <!-- Duplicate logos for continuous carousel loop -->
+                    <div class="logo-item" aria-hidden="true">
+                        <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="" />
                     </div>
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="شهرداری کاشان" />
+
+                    <div class="logo-item" aria-hidden="true">
+                        <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="" />
                     </div>
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="شهرداری گرگان" />
+
+                    <div class="logo-item" aria-hidden="true">
+                        <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="" />
                     </div>
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="شهرداری ارومیه" />
+
+                    <div class="logo-item" aria-hidden="true">
+                        <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="" />
                     </div>
                 </div>
             </div>
         </section>
 
-       <section class="container products-section reveal-section">
+        <!-- Products -->
+        <section class="container products-section reveal-section">
             <div class="section-heading">
                 <span>محصولات</span>
                 <h2>راهکارهای نرم‌افزاری برای نیازهای سازمانی</h2>
@@ -179,6 +192,7 @@
                     <div class="product-icon">
                         <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
                     </div>
+
                     <h3>حوزه مالی و حسابداری</h3>
                     <p>راهکارهایی برای مدیریت مالی، حسابداری، گزارش‌گیری و کنترل فرایندهای مالی سازمان.</p>
                     <span>مشاهده جزئیات</span>
@@ -188,6 +202,7 @@
                     <div class="product-icon">
                         <img src="/assets/sama/uploads/2024/11/income-1-2.svg" alt="" />
                     </div>
+
                     <h3>حوزه فروش و درآمد</h3>
                     <p>مدیریت فرایندهای فروش، درآمد، صدور اسناد و تحلیل اطلاعات عملیاتی.</p>
                     <span>مشاهده جزئیات</span>
@@ -197,6 +212,7 @@
                     <div class="product-icon">
                         <img src="/assets/sama/uploads/2024/11/hr.svg" alt="" />
                     </div>
+
                     <h3>حوزه منابع انسانی</h3>
                     <p>پشتیبانی از فرایندهای منابع انسانی، اطلاعات پرسنلی و گردش‌های اداری سازمان.</p>
                     <span>مشاهده جزئیات</span>
@@ -204,6 +220,7 @@
             </div>
         </section>
 
+        <!-- News -->
         <section class="container news-section-polished reveal-section">
             <div class="section-heading">
                 <span>اخبار و مقالات</span>
@@ -216,6 +233,7 @@
                     <a href="/اخبار/" class="news-image-link">
                         <img src="/assets/sama/uploads/2024/11/1.jpg" alt="اخبار یک" />
                     </a>
+
                     <div class="news-card-body">
                         <span class="news-meta">مقاله سازمانی</span>
                         <h3>نقش نرم‌افزارهای یکپارچه در بهبود فرایندهای سازمانی</h3>
@@ -228,6 +246,7 @@
                     <a href="/اخبار/" class="news-image-link">
                         <img src="/assets/sama/uploads/2024/11/slider3.jpg" alt="اخبار دو" />
                     </a>
+
                     <div class="news-card-body">
                         <span class="news-meta">تحول دیجیتال</span>
                         <h3>چرا سازمان‌ها به سامانه‌های قابل توسعه نیاز دارند؟</h3>
@@ -240,6 +259,7 @@
                     <a href="/اخبار/" class="news-image-link">
                         <img src="/assets/sama/uploads/2024/11/HRM-software.jpg" alt="اخبار سه" />
                     </a>
+
                     <div class="news-card-body">
                         <span class="news-meta">منابع انسانی</span>
                         <h3>مدیریت بهتر منابع انسانی با سیستم‌های نرم‌افزاری</h3>
@@ -250,6 +270,7 @@
             </div>
         </section>
 
+        <!-- Testimonials -->
         <section class="testimonial-section reveal-section" data-testimonials>
             <div class="container">
                 <div class="section-heading">
@@ -264,11 +285,14 @@
                     <div class="testimonial-slider">
                         <article class="testimonial-slide is-active">
                             <div class="quote-mark">”</div>
+
                             <p>
                                 استفاده از سامانه‌های سما باعث شد بخشی از فرایندهای داخلی ما ساختارمندتر و قابل پیگیری‌تر شود.
                             </p>
+
                             <div class="testimonial-person">
                                 <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر سازمانی" />
+
                                 <div>
                                     <strong>مدیر مالی</strong>
                                     <span>مشتری سازمانی</span>
@@ -278,11 +302,14 @@
 
                         <article class="testimonial-slide">
                             <div class="quote-mark">”</div>
+
                             <p>
                                 پشتیبانی و همراهی تیم فنی برای ما مهم بود. امکان دریافت مشاوره و پیگیری سریع، تجربه خوبی ایجاد کرد.
                             </p>
+
                             <div class="testimonial-person">
                                 <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر فناوری اطلاعات" />
+
                                 <div>
                                     <strong>مدیر فناوری اطلاعات</strong>
                                     <span>مشتری سازمانی</span>
@@ -292,11 +319,14 @@
 
                         <article class="testimonial-slide">
                             <div class="quote-mark">”</div>
+
                             <p>
                                 نرم‌افزارهای سازمانی زمانی ارزشمند هستند که هم پایدار باشند و هم کاربران بتوانند راحت با آن‌ها کار کنند.
                             </p>
+
                             <div class="testimonial-person">
                                 <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر منابع انسانی" />
+
                                 <div>
                                     <strong>مدیر منابع انسانی</strong>
                                     <span>مشتری سازمانی</span>
@@ -316,10 +346,13 @@
             </div>
         </section>
 
+        <!-- Demo Request Form -->
         <section id="demo-form" class="container demo-section reveal-section">
             <div class="demo-text">
                 <span class="demo-badge">شروع همکاری</span>
+
                 <h2>درخواست دمو یا مشاوره</h2>
+
                 <p>
                     برای بررسی نیازهای سازمان، دریافت مشاوره یا مشاهده دمو، فرم را تکمیل کنید.
                     کارشناسان ما پس از بررسی درخواست با شما تماس می‌گیرند.
@@ -371,28 +404,37 @@
         <div class="container footer-grid">
             <div>
                 <h3>دسترسی سریع</h3>
+
                 <a href="/recruitment">فرصت های شغلی</a>
                 <a href="/contact-us">تماس با ما</a>
                 <a href="/about-us">درباره ما</a>
                 <a href="/products">محصولات</a>
             </div>
+
             <div>
                 <h3>تماس با ما</h3>
+
                 <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
                 <p>تلفن: ۰۲۱-۸۸۳۳۴۱۱۷</p>
             </div>
+
             <div>
                 <h3>نمادها و مجوزها</h3>
+
                 <div class="footer-logos">
                     <img src="/assets/sama/uploads/2024/11/logo-right-inv4.png" alt="مجوز" />
                     <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
                 </div>
             </div>
         </div>
-        <p class="copyright">کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.</p>
+
+        <p class="copyright">
+            کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.
+        </p>
     </footer>
 
-    <button class="back-to-top" type="button" data-back-to-top>⌃</button>
+    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">⌃</button>
+
     <script src="/js/sama.js"></script>
 </body>
 </html>
