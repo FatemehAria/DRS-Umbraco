@@ -3,51 +3,20 @@
 @using Umbraco.Extensions
 
 @{
-    Layout = null;
+    Layout = "Master.cshtml";
 
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
+    ViewData["PageTitle"] = pageTitle;
 
     var latestNewsItems = Umbraco.ContentAtRoot()
-    .SelectMany(x => x.DescendantsOrSelf())
-    .Where(x => x.ContentType.Alias == "newsArticle")
-    .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
-    .Take(3)
-    .ToList();
+        .SelectMany(x => x.DescendantsOrSelf())
+        .Where(x => x.ContentType.Alias == "newsArticle")
+        .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
+        .Take(3)
+        .ToList();
 }
 
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>@pageTitle</title>
-
-    <link rel="stylesheet" href="/css/sama.css" />
-</head>
-
-<body>
-    <header class="site-header">
-        <div class="container header-inner">
-            <a class="logo" href="/" aria-label="دیدگاه رایانه سما">
-                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
-            </a>
-
-            <nav class="main-nav" aria-label="منوی اصلی">
-                <a href="/products">محصولات</a>
-                <a href="/recruitment">فرصت های شغلی</a>
-                <a href="/contact-us">تماس با ما</a>
-                <a href="/about-us">درباره ما</a>
-            </nav>
-
-            <div class="header-phone">
-                <span>☎</span>
-                <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
-            </div>
-        </div>
-    </header>
-
-    <main>
         <!-- Hero -->
         <section class="hero-slider hero-showcase" data-slider>
             <div class="hero-slide is-active" style="background-image:url('/assets/sama/uploads/2024/11/slider-1.jpg')"></div>
@@ -420,43 +389,3 @@
                 <div id="consultRequestMessage"></div>
             </form>
         </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-grid">
-            <div>
-                <h3>دسترسی سریع</h3>
-
-                <a href="/recruitment">فرصت های شغلی</a>
-                <a href="/contact-us">تماس با ما</a>
-                <a href="/about-us">درباره ما</a>
-                <a href="/products">محصولات</a>
-            </div>
-
-            <div>
-                <h3>تماس با ما</h3>
-
-                <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
-                <p>تلفن: ۰۲۱-۸۸۳۳۴۱۱۷</p>
-            </div>
-
-            <div>
-                <h3>نمادها و مجوزها</h3>
-
-                <div class="footer-logos">
-                    <img src="/assets/sama/uploads/2024/11/logo-right-inv4.png" alt="مجوز" />
-                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
-                </div>
-            </div>
-        </div>
-
-        <p class="copyright">
-            کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.
-        </p>
-    </footer>
-
-    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">⌃</button>
-
-    <script src="/js/sama.js"></script>
-</body>
-</html>
