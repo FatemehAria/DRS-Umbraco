@@ -1,14 +1,48 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
 
 @{
-    Layout = null;
+    var siteName = "دیدگاه رایانه سما";
 
-    var pageTitle = ViewData["PageTitle"] as string;
-
-    if (string.IsNullOrWhiteSpace(pageTitle))
+    string? FirstNonEmpty(params string?[] values)
     {
-        pageTitle = Model.Name ?? "دیدگاه رایانه سما";
+        return values.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim();
     }
+
+    var viewPageTitle = ViewData["PageTitle"]?.ToString();
+
+    var seoTitle = FirstNonEmpty(
+        Model.Value<string>("seoTitle"),
+        viewPageTitle,
+        Model.Value<string>("pageTitle"),
+        Model.Value<string>("title"),
+        Model.Name
+    );
+
+    var browserTitle = string.IsNullOrWhiteSpace(seoTitle)
+        ? siteName
+        : seoTitle.Contains(siteName)
+            ? seoTitle
+            : $"{seoTitle} | {siteName}";
+
+    var seoDescription = FirstNonEmpty(
+        Model.Value<string>("seoDescription"),
+        Model.Value<string>("summary"),
+        Model.Value<string>("introText")
+    );
+
+    var seoImage = Model.Value<MediaWithCrops>("seoImage");
+
+    var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+    var canonicalUrl = $"{baseUrl}{Model.Url()}";
+
+    var ogImageUrl = seoImage != null
+        ? $"{baseUrl}{seoImage.MediaUrl()}"
+        : null;
+
+    var is404Page = Model.ContentType.Alias == "page404";
+    var ogType = Model.ContentType.Alias == "newsArticle" ? "article" : "website";
 }
 
 <!DOCTYPE html>
@@ -17,7 +51,47 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>@pageTitle</title>
+    <title>@browserTitle</title>
+
+    @if (!string.IsNullOrWhiteSpace(seoDescription))
+    {
+        <meta name="description" content="@seoDescription" />
+    }
+
+    <link rel="canonical" href="@canonicalUrl" />
+
+    <meta property="og:site_name" content="@siteName" />
+    <meta property="og:title" content="@browserTitle" />
+    <meta property="og:type" content="@ogType" />
+    <meta property="og:url" content="@canonicalUrl" />
+
+    @if (!string.IsNullOrWhiteSpace(seoDescription))
+    {
+        <meta property="og:description" content="@seoDescription" />
+    }
+
+    @if (!string.IsNullOrWhiteSpace(ogImageUrl))
+    {
+        <meta property="og:image" content="@ogImageUrl" />
+    }
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@browserTitle" />
+
+    @if (!string.IsNullOrWhiteSpace(seoDescription))
+    {
+        <meta name="twitter:description" content="@seoDescription" />
+    }
+
+    @if (!string.IsNullOrWhiteSpace(ogImageUrl))
+    {
+        <meta name="twitter:image" content="@ogImageUrl" />
+    }
+
+    @if (is404Page)
+    {
+        <meta name="robots" content="noindex,follow" />
+    }
 
     <link rel="stylesheet" href="/css/sama.css" />
 </head>
