@@ -1,0 +1,129 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var title = Model.Value<string>("title");
+    if (string.IsNullOrWhiteSpace(title))
+    {
+        title = Model.Name;
+    }
+
+    ViewData["PageTitle"] = title;
+
+    var department = Model.Value<string>("department");
+    var location = Model.Value<string>("location");
+    var employmentType = Model.Value<string>("employmentType");
+    var summary = Model.Value<string>("summary");
+    var body = Model.Value("body");
+    var recruitmentUrl = Model.Parent()?.Url() ?? "/recruitment/";
+}
+
+<section class="inner-page-hero job-detail-hero">
+    <div class="container job-detail-hero-grid">
+        <div>
+            <span class="inner-page-badge">فرصت شغلی</span>
+
+            <h1>@title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(summary))
+            {
+                <p>@summary</p>
+            }
+
+            <div class="job-detail-actions">
+                <a class="ui-btn ui-btn-primary" href="#job-interest-form">ثبت علاقه‌مندی</a>
+                <a class="ui-btn ui-btn-outline" href="@recruitmentUrl">بازگشت به فرصت‌ها</a>
+            </div>
+        </div>
+
+        <aside class="job-detail-summary-card">
+            <span>اطلاعات موقعیت</span>
+
+            <div class="job-summary-list">
+                @if (!string.IsNullOrWhiteSpace(department))
+                {
+                    <div>
+                        <strong>واحد</strong>
+                        <p>@department</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(location))
+                {
+                    <div>
+                        <strong>محل همکاری</strong>
+                        <p>@location</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(employmentType))
+                {
+                    <div>
+                        <strong>نوع همکاری</strong>
+                        <p>@employmentType</p>
+                    </div>
+                }
+            </div>
+        </aside>
+    </div>
+</section>
+
+<section class="container job-detail-page reveal-section">
+    <article class="job-detail-content-card">
+        <span class="section-mini-badge">شرح موقعیت</span>
+
+        <h2>درباره این فرصت شغلی</h2>
+
+        <div class="job-detail-body">
+            @body
+        </div>
+
+        <div class="article-actions">
+            <a class="article-back-link" href="@recruitmentUrl">بازگشت به لیست فرصت‌های شغلی</a>
+        </div>
+    </article>
+</section>
+
+<section id="job-interest-form" class="container job-interest-section reveal-section">
+    <div class="job-interest-text">
+        <span class="demo-badge">اعلام علاقه‌مندی</span>
+
+        <h2>علاقه‌مند به همکاری در این موقعیت هستید؟</h2>
+
+        <p>
+            اطلاعات اولیه خود را ارسال کنید تا تیم ما در صورت نیاز برای ادامه مسیر با شما تماس بگیرد.
+            آپلود رزومه را در فاز بعدی به فرم استخدام اضافه می‌کنیم.
+        </p>
+    </div>
+
+    <form id="consultRequestForm"
+          class="demo-form sama-consult-form job-interest-form"
+          data-success-message="درخواست همکاری شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
+        <input type="hidden" name="requestType" value="فرصت شغلی - @title" />
+
+        <div class="form-row">
+            <label>
+                نام و نام خانوادگی
+                <input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" required />
+            </label>
+
+            <label>
+                شماره تماس
+                <input type="tel" placeholder="مثلاً: 09120000000" name="mobile" required />
+            </label>
+        </div>
+
+        <label>
+            توضیحات
+            <textarea name="message" placeholder="کمی درباره تجربه، مهارت‌ها یا علاقه‌مندی خود بنویسید..."></textarea>
+        </label>
+
+        <button type="submit" data-submit-text="ثبت علاقه‌مندی">
+            ثبت علاقه‌مندی
+        </button>
+
+        <div id="consultRequestMessage"></div>
+    </form>
+</section>
