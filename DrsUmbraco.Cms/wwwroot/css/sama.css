@@ -2718,3 +2718,11 @@ body.is-scrolled .logo img {
     flex-direction: column;
   }
 }
+
+.footer-phone-number,
+.footer-phone-container{
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    /* flex-direction: row; */
+}
