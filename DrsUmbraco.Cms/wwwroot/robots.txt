@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /umbraco/
+Disallow: /api/
+
+Sitemap: https://localhost:44398/sitemap.xml
