@@ -15,126 +15,150 @@
 
     var newsItems = Model.Children()
         .Where(x => x.ContentType.Alias == "newsArticle")
-        .OrderByDescending(x => x.Value<DateTime?>("publishDate"));
+        .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
+        .ToList();
 }
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>@pageTitle</title>
+
     <link rel="stylesheet" href="/css/sama.css" />
-
-    <style>
-        .news-list-page {
-            max-width: 1200px;
-            margin: 60px auto;
-            padding: 0 20px;
-            direction: rtl;
-            text-align: right;
-        }
-
-        .news-list-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .news-list-header h1 {
-            font-size: 34px;
-            margin-bottom: 12px;
-        }
-
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .news-card {
-            display: block;
-            background: #fff;
-            border-radius: 18px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            box-shadow: 0 8px 28px rgba(0,0,0,.08);
-            transition: transform .25s ease, box-shadow .25s ease;
-        }
-
-        .news-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 34px rgba(0,0,0,.12);
-        }
-
-        .news-card img {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-        }
-
-        .news-card-content {
-            padding: 20px;
-        }
-
-        .news-card-content h2 {
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
-
-        .news-card-content p {
-            color: #666;
-            line-height: 1.9;
-        }
-
-        @@media (max-width: 900px) {
-            .news-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
+
 <body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="logo" href="/" aria-label="دیدگاه رایانه سما">
+                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
+            </a>
 
-    <main class="news-list-page">
-        <header class="news-list-header">
-            <h1>@pageTitle</h1>
+            <nav class="main-nav" aria-label="منوی اصلی">
+                <a href="/products">محصولات</a>
+                <a href="/recruitment">فرصت های شغلی</a>
+                <a href="/contact-us">تماس با ما</a>
+                <a href="/about-us">درباره ما</a>
+            </nav>
 
-            @if (!string.IsNullOrWhiteSpace(introText))
-            {
-                <p>@introText</p>
-            }
-        </header>
+            <div class="header-phone">
+                <span>☎</span>
+                <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
+            </div>
+        </div>
+    </header>
 
-        <section class="news-grid">
-            @foreach (var item in newsItems)
-            {
-                var title = item.Value<string>("title");
-                if (string.IsNullOrWhiteSpace(title))
+    <main>
+        <section class="inner-page-hero news-hero-clean">
+            <div class="container">
+                <span class="inner-page-badge">اخبار و مقالات</span>
+
+                <h1>@pageTitle</h1>
+
+                @if (!string.IsNullOrWhiteSpace(introText))
                 {
-                    title = item.Name;
+                    <p>@introText</p>
                 }
+                else
+                {
+                    <p>
+                        تازه‌ترین اخبار، مقاله‌ها و مطالب منتشرشده درباره نرم‌افزارهای سازمانی،
+                        تحول دیجیتال و راهکارهای دیدگاه رایانه سما.
+                    </p>
+                }
+            </div>
+        </section>
 
-                var summary = item.Value<string>("summary");
-                var image = item.Value<MediaWithCrops>("coverImage");
-
-                <a class="news-card" href="@item.Url()">
-                    @if (image != null)
+        <section class="container news-list-page reveal-section">
+            @if (newsItems.Count == 0)
+            {
+                <div class="news-empty-state">
+                    <h2>هنوز خبری منتشر نشده است</h2>
+                    <p>بعد از انتشار خبرها در Umbraco، در این بخش نمایش داده می‌شوند.</p>
+                </div>
+            }
+            else
+            {
+                <div class="news-grid news-grid-premium">
+                    @foreach (var item in newsItems)
                     {
-                        <img src="@image.MediaUrl()" alt="@title" />
-                    }
-
-                    <div class="news-card-content">
-                        <h2>@title</h2>
-
-                        @if (!string.IsNullOrWhiteSpace(summary))
+                        var title = item.Value<string>("title");
+                        if (string.IsNullOrWhiteSpace(title))
                         {
-                            <p>@summary</p>
+                            title = item.Name;
                         }
-                    </div>
-                </a>
+
+                        var summary = item.Value<string>("summary");
+                        var publishDate = item.Value<DateTime?>("publishDate");
+                        var image = item.Value<MediaWithCrops>("coverImage");
+
+                        <article class="news-card news-card-premium">
+                            <a href="@item.Url()" class="news-image-link">
+                                @if (image != null)
+                                {
+                                    <img src="@image.MediaUrl()" alt="@title" />
+                                }
+                                else
+                                {
+                                    <img src="/assets/sama/uploads/2024/11/1.jpg" alt="@title" />
+                                }
+                            </a>
+
+                            <div class="news-card-body">
+                                <span class="news-meta">
+                                    @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
+                                </span>
+
+                                <h3>@title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(summary))
+                                {
+                                    <p>@summary</p>
+                                }
+
+                                <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
+                            </div>
+                        </article>
+                    }
+                </div>
             }
         </section>
     </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>دسترسی سریع</h3>
+                <a href="/recruitment">فرصت های شغلی</a>
+                <a href="/contact-us">تماس با ما</a>
+                <a href="/about-us">درباره ما</a>
+                <a href="/products">محصولات</a>
+            </div>
+
+            <div>
+                <h3>تماس با ما</h3>
+                <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
+                <p>تلفن: ۰۲۱-۸۸۳۳۴۱۱۷</p>
+            </div>
+
+            <div>
+                <h3>نمادها و مجوزها</h3>
+                <div class="footer-logos">
+                    <img src="/assets/sama/uploads/2024/11/logo-right-inv4.png" alt="مجوز" />
+                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+                </div>
+            </div>
+        </div>
+
+        <p class="copyright">
+            کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.
+        </p>
+    </footer>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">⌃</button>
 
     <script src="/js/sama.js"></script>
 </body>

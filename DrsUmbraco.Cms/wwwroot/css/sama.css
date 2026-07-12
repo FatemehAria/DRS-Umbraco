@@ -1453,3 +1453,331 @@ body.is-scrolled .logo img {
     max-height: 76px;
   }
 }
+
+/* =====================================================
+   News Pages
+   ===================================================== */
+
+.inner-page-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 96px 0 78px;
+  color: #fff;
+  background:
+    radial-gradient(circle at top left, rgba(245, 166, 35, 0.20), transparent 24%),
+    linear-gradient(135deg, var(--sama-primary-dark), var(--sama-primary));
+}
+
+.inner-page-hero::after {
+  content: "";
+  position: absolute;
+  left: -90px;
+  bottom: -90px;
+  width: 260px;
+  height: 260px;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+}
+
+.inner-page-hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+.inner-page-hero span {
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 7px 15px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.inner-page-hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.5;
+  font-weight: 900;
+}
+
+.inner-page-hero p {
+  max-width: 720px;
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 2.1;
+}
+
+.news-list-page {
+  padding: 78px 0 90px;
+}
+
+.news-empty-state {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 44px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--sama-border);
+  border-radius: 28px;
+  box-shadow: var(--sama-shadow-sm);
+}
+
+.news-empty-state h2 {
+  margin: 0 0 12px;
+  color: var(--sama-primary-dark);
+}
+
+.news-empty-state p {
+  margin: 0;
+  color: var(--sama-muted);
+  line-height: 2;
+}
+
+.article-page {
+  padding: 72px 0 90px;
+}
+
+.article-layout {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.article-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--sama-border);
+  border-radius: 32px;
+  box-shadow: var(--sama-shadow-md);
+}
+
+.article-cover {
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+}
+
+.article-content {
+  padding: 42px;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.article-meta span {
+  display: inline-flex;
+  padding: 6px 13px;
+  color: var(--sama-primary);
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.article-content h1 {
+  margin: 0 0 18px;
+  color: var(--sama-primary-dark);
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.6;
+  font-weight: 900;
+}
+
+.article-summary {
+  margin: 0 0 30px;
+  color: var(--sama-muted);
+  font-size: 17px;
+  line-height: 2.1;
+}
+
+.article-body {
+  color: var(--sama-text);
+  line-height: 2.25;
+  font-size: 16px;
+}
+
+.article-body h2,
+.article-body h3 {
+  color: var(--sama-primary-dark);
+  line-height: 1.7;
+}
+
+.article-body img {
+  border-radius: 22px;
+  margin: 26px 0;
+}
+
+.article-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--sama-border);
+}
+
+.article-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sama-primary);
+  font-weight: 900;
+}
+
+.article-back-link::before {
+  content: "→";
+}
+
+@media (max-width: 720px) {
+  .inner-page-hero {
+    padding: 72px 0 58px;
+  }
+
+  .article-content {
+    padding: 28px;
+  }
+
+  .article-actions {
+    flex-direction: column;
+  }
+}
+
+/* =====================================================
+   News List Page Polish
+   ===================================================== */
+
+.inner-page-hero {
+  padding: 82px 0 66px;
+  text-align: center;
+}
+
+.inner-page-hero p {
+  margin-inline: auto;
+}
+
+.news-list-page {
+  position: relative;
+  padding-top: 72px;
+  padding-bottom: 104px;
+}
+
+.news-list-page::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 8%;
+  top: 34px;
+  width: 180px;
+  height: 180px;
+  background: rgba(15, 76, 129, 0.045);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.news-list-page .news-grid-premium {
+  position: relative;
+  z-index: 2;
+}
+
+.news-list-page .news-card-premium {
+  border-radius: 30px;
+}
+
+.news-list-page .news-card-premium h3 {
+  font-size: 20px;
+}
+
+.news-list-page .news-card-premium p {
+  min-height: 56px;
+}
+
+.news-list-page .news-read-more {
+  width: fit-content;
+  margin-top: 24px;
+  padding: 9px 16px;
+  color: var(--sama-primary);
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 999px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.news-list-page .news-read-more:hover {
+  color: #fff;
+  background: var(--sama-primary);
+  transform: translateX(-4px);
+}
+
+/* =====================================================
+   Inner Page Hero Alignment Fix
+   ===================================================== */
+
+.inner-page-hero {
+  text-align: right;
+  padding: 88px 0 72px;
+}
+
+.inner-page-hero .container {
+  max-width: var(--container-width);
+}
+
+.inner-page-hero span {
+  margin-inline: 0;
+}
+
+.inner-page-hero p {
+  margin: 16px 0 0;
+  max-width: 720px;
+}
+
+/* =====================================================
+   Clean Inner News Hero
+   ===================================================== */
+
+.news-hero-clean {
+  padding: 88px 0 72px;
+  text-align: right;
+}
+
+.news-hero-clean .container {
+  max-width: var(--container-width);
+}
+
+.news-hero-clean .inner-page-badge {
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+.news-hero-clean h1 {
+  position: relative;
+  width: fit-content;
+  margin: 0;
+}
+
+.news-hero-clean h1::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -14px;
+  width: 74px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--sama-accent);
+}
+
+.news-hero-clean p {
+  max-width: 680px;
+  margin: 34px 0 0;
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 2.1;
+}
+
+.news-hero-clean .page-breadcrumb,
+.news-hero-clean .inner-page-stats {
+  display: none;
+}

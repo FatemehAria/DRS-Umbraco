@@ -1,8 +1,18 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
 
 @{
     Layout = null;
+
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
+
+    var latestNewsItems = Umbraco.ContentAtRoot()
+    .SelectMany(x => x.DescendantsOrSelf())
+    .Where(x => x.ContentType.Alias == "newsArticle")
+    .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
+    .Take(3)
+    .ToList();
 }
 
 <!DOCTYPE html>
@@ -228,46 +238,58 @@
                 <p>نگاهی به اخبار، مقاله‌ها و تازه‌ترین محتوای منتشرشده در حوزه نرم‌افزارهای سازمانی.</p>
             </div>
 
-            <div class="news-grid news-grid-premium">
-                <article class="news-card news-card-premium">
-                    <a href="/اخبار/" class="news-image-link">
-                        <img src="/assets/sama/uploads/2024/11/1.jpg" alt="اخبار یک" />
-                    </a>
+            @if (latestNewsItems?.Any() == true)
+            {
+                <div class="news-grid news-grid-premium">
+                    @foreach (var item in latestNewsItems)
+                    {
+                        var title = item.Value<string>("title");
+                        if (string.IsNullOrWhiteSpace(title))
+                        {
+                            title = item.Name;
+                        }
 
-                    <div class="news-card-body">
-                        <span class="news-meta">مقاله سازمانی</span>
-                        <h3>نقش نرم‌افزارهای یکپارچه در بهبود فرایندهای سازمانی</h3>
-                        <p>سیستم‌های یکپارچه به سازمان‌ها کمک می‌کنند داده‌ها، گزارش‌ها و فرایندها را منسجم‌تر مدیریت کنند.</p>
-                        <a href="/اخبار/" class="news-read-more">مشاهده خبر</a>
-                    </div>
-                </article>
+                        var summary = item.Value<string>("summary");
+                        var publishDate = item.Value<DateTime?>("publishDate");
+                        var coverImage = item.Value<MediaWithCrops>("coverImage");
 
-                <article class="news-card news-card-premium">
-                    <a href="/اخبار/" class="news-image-link">
-                        <img src="/assets/sama/uploads/2024/11/slider3.jpg" alt="اخبار دو" />
-                    </a>
+                        <article class="news-card news-card-premium">
+                            <a href="@item.Url()" class="news-image-link">
+                                @if (coverImage != null)
+                                {
+                                    <img src="@coverImage.MediaUrl()" alt="@title" />
+                                }
+                                else
+                                {
+                                    <img src="/assets/sama/uploads/2024/11/1.jpg" alt="@title" />
+                                }
+                            </a>
 
-                    <div class="news-card-body">
-                        <span class="news-meta">تحول دیجیتال</span>
-                        <h3>چرا سازمان‌ها به سامانه‌های قابل توسعه نیاز دارند؟</h3>
-                        <p>قابلیت توسعه و نگهداری نرم‌افزار، یکی از عوامل مهم برای رشد پایدار سازمان‌ها در بلندمدت است.</p>
-                        <a href="/اخبار/" class="news-read-more">مشاهده خبر</a>
-                    </div>
-                </article>
+                            <div class="news-card-body">
+                                <span class="news-meta">
+                                    @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
+                                </span>
 
-                <article class="news-card news-card-premium">
-                    <a href="/اخبار/" class="news-image-link">
-                        <img src="/assets/sama/uploads/2024/11/HRM-software.jpg" alt="اخبار سه" />
-                    </a>
+                                <h3>@title</h3>
 
-                    <div class="news-card-body">
-                        <span class="news-meta">منابع انسانی</span>
-                        <h3>مدیریت بهتر منابع انسانی با سیستم‌های نرم‌افزاری</h3>
-                        <p>استفاده از سامانه‌های منابع انسانی می‌تواند ثبت، پیگیری و تحلیل اطلاعات پرسنلی را ساده‌تر کند.</p>
-                        <a href="/اخبار/" class="news-read-more">مشاهده خبر</a>
-                    </div>
-                </article>
-            </div>
+                                @if (!string.IsNullOrWhiteSpace(summary))
+                                {
+                                    <p>@summary</p>
+                                }
+
+                                <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="news-empty-state">
+                    <h2>هنوز خبری منتشر نشده است</h2>
+                    <p>بعد از انتشار خبرها در Umbraco، آخرین اخبار در صفحه اصلی نمایش داده می‌شوند.</p>
+                </div>
+            }
         </section>
 
         <!-- Testimonials -->
