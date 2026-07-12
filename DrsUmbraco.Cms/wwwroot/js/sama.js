@@ -286,9 +286,9 @@
         }
 
         const successMessage =
-        form.dataset.successMessage ||
-        result?.message ||
-        "درخواست شما با موفقیت ثبت شد.";
+          form.dataset.successMessage ||
+          result?.message ||
+          "درخواست شما با موفقیت ثبت شد.";
 
         showMessage(messageBox, successMessage, "success");
 
@@ -316,10 +316,11 @@
     const formData = new FormData(form);
 
     return {
-      fullName: formData.get("fullName"),
-      mobile: formData.get("mobile"),
-      requestType: formData.get("requestType"),
-      message: formData.get("message"),
+      formName: formData.get("formName")?.toString().trim() || "consult_form",
+      fullName: formData.get("fullName")?.toString().trim() || "",
+      mobile: formData.get("mobile")?.toString().trim() || "",
+      requestType: formData.get("requestType")?.toString().trim() || "",
+      message: formData.get("message")?.toString().trim() || "",
     };
   }
 

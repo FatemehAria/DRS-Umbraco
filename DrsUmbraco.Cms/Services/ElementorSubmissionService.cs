@@ -32,6 +32,8 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         var utcNow = DateTime.UtcNow;
         var localNow = GetIranLocalTime(utcNow);
 
+        var formName = NormalizeFormName(model.FormName);
+
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
 
@@ -46,6 +48,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
                 refererTitle,
                 ipAddress,
                 userAgent,
+                formName,
                 utcNow,
                 localNow,
                 cancellationToken);
@@ -75,6 +78,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         string? refererTitle,
         string? ipAddress,
         string? userAgent,
+        string formName,
         DateTime utcNow,
         DateTime localNow,
         CancellationToken cancellationToken)
@@ -181,7 +185,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
 
         command.Parameters.Add(new SqlParameter("@FormName", SqlDbType.NVarChar, 60)
         {
-            Value = "consult_form"
+            Value = formName
         });
 
         command.Parameters.Add(new SqlParameter("@CampaignId", SqlDbType.Decimal)
@@ -347,5 +351,17 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         }
 
         return Trim(value, maxLength);
+    }
+
+    private static string NormalizeFormName(string? formName)
+    {
+        return formName?.Trim() switch
+        {
+            "contact_form" => "contact_form",
+            "job_interest_form" => "job_interest_form",
+            "product_demo_form" => "product_demo_form",
+            "consult_form" => "consult_form",
+            _ => "consult_form"
+        };
     }
 }
