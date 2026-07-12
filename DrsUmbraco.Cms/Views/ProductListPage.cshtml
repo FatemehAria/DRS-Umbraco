@@ -1,0 +1,90 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var pageTitle = Model.Value<string>("pageTitle");
+    if (string.IsNullOrWhiteSpace(pageTitle))
+    {
+        pageTitle = Model.Name;
+    }
+
+    ViewData["PageTitle"] = pageTitle;
+
+    var introText = Model.Value<string>("introText");
+
+    var products = Model.Children()
+        .Where(x => x.ContentType.Alias == "productItem")
+        .OrderBy(x => x.SortOrder)
+        .ToList();
+}
+
+<section class="inner-page-hero product-hero-clean">
+    <div class="container">
+        <span class="inner-page-badge">محصولات</span>
+
+        <h1>@pageTitle</h1>
+
+        @if (!string.IsNullOrWhiteSpace(introText))
+        {
+            <p>@introText</p>
+        }
+        else
+        {
+            <p>
+                مجموعه‌ای از راهکارهای نرم‌افزاری سازمانی برای مدیریت بهتر فرایندهای مالی،
+                فروش، منابع انسانی و عملیات داخلی سازمان.
+            </p>
+        }
+    </div>
+</section>
+
+<section class="container product-list-page reveal-section">
+    @if (products.Count == 0)
+    {
+        <div class="news-empty-state">
+            <h2>هنوز محصولی ثبت نشده است</h2>
+            <p>بعد از اضافه کردن محصولات در Umbraco، در این بخش نمایش داده می‌شوند.</p>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid product-grid-polished product-list-grid">
+            @foreach (var product in products)
+            {
+                var title = product.Value<string>("title");
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = product.Name;
+                }
+
+                var summary = product.Value<string>("summary");
+                var icon = product.Value<MediaWithCrops>("icon");
+
+                <a class="product-card product-card-polished product-list-card" href="@product.Url()">
+                    <div class="product-icon">
+                        @if (icon != null)
+                        {
+                            <img src="@icon.MediaUrl()" alt="" />
+                        }
+                        else
+                        {
+                            <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                        }
+                    </div>
+
+                    <h3>@title</h3>
+
+                    @if (!string.IsNullOrWhiteSpace(summary))
+                    {
+                        <p>@summary</p>
+                    }
+
+                    <span>مشاهده جزئیات</span>
+                </a>
+            }
+        </div>
+    }
+</section>

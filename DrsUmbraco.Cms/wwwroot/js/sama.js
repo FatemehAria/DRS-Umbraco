@@ -32,6 +32,7 @@
     initConsultRequestForm();
     initTestimonialSlider();
     initHeaderScrollState();
+    initSmoothAnchorLinks();
   });
 
   function initHeroSlider() {
@@ -360,3 +361,67 @@
     }
   }
 })();
+
+function initSmoothAnchorLinks() {
+  const anchorLinks = document.querySelectorAll('a[href^="#"]:not([href="#"])');
+
+  anchorLinks.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      const targetId = link.getAttribute("href");
+
+      if (!targetId) {
+        return;
+      }
+
+      const targetElement = document.getElementById(targetId.replace("#", ""));
+
+      if (!targetElement) {
+        return;
+      }
+
+      event.preventDefault();
+
+      scrollToElementSmoothly(targetElement, 1000);
+
+      window.history.pushState(null, "", targetId);
+    });
+  });
+}
+
+function scrollToElementSmoothly(targetElement, duration) {
+  const header = document.querySelector(".site-header");
+  const headerOffset = header ? header.offsetHeight + 18 : 0;
+
+  const startPosition = window.scrollY;
+  const targetPosition =
+    targetElement.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+  const distance = targetPosition - startPosition;
+  const startTime = performance.now();
+
+  const root = document.documentElement;
+  const previousScrollBehavior = root.style.scrollBehavior;
+
+  root.style.scrollBehavior = "auto";
+
+  function easeOutCubic(progress) {
+    return 1 - Math.pow(1 - progress, 3);
+  }
+
+  function animateScroll(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeOutCubic(progress);
+
+    window.scrollTo(0, startPosition + distance * easedProgress);
+
+    if (progress < 1) {
+      window.requestAnimationFrame(animateScroll);
+      return;
+    }
+
+    root.style.scrollBehavior = previousScrollBehavior;
+  }
+
+  window.requestAnimationFrame(animateScroll);
+}

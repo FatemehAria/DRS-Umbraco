@@ -1,0 +1,165 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var title = Model.Value<string>("title");
+    if (string.IsNullOrWhiteSpace(title))
+    {
+        title = Model.Name;
+    }
+
+    ViewData["PageTitle"] = title;
+
+    var summary = Model.Value<string>("summary");
+    var icon = Model.Value<MediaWithCrops>("icon");
+    var productListUrl = Model.Parent()?.Url() ?? "/products/";
+}
+
+<section class="inner-page-hero product-detail-hero product-detail-hero-v2">
+    <div class="container product-detail-hero-grid-v2">
+        <div class="product-detail-hero-copy">
+            <span class="inner-page-badge">محصولات</span>
+
+            <h1>@title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(summary))
+            {
+                <p>@summary</p>
+            }
+            else
+            {
+                <p>
+                    راهکاری سازمانی برای مدیریت بهتر اطلاعات، فرایندها و گزارش‌های عملیاتی سازمان.
+                </p>
+            }
+
+            <div class="product-detail-badges">
+                <span>طراحی‌شده برای سازمان‌ها</span>
+                <span>قابل توسعه</span>
+                <span>پشتیبانی تخصصی</span>
+            </div>
+
+            <div class="product-detail-actions">
+                <a class="ui-btn ui-btn-primary" href="#demo-form">درخواست دمو</a>
+                <a class="ui-btn ui-btn-outline" href="@productListUrl">بازگشت به محصولات</a>
+            </div>
+        </div>
+
+        <aside class="product-detail-hero-panel">
+            <div class="product-detail-icon">
+                @if (icon != null)
+                {
+                    <img src="@icon.MediaUrl()" alt="" />
+                }
+                else
+                {
+                    <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                }
+            </div>
+
+            <h2>راهکار @title</h2>
+
+            <p>
+                مناسب برای سازمان‌هایی که به دنبال مدیریت ساختارمندتر، گزارش‌پذیرتر و قابل پیگیری‌تر هستند.
+            </p>
+
+            <ul>
+                <li>یکپارچگی اطلاعات</li>
+                <li>بهبود فرایندهای داخلی</li>
+                <li>گزارش‌گیری و تصمیم‌گیری بهتر</li>
+            </ul>
+        </aside>
+    </div>
+</section>
+
+<section class="container product-detail-page reveal-section">
+    <div class="product-detail-layout-v2">
+        <article class="product-detail-content-card product-detail-main-card">
+            <div class="product-detail-content">
+                <span class="section-mini-badge">معرفی محصول</span>
+
+                <h2>درباره @title</h2>
+
+                <div class="product-detail-body">
+                    @Model.Value("body")
+                </div>
+
+                <div class="article-actions">
+                    <a class="article-back-link" href="@productListUrl">بازگشت به لیست محصولات</a>
+                </div>
+            </div>
+        </article>
+
+        <aside class="product-detail-side-card product-fit-card">
+            <span>مناسب برای</span>
+
+            <h3>این محصول برای چه سازمان‌هایی مناسب است؟</h3>
+
+            <p>
+                این راهکار برای سازمان‌هایی مناسب است که می‌خواهند فرایندهای خود را ساختارمندتر،
+                قابل پیگیری‌تر و گزارش‌پذیرتر مدیریت کنند.
+            </p>
+
+            <ul class="product-fit-list">
+                <li>سازمان‌های متوسط و بزرگ</li>
+                <li>تیم‌هایی با فرایندهای قابل توسعه</li>
+                <li>مجموعه‌هایی که به گزارش‌گیری دقیق نیاز دارند</li>
+            </ul>
+        </aside>
+    </div>
+</section>
+
+<section id="demo-form" class="container demo-section reveal-section">
+    <div class="demo-text">
+        <span class="demo-badge">فرم درخواست</span>
+
+        <h2>درخواست دمو برای @title</h2>
+
+        <p>
+            برای مشاهده دمو یا دریافت اطلاعات بیشتر درباره این محصول، فرم را تکمیل کنید.
+تیم ما پس از بررسی درخواست با شما تماس می‌گیرد.            
+        </p>
+
+        <div class="demo-benefits">
+            <span>✓ بررسی نیاز سازمان</span>
+            <span>✓ معرفی راهکار مناسب</span>
+            <span>✓ پیگیری توسط تیم پشتیبانی</span>
+        </div>
+    </div>
+
+    <form id="consultRequestForm" class="demo-form sama-consult-form">
+        <div class="form-row">
+            <label>
+                نام و نام خانوادگی
+                <input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" required />
+            </label>
+
+            <label>
+                شماره تماس
+                <input type="tel" placeholder="مثلاً: 09120000000" name="mobile" required />
+            </label>
+        </div>
+
+        <label>
+            نوع درخواست
+            <select name="requestType" required>
+                <option value="دمو">درخواست دمو</option>
+                <option value="مشاوره">درخواست مشاوره</option>
+            </select>
+        </label>
+
+        <label>
+            توضیحات
+            <textarea name="message" placeholder="نیاز یا سوال خود را کوتاه بنویسید..."></textarea>
+        </label>
+
+        <button type="submit" data-submit-text="ثبت درخواست مشاوره">
+            ثبت درخواست مشاوره
+        </button>
+
+        <div id="consultRequestMessage"></div>
+    </form>
+</section>
