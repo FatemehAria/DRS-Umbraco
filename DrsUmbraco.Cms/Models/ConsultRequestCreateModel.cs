@@ -19,5 +19,6 @@ public sealed class ConsultRequestCreateModel
     [StringLength(2000)]
     public string? Message { get; set; }
 
+    [StringLength(80)]
     public string? FormName { get; set; }
 }
