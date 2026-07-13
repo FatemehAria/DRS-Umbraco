@@ -7,8 +7,14 @@ namespace DrsUmbraco.Cms.Services;
 
 public sealed class ElementorSubmissionService : IElementorSubmissionService
 {
-    private readonly IConfiguration _configuration;
+    private sealed record ElementorFormDefinition(
+          string FormName,
+          decimal MainMetaId,
+          decimal PostId,
+          string ElementId,
+          string EditPostId);
 
+    private readonly IConfiguration _configuration;
     public ElementorSubmissionService(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -32,7 +38,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         var utcNow = DateTime.UtcNow;
         var localNow = GetIranLocalTime(utcNow);
 
-        var formName = NormalizeFormName(model.FormName);
+        var formDefinition = GetFormDefinition(model.FormName);
 
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -48,7 +54,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
                 refererTitle,
                 ipAddress,
                 userAgent,
-                formName,
+                formDefinition,
                 utcNow,
                 localNow,
                 cancellationToken);
@@ -78,7 +84,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         string? refererTitle,
         string? ipAddress,
         string? userAgent,
-        string formName,
+        ElementorFormDefinition formDefinition,
         DateTime utcNow,
         DateTime localNow,
         CancellationToken cancellationToken)
@@ -139,7 +145,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
 
         var meta = JsonSerializer.Serialize(new
         {
-            edit_post_id = "129"
+            edit_post_id = formDefinition.EditPostId
         });
 
         command.Parameters.Add(new SqlParameter("@Type", SqlDbType.NVarChar, 60)
@@ -156,14 +162,14 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         {
             Precision = 20,
             Scale = 0,
-            Value = 34
+            Value = formDefinition.MainMetaId
         });
 
         command.Parameters.Add(new SqlParameter("@PostId", SqlDbType.Decimal)
         {
             Precision = 20,
             Scale = 0,
-            Value = 129
+            Value = formDefinition.PostId
         });
 
         command.Parameters.Add(new SqlParameter("@Referer", SqlDbType.NVarChar, 500)
@@ -180,12 +186,12 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
 
         command.Parameters.Add(new SqlParameter("@ElementId", SqlDbType.NVarChar, 20)
         {
-            Value = "7f7b520"
+            Value = formDefinition.ElementId
         });
 
         command.Parameters.Add(new SqlParameter("@FormName", SqlDbType.NVarChar, 60)
         {
-            Value = formName
+            Value = formDefinition.FormName
         });
 
         command.Parameters.Add(new SqlParameter("@CampaignId", SqlDbType.Decimal)
@@ -362,6 +368,42 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
             "product_demo_form" => "product_demo_form",
             "consult_form" => "consult_form",
             _ => "consult_form"
+        };
+    }
+
+    private static ElementorFormDefinition GetFormDefinition(string? formName)
+    {
+        var normalizedFormName = NormalizeFormName(formName);
+
+        return normalizedFormName switch
+        {
+            "job_interest_form" => new ElementorFormDefinition(
+                FormName: "job_interest_form",
+                MainMetaId: 40,
+                PostId: 61,
+                ElementId: "d7c7277",
+                EditPostId: "61"),
+
+            "contact_form" => new ElementorFormDefinition(
+                FormName: "contact_form",
+                MainMetaId: 34,
+                PostId: 129,
+                ElementId: "7f7b520",
+                EditPostId: "129"),
+
+            "product_demo_form" => new ElementorFormDefinition(
+                FormName: "product_demo_form",
+                MainMetaId: 34,
+                PostId: 129,
+                ElementId: "7f7b520",
+                EditPostId: "129"),
+
+            _ => new ElementorFormDefinition(
+                FormName: "consult_form",
+                MainMetaId: 34,
+                PostId: 129,
+                ElementId: "7f7b520",
+                EditPostId: "129")
         };
     }
 }
