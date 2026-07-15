@@ -321,3 +321,11 @@ Planned improvements:
 - Sitemap and robots.txt.
 - Further CSS component refactoring.
 - Automated deployment pipeline.
+
+## Common IIS Issues Fixed During Deployment
+
+- Installed .NET Hosting Bundle to register AspNetCoreModuleV2.
+- Changed the IIS application pool to No Managed Code.
+- Ensured the site uses the correct application pool.
+- Fixed SQL Server connection string for production.
+- Verified Umbraco logs under `umbraco/Logs`.

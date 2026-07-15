@@ -16,6 +16,9 @@
     var summary = Model.Value<string>("summary");
     var icon = Model.Value<MediaWithCrops>("icon");
     var productListUrl = Model.Parent()?.Url() ?? "/products/";
+
+    var demoRequestType = $"درخواست دمو - {title}";
+    var consultingRequestType = $"درخواست مشاوره - {title}";
 }
 
 <section class="inner-page-hero product-detail-hero product-detail-hero-v2">
@@ -147,8 +150,8 @@
         <label>
             نوع درخواست
             <select name="requestType" required>
-                <option value="درخواست دمو - @title">درخواست دمو</option>
-                <option value="درخواست مشاوره - @title">درخواست مشاوره</option>
+                <option value="@demoRequestType">درخواست دمو</option>
+                <option value="@consultingRequestType">درخواست مشاوره</option>
             </select>
         </label>
 

@@ -42,7 +42,6 @@ In this project:
 - CMS pages go through Umbraco website routing.
 - Form submissions go through ASP.NET Core controllers.
 
-
 ### Backoffice in Program.cs
 
 `AddBackOffice`, `UseBackOffice`, and `UseBackOfficeEndpoints` enable the Umbraco admin panel at `/umbraco`.
@@ -60,6 +59,7 @@ Important deployment note:
 Umbraco backoffice authentication may require browser Web Crypto APIs. These APIs are available only in secure contexts such as HTTPS or localhost. Therefore `/umbraco` may work on `localhost` but fail on an HTTP LAN IP address like `http://SERVER-IP:8080/umbraco`.
 
 For demo:
+
 - show the public site through `http://SERVER-IP:8080`
 - show backoffice through `http://localhost:8080/umbraco` on the server, or configure HTTPS
 
@@ -173,11 +173,13 @@ ViewData["PageTitle"] = pageTitle;
 The Home page has two dynamic sections:
 
 1. Latest news:
+
 - Finds all content nodes with alias newsArticle
 - Sorts by publishDate
 - Takes the latest 3
 
 2. Home products:
+
 - Finds all content nodes with alias productItem
 - Sorts by Umbraco sort order
 - Takes the first 3
@@ -215,7 +217,7 @@ The form is submitted with JavaScript instead of normal HTML form submission.
 The form is found by its id:
 
 ```html
-<form id="consultRequestForm">
+<form id="consultRequestForm"></form>
 ```
 
 JavaScript listens to the submit event and prevents the default browser reload:
@@ -272,11 +274,13 @@ The Create action handles POST requests:
 [HttpPost]
 public async Task<IActionResult> Create(...)
 ```
+
 The JSON request body is converted into a C# model using:
 
 ```
 [FromBody] ConsultRequestCreateModel model
 ```
+
 The controller does not save directly to SQL Server. Instead, it calls:
 
 ```
@@ -387,6 +391,7 @@ The real implementation is connected in Program.cs:
 ```
 builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
 ```
+
 ### Interface vs Implementation
 
 An interface defines the contract.
@@ -468,47 +473,163 @@ Examples:
 
 This makes the service easier to extend later.
 
+### SQL Result of Form Submission
+
+Each form submission is saved in two levels.
+
+`wp_e_submissions` stores the main submission record.
+
+Example fields:
+
+- `id`
+- `form_name`
+- `post_id`
+- `main_meta_id`
+- `element_id`
+- `meta`
+- `created_at`
+
+`wp_e_submissions_values` stores the submitted form fields as key/value rows.
+
+Example:
+
+```text
+submission_id = 9 | key = fullname     | value = تست شغل
+submission_id = 9 | key = mobile       | value = 09120000000
+submission_id = 9 | key = request_type | value = فرصت شغلی - تست
+submission_id = 9 | key = message      | value = تست mapping فرم شغلی
+
+Important idea:
+
+wp_e_submissions.id connects to wp_e_submissions_values.submission_id.
+
+The main table stores the submission header.
+
+The values table stores the form field details.
+```
+
+### ProductListPage.cshtml
+
+`ProductListPage.cshtml` is the template for the Products list page.
+
+In this template:
+
+`Model` represents the Products content node.
+
+The page reads its own fields from Umbraco:
+
+```csharp
+Model.Value<string>("pageTitle")
+Model.Value<string>("introText")
+```
+It reads products from child content nodes:
+
+```
+Model.Children()
+    .Where(x => x.ContentType.Alias == "productItem")
+    .OrderBy(x => x.SortOrder)
+```
+Important idea:
+
+Model.Children() reads only the direct children of the current page.
+
+This is different from searching the whole site with:
+
+```
+Umbraco.ContentAtRoot()
+    .SelectMany(x => x.DescendantsOrSelf())
+```
+
+Each product card uses:
+
+- product.Value<string>("title")
+- product.Value<string>("summary")
+- product.Value<MediaWithCrops>("icon")
+- product.Url()
+
+If no products exist, the page shows an empty state instead of rendering a broken layout.
+
+### ProductItem.cshtml
+
+`ProductItem.cshtml` is the template for a single product detail page.
+
+In this template:
+
+`Model` represents the current product content node.
+
+The page reads product fields from Umbraco:
+
+```csharp
+Model.Value<string>("title")
+Model.Value<string>("summary")
+Model.Value<MediaWithCrops>("icon")
+Model.Value("body")
+```
+
+The product list URL is read from the parent node:
+
+```
+Model.Parent()?.Url() ?? "/products/"
+```
+
+Important idea:
+
+ProductListPage.cshtml displays a list of products.
+
+ProductItem.cshtml displays one specific product.
+
+The product demo form uses:
+
+```
+<input type="hidden" name="formName" value="product_demo_form" />
+```
+
+This tells the backend that the submission came from a product demo form.
+
+---
+
 مسیر کلی تا اینجا:
 
 ```
-User fills form
-  ↓
-HTML form in Razor template
-  ↓
-sama.js catches submit
-  ↓
-event.preventDefault()
-  ↓
-FormData reads inputs
-  ↓
-JSON payload is built
-  ↓
-fetch POST /api/consult-requests
-  ↓
-ASP.NET Core routing
-  ↓
-ConsultRequestsController.Create()
-  ↓
-JSON body → ConsultRequestCreateModel
-  ↓
-Model validation
-  ↓
-IElementorSubmissionService
-  ↓
-ElementorSubmissionService
-  ↓
-SQL connection opens
-  ↓
-SQL transaction starts
-  ↓
-INSERT wp_e_submissions
-  ↓
-INSERT wp_e_submissions_values
-  ↓
-Commit
-  ↓
-Controller returns success JSON
-  ↓
-sama.js shows success message
-```
 
+User fills form
+↓
+HTML form in Razor template
+↓
+sama.js catches submit
+↓
+event.preventDefault()
+↓
+FormData reads inputs
+↓
+JSON payload is built
+↓
+fetch POST /api/consult-requests
+↓
+ASP.NET Core routing
+↓
+ConsultRequestsController.Create()
+↓
+JSON body → ConsultRequestCreateModel
+↓
+Model validation
+↓
+IElementorSubmissionService
+↓
+ElementorSubmissionService
+↓
+SQL connection opens
+↓
+SQL transaction starts
+↓
+INSERT wp_e_submissions
+↓
+INSERT wp_e_submissions_values
+↓
+Commit
+↓
+Controller returns success JSON
+↓
+sama.js shows success message
+
+```
