@@ -11,6 +11,8 @@ public sealed class ConsultRequestsController : ControllerBase
     private readonly IElementorSubmissionService _elementorSubmissionService;
     private readonly ILogger<ConsultRequestsController> _logger;
 
+    private const long MaxResumeFileSizeBytes = 5 * 1024 * 1024;
+
     public ConsultRequestsController(
         IElementorSubmissionService elementorSubmissionService,
         ILogger<ConsultRequestsController> logger)
@@ -20,13 +22,26 @@ public sealed class ConsultRequestsController : ControllerBase
     }
 
     [HttpPost]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Create(
-        [FromBody] ConsultRequestCreateModel model,
+        [FromForm] ConsultRequestCreateModel model,
         CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
+        }
+
+        if (IsJobInterestForm(model.FormName))
+        {
+            var resumeError = await ValidateResumeFileAsync(model.ResumeFile, cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(resumeError))
+            {
+                ModelState.AddModelError(nameof(model.ResumeFile), resumeError);
+                return ValidationProblem(ModelState);
+            }
         }
 
         try
@@ -65,4 +80,54 @@ public sealed class ConsultRequestsController : ControllerBase
                 detail: "در حال حاضر امکان ثبت درخواست وجود ندارد. لطفاً بعداً دوباره تلاش کنید.");
         }
     }
+
+    private static bool IsJobInterestForm(string? formName)
+    {
+        return string.Equals(
+            formName?.Trim(),
+            "job_interest_form",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static async Task<string?> ValidateResumeFileAsync(
+        IFormFile? file,
+        CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return "آپلود رزومه الزامی است.";
+        }
+
+        if (file.Length > MaxResumeFileSizeBytes)
+        {
+            return "حجم رزومه نباید بیشتر از ۵ مگابایت باشد.";
+        }
+
+        var extension = Path.GetExtension(file.FileName);
+
+        if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return "رزومه باید در قالب PDF باشد.";
+        }
+
+        var header = new byte[4];
+
+        await using var stream = file.OpenReadStream();
+        var read = await stream.ReadAsync(header.AsMemory(0, 4), cancellationToken);
+
+        var looksLikePdf =
+            read == 4 &&
+            header[0] == '%' &&
+            header[1] == 'P' &&
+            header[2] == 'D' &&
+            header[3] == 'F';
+
+        if (!looksLikePdf)
+        {
+            return "فایل انتخاب‌شده PDF معتبر نیست.";
+        }
+
+        return null;
+    }
 }
+

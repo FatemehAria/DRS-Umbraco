@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace DrsUmbraco.Cms.Models;
 
@@ -21,4 +22,5 @@ public sealed class ConsultRequestCreateModel
 
     [StringLength(80)]
     public string? FormName { get; set; }
+    public IFormFile? ResumeFile { get; set; }
 }

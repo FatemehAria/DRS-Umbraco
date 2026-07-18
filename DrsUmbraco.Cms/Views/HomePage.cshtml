@@ -21,21 +21,45 @@
         .OrderBy(x => x.SortOrder)
         .Take(3)
         .ToList();
+
+    var clientLogos = new[]
+    {
+        new
+        {
+            Src = "/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png",
+            Alt = "ایران خودرو"
+        },
+        new
+        {
+            Src = "/assets/sama/uploads/2024/11/Kashan-removebg-preview.png",
+            Alt = "شهرداری کاشان"
+        },
+        new
+        {
+            Src = "/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png",
+            Alt = "شهرداری گرگان"
+        },
+        new
+        {
+            Src = "/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png",
+            Alt = "شهرداری ارومیه"
+        }
+    };
 }
 
 
         <!-- Hero -->
         <section class="hero-slider hero-showcase" data-slider>
-            <div class="hero-slide is-active" style="background-image:url('/assets/sama/uploads/2024/11/slider-1.jpg')"></div>
-            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/slider2.jpg')"></div>
-            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/slider3.jpg')"></div>
+            <div class="hero-slide is-active" style="background-image:url('/assets/sama/uploads/2024/11/hero-office-automation-dashboard.png')"></div>
+            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/hero-workflow-demo-meeting.png')"></div>
+            <div class="hero-slide" style="background-image:url('/assets/sama/uploads/2024/11/hero-digital-document-flow.png')"></div>
 
             <div class="hero-overlay"></div>
 
             <div class="container hero-content">
                 <!-- <span class="hero-eyebrow">دیدگاه رایانه سما</span> -->
 
-                <h1 style="text-align:center;">
+                <h1>
                     راهکارهای نرم‌افزاری یکپارچه
                     <br />
                     برای سازمان‌های حرفه‌ای
@@ -129,38 +153,22 @@
 
             <div class="logo-carousel" aria-label="لوگوی مشتریان">
                 <div class="logo-track">
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="ایران خودرو" />
-                    </div>
-
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="شهرداری کاشان" />
-                    </div>
-
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="شهرداری گرگان" />
-                    </div>
-
-                    <div class="logo-item">
-                        <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="شهرداری ارومیه" />
-                    </div>
-
-                    <!-- Duplicate logos for continuous carousel loop -->
-                    <div class="logo-item" aria-hidden="true">
-                        <img src="/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png" alt="" />
-                    </div>
-
-                    <div class="logo-item" aria-hidden="true">
-                        <img src="/assets/sama/uploads/2024/11/Kashan-removebg-preview.png" alt="" />
-                    </div>
-
-                    <div class="logo-item" aria-hidden="true">
-                        <img src="/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png" alt="" />
-                    </div>
-
-                    <div class="logo-item" aria-hidden="true">
-                        <img src="/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png" alt="" />
-                    </div>
+                    @for (var group = 0; group < 2; group++)
+                    {
+                        <div class="logo-group" aria-hidden="@(group == 1 ? "true" : null)">
+                            @for (var repeat = 0; repeat < 3; repeat++)
+                            {
+                                foreach (var logo in clientLogos)
+                                {
+                                    <div class="logo-item">
+                                        <img
+                                            src="@logo.Src"
+                                            alt="@(group == 0 && repeat == 0 ? logo.Alt : "")" />
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </section>
@@ -223,7 +231,7 @@
             {
                 <div class="news-empty-state">
                     <h2>هنوز محصولی ثبت نشده است</h2>
-                    <p>بعد از اضافه کردن محصولات در Umbraco، محصولات در صفحه اصلی نمایش داده می‌شوند.</p>
+                    <!-- <p>بعد از اضافه کردن محصولات در Umbraco، محصولات در صفحه اصلی نمایش داده می‌شوند.</p> -->
                 </div>
             }
         </section>
@@ -304,54 +312,48 @@
 
                     <div class="testimonial-slider">
                         <article class="testimonial-slide is-active">
-                            <div class="quote-mark">”</div>
+                            <div class="testimonial-header">
+                                <div class="quote-mark">”</div>
 
-                            <p>
-                                استفاده از سامانه‌های سما باعث شد بخشی از فرایندهای داخلی ما ساختارمندتر و قابل پیگیری‌تر شود.
-                            </p>
-
-                            <div class="testimonial-person">
-                                <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر سازمانی" />
-
-                                <div>
+                                <div class="testimonial-person">
                                     <strong>مدیر مالی</strong>
                                     <span>مشتری سازمانی</span>
                                 </div>
                             </div>
+
+                            <p>
+                                استفاده از سامانه‌های سما باعث شد بخشی از فرایندهای داخلی ما ساختارمندتر و قابل پیگیری‌تر شود.
+                            </p>
                         </article>
 
                         <article class="testimonial-slide">
-                            <div class="quote-mark">”</div>
+                            <div class="testimonial-header">
+                                <div class="quote-mark">”</div>
 
-                            <p>
-                                پشتیبانی و همراهی تیم فنی برای ما مهم بود. امکان دریافت مشاوره و پیگیری سریع، تجربه خوبی ایجاد کرد.
-                            </p>
-
-                            <div class="testimonial-person">
-                                <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر فناوری اطلاعات" />
-
-                                <div>
+                                <div class="testimonial-person">
                                     <strong>مدیر فناوری اطلاعات</strong>
                                     <span>مشتری سازمانی</span>
                                 </div>
                             </div>
+
+                            <p>
+                                پشتیبانی و همراهی تیم فنی برای ما مهم بود. امکان دریافت مشاوره و پیگیری سریع، تجربه خوبی ایجاد کرد.
+                            </p>
                         </article>
 
                         <article class="testimonial-slide">
-                            <div class="quote-mark">”</div>
+                            <div class="testimonial-header">
+                                <div class="quote-mark">”</div>
 
-                            <p>
-                                نرم‌افزارهای سازمانی زمانی ارزشمند هستند که هم پایدار باشند و هم کاربران بتوانند راحت با آن‌ها کار کنند.
-                            </p>
-
-                            <div class="testimonial-person">
-                                <img src="/assets/sama/uploads/2024/11/portrait-smiling-caucasian-senior-businessman.jpg" alt="مدیر منابع انسانی" />
-
-                                <div>
+                                <div class="testimonial-person">
                                     <strong>مدیر منابع انسانی</strong>
                                     <span>مشتری سازمانی</span>
                                 </div>
                             </div>
+
+                            <p>
+                                نرم‌افزارهای سازمانی زمانی ارزشمند هستند که هم پایدار باشند و هم کاربران بتوانند راحت با آن‌ها کار کنند.
+                            </p>
                         </article>
                     </div>
 

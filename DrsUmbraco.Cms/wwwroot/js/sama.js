@@ -273,10 +273,7 @@
       try {
         const response = await fetch("/api/consult-requests", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(getConsultFormPayload(form)),
+          body: getConsultFormPayload(form),
         });
 
         const result = await readJsonSafely(response);
@@ -312,16 +309,20 @@
     });
   }
 
-  function getConsultFormPayload(form) {
-    const formData = new FormData(form);
+  // function getConsultFormPayload(form) {
+  //   const formData = new FormData(form);
 
-    return {
-      formName: formData.get("formName")?.toString().trim() || "consult_form",
-      fullName: formData.get("fullName")?.toString().trim() || "",
-      mobile: formData.get("mobile")?.toString().trim() || "",
-      requestType: formData.get("requestType")?.toString().trim() || "",
-      message: formData.get("message")?.toString().trim() || "",
-    };
+  //   return {
+  //     formName: formData.get("formName")?.toString().trim() || "consult_form",
+  //     fullName: formData.get("fullName")?.toString().trim() || "",
+  //     mobile: formData.get("mobile")?.toString().trim() || "",
+  //     requestType: formData.get("requestType")?.toString().trim() || "",
+  //     message: formData.get("message")?.toString().trim() || "",
+  //   };
+  // }
+
+  function getConsultFormPayload(form) {
+    return new FormData(form);
   }
 
   async function readJsonSafely(response) {

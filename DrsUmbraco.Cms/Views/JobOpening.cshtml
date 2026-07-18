@@ -93,13 +93,14 @@
         <h2>علاقه‌مند به همکاری در این موقعیت هستید؟</h2>
 
         <p>
-            اطلاعات اولیه خود را ارسال کنید تا تیم ما در صورت نیاز برای ادامه مسیر با شما تماس بگیرد.
-            آپلود رزومه را در فاز بعدی به فرم استخدام اضافه می‌کنیم.
+            اطلاعات اولیه خود را ارسال کنید و رزومه خود را در قالب PDF بارگذاری کنید.
+            تیم ما پس از بررسی رزومه با شما تماس می‌گیرد.
         </p>
     </div>
 
     <form id="consultRequestForm"
           class="demo-form sama-consult-form job-interest-form"
+          enctype="multipart/form-data"
           data-success-message="درخواست همکاری شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
         <input type="hidden" name="requestType" value="فرصت شغلی - @title" />
         <input type="hidden" name="formName" value="job_interest_form" />
@@ -119,6 +120,15 @@
         <label>
             توضیحات
             <textarea name="message" placeholder="کمی درباره تجربه، مهارت‌ها یا علاقه‌مندی خود بنویسید..."></textarea>
+        </label>
+
+        <label class="resume-upload-field">
+            رزومه
+            <input type="file"
+                name="resumeFile"
+                accept=".pdf,application/pdf"
+                required />
+            <span class="field-hint">فقط فایل PDF، حداکثر ۵ مگابایت</span>
         </label>
 
         <button type="submit" data-submit-text="ثبت علاقه‌مندی">

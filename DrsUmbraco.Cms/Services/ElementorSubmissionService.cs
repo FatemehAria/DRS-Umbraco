@@ -2,6 +2,8 @@ using System.Data;
 using System.Text.Json;
 using DrsUmbraco.Cms.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace DrsUmbraco.Cms.Services;
 
@@ -15,9 +17,11 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
           string EditPostId);
 
     private readonly IConfiguration _configuration;
-    public ElementorSubmissionService(IConfiguration configuration)
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    public ElementorSubmissionService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
         _configuration = configuration;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<decimal> CreateConsultRequestAsync(
@@ -34,7 +38,8 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         {
             throw new InvalidOperationException("Connection string 'umbracoDbDSN' is not configured.");
         }
-
+        
+        var resumeFileUrl = await SaveResumeFileAsync(model.ResumeFile, cancellationToken);
         var utcNow = DateTime.UtcNow;
         var localNow = GetIranLocalTime(utcNow);
 
@@ -64,6 +69,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
                 (SqlTransaction)transaction,
                 submissionId,
                 model,
+                resumeFileUrl,
                 cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
@@ -275,6 +281,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         SqlTransaction transaction,
         decimal submissionId,
         ConsultRequestCreateModel model,
+        string? resumeFileUrl,
         CancellationToken cancellationToken)
     {
         var values = new Dictionary<string, string?>
@@ -284,6 +291,11 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
             ["request_type"] = model.RequestType,
             ["message"] = model.Message
         };
+
+        if (!string.IsNullOrWhiteSpace(resumeFileUrl))
+        {
+            values["resume_file"] = resumeFileUrl;
+        }
 
         const string sql = """
             INSERT INTO dbo.wp_e_submissions_values
@@ -405,5 +417,35 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
                 ElementId: "7f7b520",
                 EditPostId: "129")
         };
+    }
+
+    private async Task<string?> SaveResumeFileAsync(
+    IFormFile? file,
+    CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return null;
+        }
+
+        var uploadsFolder = Path.Combine(
+            _webHostEnvironment.WebRootPath,
+            "uploads",
+            "resumes");
+
+        Directory.CreateDirectory(uploadsFolder);
+
+        var storedFileName = $"{Guid.NewGuid():N}.pdf";
+        var physicalPath = Path.Combine(uploadsFolder, storedFileName);
+
+        await using var fileStream = new FileStream(
+            physicalPath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None);
+
+        await file.CopyToAsync(fileStream, cancellationToken);
+
+        return $"/uploads/resumes/{storedFileName}";
     }
 }

@@ -120,10 +120,10 @@
                 <a href="/about-us/">درباره ما</a>
             </nav>
 
-            <div class="header-phone">
+            <a class="header-phone" href="tel:+982188334117" aria-label="تماس با دیدگاه رایانه سما">
                 <span>☎</span>
                 <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
-            </div>
+            </a>
         </div>
     </header>
 
@@ -142,23 +142,43 @@
                 <a href="/products">محصولات</a>
             </div>
 
-            <div>
-                <h3>تماس با ما</h3>
+            <div class="footer-contact-column">
+        <h3>تماس با ما</h3>
 
-                <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
-                <p class="footer-phone-container">تلفن:
-                    <span class="footer-phone-number"> ۰۲۱-۸۸۳۳۴۱۱۷</span>
-                </p>
-            </div>
+        <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
 
-            <div>
-                <h3>نمادها و مجوزها</h3>
+        <p class="footer-phone-container">
+            <span>تلفن:</span>
+            <a class="footer-phone-number" href="tel:+982188334117">۰۲۱-۸۸۳۳۴۱۱۷</a>
+        </p>
 
-                <div class="footer-logos">
-                    <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
-                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+        <div class="footer-social">
+                <div class="footer-social-links">
+                    <a href="https://eitaa.com/YOUR_EITAA_ID"
+                    target="_blank"
+                    rel="noopener"
+                    aria-label="ایتا دیدگاه رایانه سما">
+                        <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.png" alt="ایتا" />
+                    </a>
+
+                    <a href="https://ble.ir/YOUR_BALE_ID"
+                    target="_blank"
+                    rel="noopener"
+                    aria-label="بله دیدگاه رایانه سما">
+                        <img src="/assets/sama/uploads/2024/11/Bale-Logo.png" alt="بله" />
+                    </a>
                 </div>
             </div>
+        </div>
+
+        <div>
+            <h3>نمادها و مجوزها</h3>
+
+            <div class="footer-logos">
+                <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
+                <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+            </div>
+        </div>
         </div>
 
         <p class="copyright">
@@ -166,7 +186,9 @@
         </p>
     </footer>
 
-    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">⌃</button>
+    <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">
+        <span class="top-arrow">↑</span>
+    </button>
 
     <script src="/js/sama.js"></script>
 </body>
