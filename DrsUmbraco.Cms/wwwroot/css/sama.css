@@ -132,7 +132,8 @@ textarea {
   content: "";
   position: absolute;
   right: 0;
-  bottom: -8px;
+  /* bottom: -8px */
+  bottom: 0;
   width: 0;
   height: 2px;
   border-radius: 999px;
