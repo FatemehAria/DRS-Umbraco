@@ -96,29 +96,19 @@
         .Value<IEnumerable<BlockListItem>>("capabilityCards")?
         .ToList();
     
-    var clientLogos = new[]
-    {
-        new
-        {
-            Src = "/assets/sama/uploads/2024/11/Ikco_brand-removebg-preview.png",
-            Alt = "ایران خودرو"
-        },
-        new
-        {
-            Src = "/assets/sama/uploads/2024/11/Kashan-removebg-preview.png",
-            Alt = "شهرداری کاشان"
-        },
-        new
-        {
-            Src = "/assets/sama/uploads/2024/11/Shahrdari_Gorgan-removebg-preview.png",
-            Alt = "شهرداری گرگان"
-        },
-        new
-        {
-            Src = "/assets/sama/uploads/2024/11/Urmia.Municipality.Logo-removebg-preview.png",
-            Alt = "شهرداری ارومیه"
-        }
-    };
+    var showClientsSection = Model.Value<bool?>("showClientsSection") ?? true;
+
+    var clientsSectionLabel = TextOrDefault("clientsSectionLabel", "مورد اعتماد سازمان‌ها");
+    var clientsSectionTitle = TextOrDefault("clientsSectionTitle", "۳۰ سال تجربه در کنار مشتریان سازمانی");
+    var clientsSectionDescription = TextOrDefault(
+        "clientsSectionDescription",
+        "نمونه‌ای از سازمان‌ها و مجموعه‌هایی که از راهکارهای نرم‌افزاری سما استفاده کرده‌اند."
+    );
+
+    var clientLogoItems = Model
+        .Value<IEnumerable<BlockListItem>>("clientLogoItems")?
+        .ToList();
+    
 
     var heroTitleLine1 = TextOrDefault("heroTitleLine1", "راهکارهای نرم‌افزاری یکپارچه");
     var heroTitleLine2 = TextOrDefault("heroTitleLine2", "برای سازمان‌های حرفه‌ای");
@@ -285,36 +275,52 @@
         }
 
         <!-- Clients -->
-        <section class="clients-section reveal-section">
-            <div class="container">
-                <div class="section-heading">
-                    <span>مورد اعتماد سازمان‌ها</span>
-                    <h2>۳۰ سال تجربه در کنار مشتریان سازمانی</h2>
-                    <p>نمونه‌ای از سازمان‌ها و مجموعه‌هایی که از راهکارهای نرم‌افزاری سما استفاده کرده‌اند.</p>
-                </div>
-            </div>
+        @if (showClientsSection)
+        {
+            <section class="clients-section reveal-section">
+                <div class="container">
+                    <div class="section-heading">
+                        <span>@clientsSectionLabel</span>
+                        <h2>@clientsSectionTitle</h2>
 
-            <div class="logo-carousel" aria-label="لوگوی مشتریان">
-                <div class="logo-track">
-                    @for (var group = 0; group < 2; group++)
-                    {
-                        <div class="logo-group" aria-hidden="@(group == 1 ? "true" : null)">
-                            @for (var repeat = 0; repeat < 3; repeat++)
+                        @if (!string.IsNullOrWhiteSpace(clientsSectionDescription))
+                        {
+                            <p>@clientsSectionDescription</p>
+                        }
+                    </div>
+                </div>
+
+                @if (clientLogoItems?.Any() == true)
+                {
+                    <div class="logo-carousel" aria-label="لوگوی مشتریان">
+                        <div class="logo-track">
+                            @for (var group = 0; group < 2; group++)
                             {
-                                foreach (var logo in clientLogos)
-                                {
-                                    <div class="logo-item">
-                                        <img
-                                            src="@logo.Src"
-                                            alt="@(group == 0 && repeat == 0 ? logo.Alt : "")" />
-                                    </div>
-                                }
+                                <div class="logo-group" aria-hidden="@(group == 1 ? "true" : null)">
+                                    @for (var repeat = 0; repeat < 3; repeat++)
+                                    {
+                                        foreach (var logoBlock in clientLogoItems)
+                                        {
+                                            var logoImage = FirstMedia(logoBlock.Content, "logoImage");
+                                            var altText = logoBlock.Content.Value<string>("altText");
+
+                                            if (logoImage != null)
+                                            {
+                                                <div class="logo-item">
+                                                    <img
+                                                        src="@logoImage.MediaUrl()"
+                                                        alt="@(group == 0 && repeat == 0 ? altText : "")" />
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                </div>
                             }
                         </div>
-                    }
-                </div>
-            </div>
-        </section>
+                    </div>
+                }
+            </section>
+        }
 
         <!-- Products -->
         @if (showProductsSection)
