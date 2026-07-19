@@ -110,6 +110,19 @@
         .ToList();
     
 
+    var showTestimonialsSection = Model.Value<bool?>("showTestimonialsSection") ?? true;
+
+    var testimonialsSectionLabel = TextOrDefault("testimonialsSectionLabel", "بازخورد مشتریان");
+    var testimonialsSectionTitle = TextOrDefault("testimonialsSectionTitle", "چرا سازمان‌ها سما را انتخاب می‌کنند؟");
+    var testimonialsSectionDescription = TextOrDefault(
+        "testimonialsSectionDescription",
+        "نمونه‌ای از تجربه مشتریان در استفاده از راهکارهای نرم‌افزاری سازمانی."
+    );
+
+    var testimonialItems = Model
+        .Value<IEnumerable<BlockListItem>>("testimonialItems")?
+        .ToList();
+
     var heroTitleLine1 = TextOrDefault("heroTitleLine1", "راهکارهای نرم‌افزاری یکپارچه");
     var heroTitleLine2 = TextOrDefault("heroTitleLine2", "برای سازمان‌های حرفه‌ای");
 
@@ -461,74 +474,97 @@
         }
 
         <!-- Testimonials -->
-        <section class="testimonial-section reveal-section" data-testimonials>
-            <div class="container">
-                <div class="section-heading">
-                    <span>بازخورد مشتریان</span>
-                    <h2>چرا سازمان‌ها سما را انتخاب می‌کنند؟</h2>
-                    <p>نمونه‌ای از تجربه مشتریان در استفاده از راهکارهای نرم‌افزاری سازمانی.</p>
-                </div>
+        @if (showTestimonialsSection && testimonialItems?.Any() == true)
+        {
+            <section class="testimonial-section reveal-section" data-testimonials>
+                <div class="container">
+                    <div class="section-heading">
+                        <span>@testimonialsSectionLabel</span>
+                        <h2>@testimonialsSectionTitle</h2>
 
-                <div class="testimonial-shell">
-                    <button class="testimonial-nav testimonial-prev" type="button" data-testimonial-prev aria-label="نظر قبلی">‹</button>
-
-                    <div class="testimonial-slider">
-                        <article class="testimonial-slide is-active">
-                            <div class="testimonial-header">
-                                <div class="quote-mark">”</div>
-
-                                <div class="testimonial-person">
-                                    <strong>مدیر مالی</strong>
-                                    <span>مشتری سازمانی</span>
-                                </div>
-                            </div>
-
-                            <p>
-                                استفاده از سامانه‌های سما باعث شد بخشی از فرایندهای داخلی ما ساختارمندتر و قابل پیگیری‌تر شود.
-                            </p>
-                        </article>
-
-                        <article class="testimonial-slide">
-                            <div class="testimonial-header">
-                                <div class="quote-mark">”</div>
-
-                                <div class="testimonial-person">
-                                    <strong>مدیر فناوری اطلاعات</strong>
-                                    <span>مشتری سازمانی</span>
-                                </div>
-                            </div>
-
-                            <p>
-                                پشتیبانی و همراهی تیم فنی برای ما مهم بود. امکان دریافت مشاوره و پیگیری سریع، تجربه خوبی ایجاد کرد.
-                            </p>
-                        </article>
-
-                        <article class="testimonial-slide">
-                            <div class="testimonial-header">
-                                <div class="quote-mark">”</div>
-
-                                <div class="testimonial-person">
-                                    <strong>مدیر منابع انسانی</strong>
-                                    <span>مشتری سازمانی</span>
-                                </div>
-                            </div>
-
-                            <p>
-                                نرم‌افزارهای سازمانی زمانی ارزشمند هستند که هم پایدار باشند و هم کاربران بتوانند راحت با آن‌ها کار کنند.
-                            </p>
-                        </article>
+                        @if (!string.IsNullOrWhiteSpace(testimonialsSectionDescription))
+                        {
+                            <p>@testimonialsSectionDescription</p>
+                        }
                     </div>
 
-                    <button class="testimonial-nav testimonial-next" type="button" data-testimonial-next aria-label="نظر بعدی">›</button>
-                </div>
+                    <div class="testimonial-shell">
+                        @if (testimonialItems.Count > 1)
+                        {
+                            <button class="testimonial-nav testimonial-prev"
+                                    type="button"
+                                    data-testimonial-prev
+                                    aria-label="نظر قبلی">
+                                ‹
+                            </button>
+                        }
 
-                <div class="testimonial-dots" data-testimonial-dots>
-                    <button type="button" class="is-active" aria-label="نظر ۱"></button>
-                    <button type="button" aria-label="نظر ۲"></button>
-                    <button type="button" aria-label="نظر ۳"></button>
+                        <div class="testimonial-slider">
+                            @for (var i = 0; i < testimonialItems.Count; i++)
+                            {
+                                var item = testimonialItems[i];
+
+                                var personTitle = item.Content.Value<string>("personTitle");
+                                var organizationLabel = item.Content.Value<string>("organizationLabel");
+                                var quoteText = item.Content.Value<string>("quoteText");
+
+                                var slideClass = i == 0
+                                    ? "testimonial-slide is-active"
+                                    : "testimonial-slide";
+
+                                <article class="@slideClass">
+                                    <div class="testimonial-header">
+                                        <div class="quote-mark">”</div>
+
+                                        <div class="testimonial-person">
+                                            @if (!string.IsNullOrWhiteSpace(personTitle))
+                                            {
+                                                <strong>@personTitle</strong>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(organizationLabel))
+                                            {
+                                                <span>@organizationLabel</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(quoteText))
+                                    {
+                                        <p>@quoteText</p>
+                                    }
+                                </article>
+                            }
+                        </div>
+
+                        @if (testimonialItems.Count > 1)
+                        {
+                            <button class="testimonial-nav testimonial-next"
+                                    type="button"
+                                    data-testimonial-next
+                                    aria-label="نظر بعدی">
+                                ›
+                            </button>
+                        }
+                    </div>
+
+                    @if (testimonialItems.Count > 1)
+                    {
+                        <div class="testimonial-dots" data-testimonial-dots>
+                            @for (var i = 0; i < testimonialItems.Count; i++)
+                            {
+                                var dotClass = i == 0 ? "is-active" : null;
+
+                                <button type="button"
+                                        class="@dotClass"
+                                        aria-label="نظر @(i + 1)">
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
-            </div>
-        </section>
+            </section>
+        }
 
         <!-- Demo Request Form -->
         <section id="demo-form" class="container demo-section reveal-section">
