@@ -1,11 +1,21 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models.Blocks
 
 @{
+
     var siteSettings = Umbraco.ContentAtRoot()
         .SelectMany(x => x.DescendantsOrSelf())
         .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
+
+    var headerNavigationLinks = siteSettings?
+        .Value<IEnumerable<BlockListItem>>("headerNavigationLinks")?
+        .ToList();
+
+    var footerQuickLinks = siteSettings?
+        .Value<IEnumerable<BlockListItem>>("footerQuickLinks")?
+        .ToList();
 
     MediaWithCrops? FirstSiteMedia(string alias)
     {
@@ -172,10 +182,32 @@
             </button>
 
             <nav id="mainNavigation" class="main-nav">
-                <a href="/products/">محصولات</a>
-                <a href="/recruitment/">فرصت‌های شغلی</a>
-                <a href="/contact-us/">تماس با ما</a>
-                <a href="/about-us/">درباره ما</a>
+                @if (headerNavigationLinks?.Any() == true)
+                {
+                    foreach (var navItem in headerNavigationLinks)
+                    {
+                        var linkText = navItem.Content.Value<string>("linkText");
+                        var linkUrl = navItem.Content.Value<string>("linkUrl");
+                        var openInNewTab = navItem.Content.Value<bool>("openInNewTab");
+
+                        if (!string.IsNullOrWhiteSpace(linkText) &&
+                            !string.IsNullOrWhiteSpace(linkUrl))
+                        {
+                            <a href="@linkUrl"
+                            target="@(openInNewTab ? "_blank" : null)"
+                            rel="@(openInNewTab ? "noopener" : null)">
+                                @linkText
+                            </a>
+                        }
+                    }
+                }
+                else
+                {
+                    <a href="/products/">محصولات</a>
+                    <a href="/recruitment/">فرصت‌های شغلی</a>
+                    <a href="/contact-us/">تماس با ما</a>
+                    <a href="/about-us/">درباره ما</a>
+                }
             </nav>
 
             @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
@@ -198,10 +230,32 @@
             <div>
                 <h3>دسترسی سریع</h3>
 
-                <a href="/recruitment">فرصت های شغلی</a>
-                <a href="/contact-us">تماس با ما</a>
-                <a href="/about-us">درباره ما</a>
-                <a href="/products">محصولات</a>
+                @if (footerQuickLinks?.Any() == true)
+                {
+                    foreach (var navItem in footerQuickLinks)
+                    {
+                        var linkText = navItem.Content.Value<string>("linkText");
+                        var linkUrl = navItem.Content.Value<string>("linkUrl");
+                        var openInNewTab = navItem.Content.Value<bool>("openInNewTab");
+
+                        if (!string.IsNullOrWhiteSpace(linkText) &&
+                            !string.IsNullOrWhiteSpace(linkUrl))
+                        {
+                            <a href="@linkUrl"
+                            target="@(openInNewTab ? "_blank" : null)"
+                            rel="@(openInNewTab ? "noopener" : null)">
+                                @linkText
+                            </a>
+                        }
+                    }
+                }
+                <!-- else
+                {
+                    <a href="/recruitment">فرصت های شغلی</a>
+                    <a href="/contact-us">تماس با ما</a>
+                    <a href="/about-us">درباره ما</a>
+                    <a href="/products">محصولات</a>
+                } -->
             </div>
 
             <div class="footer-contact-column">
