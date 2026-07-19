@@ -7,6 +7,20 @@
         .SelectMany(x => x.DescendantsOrSelf())
         .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
 
+    MediaWithCrops? FirstSiteMedia(string alias)
+    {
+        var singleMedia = siteSettings?.Value<MediaWithCrops>(alias);
+
+        if (singleMedia != null)
+        {
+            return singleMedia;
+        }
+
+        var multipleMedia = siteSettings?.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return multipleMedia?.FirstOrDefault();
+    }
+    
     string SettingOrDefault(string alias, string fallback)
     {
         var value = siteSettings?.Value<string>(alias);
@@ -24,6 +38,18 @@
     var siteName = SettingOrDefault("siteName", "دیدگاه رایانه سما");
 
     var headerPhoneText = SettingOrDefault("headerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
+
+    var siteLogo = FirstSiteMedia("siteLogo");
+
+    var siteLogoUrl = siteLogo != null
+        ? siteLogo.MediaUrl()
+        : "/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png";
+
+    var footerLicenseLogos = siteSettings?
+        .Value<IEnumerable<MediaWithCrops>>("footerLicenseLogos")?
+        .Where(x => x != null)
+        .ToList();
+
     var headerPhoneLink = SettingOrDefault("headerPhoneLink", "tel:+982188334117");
 
     var footerAddress = SettingOrDefault(
@@ -132,7 +158,7 @@
     <header class="site-header">
         <div class="container header-inner">
             <a class="logo" href="/" aria-label="@siteName">
-                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="@siteName" />
+                <img src="@siteLogoUrl" alt="@siteName" />
             </a>
 
             <button class="mobile-menu-toggle"
@@ -226,8 +252,18 @@
                 <h3>نمادها و مجوزها</h3>
 
                 <div class="footer-logos">
-                    <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
-                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+                    @if (footerLicenseLogos?.Any() == true)
+                    {
+                        foreach (var logo in footerLicenseLogos)
+                        {
+                            <img src="@logo.MediaUrl()" alt="نماد یا مجوز @siteName" />
+                        }
+                    }
+                    else
+                    {
+                        <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
+                        <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
+                    }
                 </div>
             </div>
         </div>
