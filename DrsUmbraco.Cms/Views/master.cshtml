@@ -3,12 +3,44 @@
 @using Umbraco.Extensions
 
 @{
-    var siteName = "دیدگاه رایانه سما";
+    var siteSettings = Umbraco.ContentAtRoot()
+        .SelectMany(x => x.DescendantsOrSelf())
+        .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
+
+    string SettingOrDefault(string alias, string fallback)
+    {
+        var value = siteSettings?.Value<string>(alias);
+
+        return string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : value.Trim();
+    }
 
     string? FirstNonEmpty(params string?[] values)
     {
         return values.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim();
     }
+
+    var siteName = SettingOrDefault("siteName", "دیدگاه رایانه سما");
+
+    var headerPhoneText = SettingOrDefault("headerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
+    var headerPhoneLink = SettingOrDefault("headerPhoneLink", "tel:+982188334117");
+
+    var footerAddress = SettingOrDefault(
+        "footerAddress",
+        "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱"
+    );
+
+    var footerPhoneText = SettingOrDefault("footerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
+    var footerPhoneLink = SettingOrDefault("footerPhoneLink", "tel:+982188334117");
+
+    var copyrightText = SettingOrDefault(
+        "copyrightText",
+        "کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد."
+    );
+
+    var eitaaUrl = SettingOrDefault("eitaaUrl", "https://eitaa.com/YOUR_EITAA_ID");
+    var baleUrl = SettingOrDefault("baleUrl", "https://ble.ir/YOUR_BALE_ID");
 
     var viewPageTitle = ViewData["PageTitle"]?.ToString();
 
@@ -99,8 +131,8 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a class="logo" href="/" aria-label="دیدگاه رایانه سما">
-                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
+            <a class="logo" href="/" aria-label="@siteName">
+                <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="@siteName" />
             </a>
 
             <button class="mobile-menu-toggle"
@@ -120,10 +152,14 @@
                 <a href="/about-us/">درباره ما</a>
             </nav>
 
-            <a class="header-phone" href="tel:+982188334117" aria-label="تماس با دیدگاه رایانه سما">
-                <span>☎</span>
-                <strong>۰۲۱-۸۸۳۳۴۱۱۷</strong>
-            </a>
+            @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
+                !string.IsNullOrWhiteSpace(headerPhoneLink))
+            {
+                <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
+                    <span>☎</span>
+                    <strong>@headerPhoneText</strong>
+                </a>
+            }
         </div>
     </header>
 
@@ -143,47 +179,65 @@
             </div>
 
             <div class="footer-contact-column">
-        <h3>تماس با ما</h3>
+                <h3>تماس با ما</h3>
 
-        <p>آدرس: خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱</p>
+                @if (!string.IsNullOrWhiteSpace(footerAddress))
+                {
+                    <p>آدرس: @footerAddress</p>
+                }
 
-        <p class="footer-phone-container">
-            <span>تلفن:</span>
-            <a class="footer-phone-number" href="tel:+982188334117">۰۲۱-۸۸۳۳۴۱۱۷</a>
-        </p>
+                @if (!string.IsNullOrWhiteSpace(footerPhoneText) &&
+                    !string.IsNullOrWhiteSpace(footerPhoneLink))
+                {
+                    <p class="footer-phone-container">
+                        <span>تلفن:</span>
+                        <a class="footer-phone-number" href="@footerPhoneLink">
+                            @footerPhoneText
+                        </a>
+                    </p>
+                }
 
-        <div class="footer-social">
-                <div class="footer-social-links">
-                    <a href="https://eitaa.com/YOUR_EITAA_ID"
-                    target="_blank"
-                    rel="noopener"
-                    aria-label="ایتا دیدگاه رایانه سما">
-                        <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.png" alt="ایتا" />
-                    </a>
+                <div class="footer-social">
+                    <div class="footer-social-links">
+                        @if (!string.IsNullOrWhiteSpace(eitaaUrl))
+                        {
+                            <a href="@eitaaUrl"
+                            target="_blank"
+                            rel="noopener"
+                            aria-label="ایتا @siteName">
+                                <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.png" alt="ایتا" />
+                            </a>
+                        }
 
-                    <a href="https://ble.ir/YOUR_BALE_ID"
-                    target="_blank"
-                    rel="noopener"
-                    aria-label="بله دیدگاه رایانه سما">
-                        <img src="/assets/sama/uploads/2024/11/Bale-Logo.png" alt="بله" />
-                    </a>
+                        @if (!string.IsNullOrWhiteSpace(baleUrl))
+                        {
+                            <a href="@baleUrl"
+                            target="_blank"
+                            rel="noopener"
+                            aria-label="بله @siteName">
+                                <img src="/assets/sama/uploads/2024/11/Bale-Logo.png" alt="بله" />
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3>نمادها و مجوزها</h3>
+
+                <div class="footer-logos">
+                    <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
+                    <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
                 </div>
             </div>
         </div>
 
-        <div>
-            <h3>نمادها و مجوزها</h3>
-
-            <div class="footer-logos">
-                <img src="/assets/sama/uploads/2024/11/Afta-logo.png" alt="مجوز" />
-                <img src="/assets/sama/uploads/2024/11/شورای-عالی-انفورماتیک-removebg-preview.png" alt="شورای عالی انفورماتیک" />
-            </div>
-        </div>
-        </div>
-
-        <p class="copyright">
-            کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد.
-        </p>
+        @if (!string.IsNullOrWhiteSpace(copyrightText))
+        {
+            <p class="copyright">
+                @copyrightText
+            </p>
+        }
     </footer>
 
     <button class="back-to-top" type="button" data-back-to-top aria-label="بازگشت به بالا">
