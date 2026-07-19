@@ -123,6 +123,42 @@
         .Value<IEnumerable<BlockListItem>>("testimonialItems")?
         .ToList();
 
+    var showDemoSection = Model.Value<bool?>("showDemoSection") ?? true;
+
+    var demoBadge = TextOrDefault("demoBadge", "شروع همکاری");
+    var demoTitle = TextOrDefault("demoTitle", "درخواست دمو یا مشاوره");
+
+    var demoDescription = TextOrDefault(
+        "demoDescription",
+        "برای بررسی نیازهای سازمان، دریافت مشاوره یا مشاهده دمو، فرم را تکمیل کنید. کارشناسان ما پس از بررسی درخواست با شما تماس می‌گیرند."
+    );
+
+    var demoBenefit1 = TextOrDefault("demoBenefit1", "بررسی نیاز سازمان");
+    var demoBenefit2 = TextOrDefault("demoBenefit2", "معرفی راهکار مناسب");
+    var demoBenefit3 = TextOrDefault("demoBenefit3", "پیگیری توسط تیم پشتیبانی");
+
+    var demoFullNameLabel = TextOrDefault("demoFullNameLabel", "نام و نام خانوادگی");
+    var demoFullNamePlaceholder = TextOrDefault("demoFullNamePlaceholder", "مثلاً: فاطمه کریمی");
+
+    var demoMobileLabel = TextOrDefault("demoMobileLabel", "شماره تماس");
+    var demoMobilePlaceholder = TextOrDefault("demoMobilePlaceholder", "مثلاً: 09120000000");
+
+    var demoRequestTypeLabel = TextOrDefault("demoRequestTypeLabel", "نوع درخواست");
+
+    var demoMessageLabel = TextOrDefault("demoMessageLabel", "توضیحات");
+    var demoMessagePlaceholder = TextOrDefault("demoMessagePlaceholder", "نیاز یا سوال خود را کوتاه بنویسید...");
+
+    var demoSubmitButtonText = TextOrDefault("demoSubmitButtonText", "ثبت درخواست مشاوره");
+
+    var demoBenefits = new[]
+    {
+        demoBenefit1,
+        demoBenefit2,
+        demoBenefit3
+    }
+    .Where(x => !string.IsNullOrWhiteSpace(x))
+    .ToList();
+
     var heroTitleLine1 = TextOrDefault("heroTitleLine1", "راهکارهای نرم‌افزاری یکپارچه");
     var heroTitleLine2 = TextOrDefault("heroTitleLine2", "برای سازمان‌های حرفه‌ای");
 
@@ -567,55 +603,76 @@
         }
 
         <!-- Demo Request Form -->
-        <section id="demo-form" class="container demo-section reveal-section">
-            <div class="demo-text">
-                <span class="demo-badge">شروع همکاری</span>
+        @if (showDemoSection)
+        {
+            <section id="demo-form" class="container demo-section reveal-section">
+                <div class="demo-text">
+                    @if (!string.IsNullOrWhiteSpace(demoBadge))
+                    {
+                        <span class="demo-badge">@demoBadge</span>
+                    }
 
-                <h2>درخواست دمو یا مشاوره</h2>
+                    @if (!string.IsNullOrWhiteSpace(demoTitle))
+                    {
+                        <h2>@demoTitle</h2>
+                    }
 
-                <p>
-                    برای بررسی نیازهای سازمان، دریافت مشاوره یا مشاهده دمو، فرم را تکمیل کنید.
-                    کارشناسان ما پس از بررسی درخواست با شما تماس می‌گیرند.
-                </p>
+                    @if (!string.IsNullOrWhiteSpace(demoDescription))
+                    {
+                        <p>@demoDescription</p>
+                    }
 
-                <div class="demo-benefits">
-                    <span>✓ بررسی نیاز سازمان</span>
-                    <span>✓ معرفی راهکار مناسب</span>
-                    <span>✓ پیگیری توسط تیم پشتیبانی</span>
+                    @if (demoBenefits.Any())
+                    {
+                        <div class="demo-benefits">
+                            @foreach (var benefit in demoBenefits)
+                            {
+                                <span>✓ @benefit</span>
+                            }
+                        </div>
+                    }
                 </div>
-            </div>
 
-            <form id="consultRequestForm" class="demo-form sama-consult-form">
-                <input type="hidden" name="formName" value="consult_form" />
-                <div class="form-row">
+                <form id="consultRequestForm" class="demo-form sama-consult-form">
+                    <input type="hidden" name="formName" value="consult_form" />
+
+                    <div class="form-row">
+                        <label>
+                            @demoFullNameLabel
+                            <input type="text"
+                                placeholder="@demoFullNamePlaceholder"
+                                name="fullName"
+                                required />
+                        </label>
+
+                        <label>
+                            @demoMobileLabel
+                            <input type="tel"
+                                placeholder="@demoMobilePlaceholder"
+                                name="mobile"
+                                required />
+                        </label>
+                    </div>
+
                     <label>
-                        نام و نام خانوادگی
-                        <input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" required />
+                        @demoRequestTypeLabel
+                        <select name="requestType" required>
+                            <option value="دمو">درخواست دمو</option>
+                            <option value="مشاوره">درخواست مشاوره</option>
+                        </select>
                     </label>
 
                     <label>
-                        شماره تماس
-                        <input type="tel" placeholder="مثلاً: 09120000000" name="mobile" required />
+                        @demoMessageLabel
+                        <textarea name="message"
+                                placeholder="@demoMessagePlaceholder"></textarea>
                     </label>
-                </div>
 
-                <label>
-                    نوع درخواست
-                    <select name="requestType" required>
-                        <option value="دمو">درخواست دمو</option>
-                        <option value="مشاوره">درخواست مشاوره</option>
-                    </select>
-                </label>
+                    <button type="submit" data-submit-text="@demoSubmitButtonText">
+                        @demoSubmitButtonText
+                    </button>
 
-                <label>
-                    توضیحات
-                    <textarea name="message" placeholder="نیاز یا سوال خود را کوتاه بنویسید..."></textarea>
-                </label>
-
-                <button type="submit" data-submit-text="ثبت درخواست مشاوره">
-                    ثبت درخواست مشاوره
-                </button>
-
-                <div id="consultRequestMessage"></div>
-            </form>
-        </section>
+                    <div id="consultRequestMessage"></div>
+                </form>
+            </section>
+        }
