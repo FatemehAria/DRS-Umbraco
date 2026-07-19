@@ -1,5 +1,6 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.Blocks
 @using Umbraco.Extensions
 @using Umbraco.Cms.Core.Models.PublishedContent
 
@@ -12,7 +13,7 @@
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
     ViewData["PageTitle"] = pageTitle;
 
-    MediaWithCrops? FirstMedia(IPublishedContent content, string alias)
+    MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
     {
         var singleImage = content.Value<MediaWithCrops>(alias);
 
@@ -89,6 +90,12 @@
         .Take(productsSectionItemCount)
         .ToList();
 
+    var showCapabilitySection = Model.Value<bool?>("showCapabilitySection") ?? true;
+
+    var capabilityCards = Model
+        .Value<IEnumerable<BlockListItem>>("capabilityCards")?
+        .ToList();
+    
     var clientLogos = new[]
     {
         new
@@ -235,42 +242,47 @@
         }
 
         <!-- Capabilities -->
-        <section class="container capability-section reveal-section">
-            <div class="capability-grid">
-                <article class="capability-card">
-                    <span class="capability-number">01</span>
+        @if (showCapabilitySection)
+        {
+            <section class="container capability-section reveal-section">
+                @if (capabilityCards?.Any() == true)
+                {
+                    <div class="capability-grid">
+                        @foreach (var card in capabilityCards)
+                        {
+                            var number = card.Content.Value<string>("number");
+                            var title = card.Content.Value<string>("title");
+                            var description = card.Content.Value<string>("description");
+                            var icon = FirstMedia(card.Content, "icon");
 
-                    <div class="capability-icon">
-                        <img src="/assets/sama/uploads/2024/11/support.svg" alt="" />
+                            <article class="capability-card">
+                                @if (!string.IsNullOrWhiteSpace(number))
+                                {
+                                    <span class="capability-number">@number</span>
+                                }
+
+                                <div class="capability-icon">
+                                    @if (icon != null)
+                                    {
+                                        <img src="@icon.MediaUrl()" alt="" />
+                                    }
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(title))
+                                {
+                                    <h2>@title</h2>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(description))
+                                {
+                                    <p>@description</p>
+                                }
+                            </article>
+                        }
                     </div>
-
-                    <h2>پشتیبانی سازمانی</h2>
-                    <p>همراهی فنی و پاسخ‌گویی برای حفظ پایداری سیستم‌ها و کاهش اختلال در فرایندهای کاری.</p>
-                </article>
-
-                <article class="capability-card">
-                    <span class="capability-number">02</span>
-
-                    <div class="capability-icon">
-                        <img src="/assets/sama/uploads/2024/11/chalkboard-teacher.svg" alt="" />
-                    </div>
-
-                    <h2>آموزش و استقرار</h2>
-                    <p>کمک به کاربران برای استفاده بهتر از نرم‌افزارها و کاهش مقاومت سازمانی در زمان استقرار.</p>
-                </article>
-
-                <article class="capability-card">
-                    <span class="capability-number">03</span>
-
-                    <div class="capability-icon">
-                        <img src="/assets/sama/uploads/2024/11/idea-sharing.svg" alt="" />
-                    </div>
-
-                    <h2>مشاوره فرایندی</h2>
-                    <p>تحلیل نیاز سازمان و پیشنهاد راهکار مناسب برای ساده‌تر شدن گردش کارها و تصمیم‌گیری‌ها.</p>
-                </article>
-            </div>
-        </section>
+                }
+            </section>
+        }
 
         <!-- Clients -->
         <section class="clients-section reveal-section">
