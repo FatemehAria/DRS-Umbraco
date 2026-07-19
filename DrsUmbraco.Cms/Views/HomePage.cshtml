@@ -5,6 +5,8 @@
 @{
     Layout = "Master.cshtml";
 
+    var showHero = Model.Value<bool?>("showHero") ?? true;
+
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
     ViewData["PageTitle"] = pageTitle;
 
@@ -107,88 +109,90 @@
 
 
         <!-- Hero -->
-        <section class="hero-slider hero-showcase" data-slider>
-            @for (var i = 0; i < heroImageUrls.Count; i++)
-            {
-                var slideClass = i == 0 ? "hero-slide is-active" : "hero-slide";
-
-                <div class="@slideClass"
-                    style="background-image:url('@heroImageUrls[i]')">
-                </div>
-            }
-
-            <div class="hero-overlay"></div>
-
-            <div class="container hero-content">
-                <h1>
-                    @heroTitleLine1
-
-                    @if (!string.IsNullOrWhiteSpace(heroTitleLine2))
-                    {
-                        <br />
-                        @heroTitleLine2
-                    }
-                </h1>
-
-                @if (!string.IsNullOrWhiteSpace(heroDescription))
+        @if(showHero) {
+            <section class="hero-slider hero-showcase" data-slider>
+                @for (var i = 0; i < heroImageUrls.Count; i++)
                 {
-                    <p>@heroDescription</p>
+                    var slideClass = i == 0 ? "hero-slide is-active" : "hero-slide";
+
+                    <div class="@slideClass"
+                        style="background-image:url('@heroImageUrls[i]')">
+                    </div>
                 }
 
-                <div class="hero-actions">
-                    @if (!string.IsNullOrWhiteSpace(heroPrimaryButtonText) &&
-                        !string.IsNullOrWhiteSpace(heroPrimaryButtonUrl))
-                    {
-                        <a class="ui-btn ui-btn-primary" href="@heroPrimaryButtonUrl">
-                            @heroPrimaryButtonText
-                        </a>
-                    }
+                <div class="hero-overlay"></div>
 
-                    @if (!string.IsNullOrWhiteSpace(heroSecondaryButtonText) &&
-                        !string.IsNullOrWhiteSpace(heroSecondaryButtonUrl))
-                    {
-                        <a class="ui-btn ui-btn-outline" href="@heroSecondaryButtonUrl">
-                            @heroSecondaryButtonText
-                        </a>
-                    }
-                </div>
+                <div class="container hero-content">
+                    <h1>
+                        @heroTitleLine1
 
-                <div class="hero-stats" aria-label="آمار شرکت">
-                    @foreach (var stat in heroStats)
-                    {
-                        if (!string.IsNullOrWhiteSpace(stat.Value) ||
-                            !string.IsNullOrWhiteSpace(stat.Label))
+                        @if (!string.IsNullOrWhiteSpace(heroTitleLine2))
                         {
-                            <div>
-                                <strong>@stat.Value</strong>
-                                <span>@stat.Label</span>
-                            </div>
+                            <br />
+                            @heroTitleLine2
                         }
-                    }
-                </div>
-            </div>
+                    </h1>
 
-            @if (heroImageUrls.Count > 1)
-            {
-                <button class="slider-arrow prev" type="button" data-prev aria-label="اسلاید قبلی">‹</button>
-                <button class="slider-arrow next" type="button" data-next aria-label="اسلاید بعدی">›</button>
-            }
-
-            @if (heroImageUrls.Count > 1)
-            {
-                <div class="slider-dots" data-dots>
-                    @for (var i = 0; i < heroImageUrls.Count; i++)
+                    @if (!string.IsNullOrWhiteSpace(heroDescription))
                     {
-                        var dotClass = i == 0 ? "is-active" : null;
-
-                        <button type="button"
-                                class="@dotClass"
-                                aria-label="اسلاید @(i + 1)">
-                        </button>
+                        <p>@heroDescription</p>
                     }
+
+                    <div class="hero-actions">
+                        @if (!string.IsNullOrWhiteSpace(heroPrimaryButtonText) &&
+                            !string.IsNullOrWhiteSpace(heroPrimaryButtonUrl))
+                        {
+                            <a class="ui-btn ui-btn-primary" href="@heroPrimaryButtonUrl">
+                                @heroPrimaryButtonText
+                            </a>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(heroSecondaryButtonText) &&
+                            !string.IsNullOrWhiteSpace(heroSecondaryButtonUrl))
+                        {
+                            <a class="ui-btn ui-btn-outline" href="@heroSecondaryButtonUrl">
+                                @heroSecondaryButtonText
+                            </a>
+                        }
+                    </div>
+
+                    <div class="hero-stats" aria-label="آمار شرکت">
+                        @foreach (var stat in heroStats)
+                        {
+                            if (!string.IsNullOrWhiteSpace(stat.Value) ||
+                                !string.IsNullOrWhiteSpace(stat.Label))
+                            {
+                                <div>
+                                    <strong>@stat.Value</strong>
+                                    <span>@stat.Label</span>
+                                </div>
+                            }
+                        }
+                    </div>
                 </div>
-            }
-        </section>
+
+                @if (heroImageUrls.Count > 1)
+                {
+                    <button class="slider-arrow prev" type="button" data-prev aria-label="اسلاید قبلی">‹</button>
+                    <button class="slider-arrow next" type="button" data-next aria-label="اسلاید بعدی">›</button>
+                }
+
+                @if (heroImageUrls.Count > 1)
+                {
+                    <div class="slider-dots" data-dots>
+                        @for (var i = 0; i < heroImageUrls.Count; i++)
+                        {
+                            var dotClass = i == 0 ? "is-active" : null;
+
+                            <button type="button"
+                                    class="@dotClass"
+                                    aria-label="اسلاید @(i + 1)">
+                            </button>
+                        }
+                    </div>
+                }
+            </section>
+        }
 
         <!-- Capabilities -->
         <section class="container capability-section reveal-section">
