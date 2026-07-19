@@ -1,14 +1,30 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models.PublishedContent
 
 @{
+    
     Layout = "Master.cshtml";
 
     var showHero = Model.Value<bool?>("showHero") ?? true;
 
     var pageTitle = Model.Value<string>("pageTitle") ?? "دیدگاه رایانه سما";
     ViewData["PageTitle"] = pageTitle;
+
+    MediaWithCrops? FirstMedia(IPublishedContent content, string alias)
+    {
+        var singleImage = content.Value<MediaWithCrops>(alias);
+
+        if (singleImage != null)
+        {
+            return singleImage;
+        }
+
+        var multipleImages = content.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return multipleImages?.FirstOrDefault();
+    }
 
     var selectedHeroImages = Model
         .Value<IEnumerable<MediaWithCrops>>("heroImages")?
@@ -26,18 +42,51 @@
             "/assets/sama/uploads/2024/11/hero-digital-document-flow.png"
         };
     
+    string TextOrDefault(string alias, string fallback)
+    {
+        var value = Model.Value<string>(alias);
+
+        return string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : value.Trim();
+    }
+
+    int NumberOrDefault(string alias, int fallback, int min, int max)
+    {
+        var value = Model.Value<int?>(alias);
+
+        if (!value.HasValue)
+        {
+            return fallback;
+        }
+
+        return Math.Clamp(value.Value, min, max);
+    }
+
+    var showProductsSection = Model.Value<bool?>("showProductsSection") ?? true;
+    var productsSectionLabel = TextOrDefault("productsSectionLabel", "محصولات");
+    var productsSectionTitle = TextOrDefault("productsSectionTitle", "راهکارهای نرم‌افزاری برای نیازهای سازمانی");
+    var productsSectionDescription = TextOrDefault("productsSectionDescription", "محصولات سما برای پوشش فرایندهای کلیدی سازمان‌ها طراحی شده‌اند.");
+    var productsSectionItemCount = NumberOrDefault("productsSectionItemCount", 3, 1, 12);
+
+    var showNewsSection = Model.Value<bool?>("showNewsSection") ?? true;
+    var newsSectionLabel = TextOrDefault("newsSectionLabel", "اخبار و مقالات");
+    var newsSectionTitle = TextOrDefault("newsSectionTitle", "آخرین رویدادها و مطالب سازمانی");
+    var newsSectionDescription = TextOrDefault("newsSectionDescription", "نگاهی به اخبار، مقاله‌ها و تازه‌ترین محتوای منتشرشده در حوزه نرم‌افزارهای سازمانی.");
+    var newsSectionItemCount = NumberOrDefault("newsSectionItemCount", 3, 1, 12);
+
     var latestNewsItems = Umbraco.ContentAtRoot()
         .SelectMany(x => x.DescendantsOrSelf())
         .Where(x => x.ContentType.Alias == "newsArticle")
         .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
-        .Take(3)
+        .Take(newsSectionItemCount)
         .ToList();
 
     var homeProducts = Umbraco.ContentAtRoot()
         .SelectMany(x => x.DescendantsOrSelf())
         .Where(x => x.ContentType.Alias == "productItem")
         .OrderBy(x => x.SortOrder)
-        .Take(3)
+        .Take(productsSectionItemCount)
         .ToList();
 
     var clientLogos = new[]
@@ -63,15 +112,6 @@
             Alt = "شهرداری ارومیه"
         }
     };
-
-    string TextOrDefault(string alias, string fallback)
-    {
-        var value = Model.Value<string>(alias);
-
-        return string.IsNullOrWhiteSpace(value)
-            ? fallback
-            : value.Trim();
-    }
 
     var heroTitleLine1 = TextOrDefault("heroTitleLine1", "راهکارهای نرم‌افزاری یکپارچه");
     var heroTitleLine2 = TextOrDefault("heroTitleLine2", "برای سازمان‌های حرفه‌ای");
@@ -265,107 +305,52 @@
         </section>
 
         <!-- Products -->
-        <section class="container products-section reveal-section">
-            <div class="section-heading">
-                <span>محصولات</span>
-                <h2>راهکارهای نرم‌افزاری برای نیازهای سازمانی</h2>
-                <p>محصولات سما برای پوشش فرایندهای کلیدی سازمان‌ها طراحی شده‌اند.</p>
-            </div>
+        @if (showProductsSection)
+        {
+            <section class="container products-section reveal-section">
+                <div class="section-heading">
+                    <span>@productsSectionLabel</span>
+                    <h2>@productsSectionTitle</h2>
 
-            @if (homeProducts.Any())
-            {
-                <div class="product-grid product-grid-polished">
-                    @for (var i = 0; i < homeProducts.Count; i++)
+                    @if (!string.IsNullOrWhiteSpace(productsSectionDescription))
                     {
-                        var product = homeProducts[i];
-
-                        var title = product.Value<string>("title");
-                        if (string.IsNullOrWhiteSpace(title))
-                        {
-                            title = product.Name;
-                        }
-
-                        var summary = product.Value<string>("summary");
-                        var icon = product.Value<MediaWithCrops>("icon");
-
-                        var cardClass = "product-card product-card-polished";
-                        if (i == 1)
-                        {
-                            cardClass += " is-featured";
-                        }
-
-                        <a class="@cardClass" href="@product.Url()">
-                            <div class="product-icon">
-                                @if (icon != null)
-                                {
-                                    <img src="@icon.MediaUrl()" alt="" />
-                                }
-                                else
-                                {
-                                    <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
-                                }
-                            </div>
-
-                            <h3>@title</h3>
-
-                            @if (!string.IsNullOrWhiteSpace(summary))
-                            {
-                                <p>@summary</p>
-                            }
-
-                            <span>مشاهده جزئیات</span>
-                        </a>
+                        <p>@productsSectionDescription</p>
                     }
                 </div>
-            }
-            else
-            {
-                <div class="news-empty-state">
-                    <h2>هنوز محصولی ثبت نشده است</h2>
-                    <!-- <p>بعد از اضافه کردن محصولات در Umbraco، محصولات در صفحه اصلی نمایش داده می‌شوند.</p> -->
-                </div>
-            }
-        </section>
 
-        <!-- News -->
-        <section class="container news-section-polished reveal-section">
-            <div class="section-heading">
-                <span>اخبار و مقالات</span>
-                <h2>آخرین رویدادها و مطالب سازمانی</h2>
-                <p>نگاهی به اخبار، مقاله‌ها و تازه‌ترین محتوای منتشرشده در حوزه نرم‌افزارهای سازمانی.</p>
-            </div>
-
-            @if (latestNewsItems?.Any() == true)
-            {
-                <div class="news-grid news-grid-premium">
-                    @foreach (var item in latestNewsItems)
-                    {
-                        var title = item.Value<string>("title");
-                        if (string.IsNullOrWhiteSpace(title))
+                @if (homeProducts.Any())
+                {
+                    <div class="product-grid product-grid-polished">
+                        @for (var i = 0; i < homeProducts.Count; i++)
                         {
-                            title = item.Name;
-                        }
+                            var product = homeProducts[i];
 
-                        var summary = item.Value<string>("summary");
-                        var publishDate = item.Value<DateTime?>("publishDate");
-                        var coverImage = item.Value<MediaWithCrops>("coverImage");
+                            var title = product.Value<string>("title");
+                            if (string.IsNullOrWhiteSpace(title))
+                            {
+                                title = product.Name;
+                            }
 
-                        <article class="news-card news-card-premium">
-                            <a href="@item.Url()" class="news-image-link">
-                                @if (coverImage != null)
-                                {
-                                    <img src="@coverImage.MediaUrl()" alt="@title" />
-                                }
-                                else
-                                {
-                                    <img src="/assets/sama/uploads/2024/11/1.jpg" alt="@title" />
-                                }
-                            </a>
+                            var summary = product.Value<string>("summary");
+                            var icon = product.Value<MediaWithCrops>("icon");
 
-                            <div class="news-card-body">
-                                <span class="news-meta">
-                                    @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
-                                </span>
+                            var cardClass = "product-card product-card-polished";
+                            if (i == 1)
+                            {
+                                cardClass += " is-featured";
+                            }
+
+                            <a class="@cardClass" href="@product.Url()">
+                                <div class="product-icon">
+                                    @if (icon != null)
+                                    {
+                                        <img src="@icon.MediaUrl()" alt="" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                                    }
+                                </div>
 
                                 <h3>@title</h3>
 
@@ -374,20 +359,88 @@
                                     <p>@summary</p>
                                 }
 
-                                <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
-                            </div>
-                        </article>
+                                <span>مشاهده جزئیات</span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="news-empty-state">
+                        <h2>هنوز محصولی ثبت نشده است</h2>
+                    </div>
+                }
+            </section>
+        }
+
+        <!-- News -->
+        @if (showNewsSection)
+        {
+            <section class="container news-section-polished reveal-section">
+                <div class="section-heading">
+                    <span>@newsSectionLabel</span>
+                    <h2>@newsSectionTitle</h2>
+
+                    @if (!string.IsNullOrWhiteSpace(newsSectionDescription))
+                    {
+                        <p>@newsSectionDescription</p>
                     }
                 </div>
-            }
-            else
-            {
-                <div class="news-empty-state">
-                    <h2>هنوز خبری منتشر نشده است</h2>
-                    <p>بعد از انتشار خبرها در Umbraco، آخرین اخبار در صفحه اصلی نمایش داده می‌شوند.</p>
-                </div>
-            }
-        </section>
+
+                @if (latestNewsItems?.Any() == true)
+                {
+                    <div class="news-grid news-grid-premium">
+                        @foreach (var item in latestNewsItems)
+                        {
+                            var title = item.Value<string>("title");
+                            if (string.IsNullOrWhiteSpace(title))
+                            {
+                                title = item.Name;
+                            }
+
+                            var summary = item.Value<string>("summary");
+                            var publishDate = item.Value<DateTime?>("publishDate");
+                            var coverImage = FirstMedia(item, "coverImage");
+
+                            <article class="news-card news-card-premium">
+                                <a href="@item.Url()" class="news-image-link">
+                                    @if (coverImage != null)
+                                    {
+                                        <img src="@coverImage.MediaUrl()" alt="@title" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/assets/sama/uploads/2024/11/5565.jpg" alt="@title" />
+                                    }
+                                </a>
+
+                                <div class="news-card-body">
+                                    <span class="news-meta">
+                                        @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
+                                    </span>
+
+                                    <h3>@title</h3>
+
+                                    @if (!string.IsNullOrWhiteSpace(summary))
+                                    {
+                                        <p>@summary</p>
+                                    }
+
+                                    <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="news-empty-state">
+                        <h2>هنوز خبری منتشر نشده است</h2>
+                        <p>بعد از انتشار خبرها در Umbraco، آخرین اخبار در صفحه اصلی نمایش داده می‌شوند.</p>
+                    </div>
+                }
+            </section>
+        }
 
         <!-- Testimonials -->
         <section class="testimonial-section reveal-section" data-testimonials>
