@@ -5,6 +5,21 @@
 @{
     Layout = "Master.cshtml";
 
+
+    MediaWithCrops? GetFirstMedia(string alias)
+    {
+        var singleMedia = Model.Value<MediaWithCrops>(alias);
+
+        if (singleMedia != null)
+        {
+            return singleMedia;
+        }
+
+        var mediaItems = Model.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return mediaItems?.FirstOrDefault();
+    }
+
     var title = Model.Value<string>("title");
     if (string.IsNullOrWhiteSpace(title))
     {
@@ -13,8 +28,8 @@
 
     ViewData["PageTitle"] = title;
 
+    var icon = GetFirstMedia("icon");
     var summary = Model.Value<string>("summary");
-    var icon = Model.Value<MediaWithCrops>("icon");
     var productListUrl = Model.Parent()?.Url() ?? "/products/";
 
     var demoRequestType = $"درخواست دمو - {title}";
@@ -55,12 +70,12 @@
             <div class="product-detail-icon">
                 @if (icon != null)
                 {
-                    <img src="@icon.MediaUrl()" alt="" />
+                    <img src="@icon.MediaUrl()" alt="@title" />
                 }
-                else
+                <!-- else
                 {
                     <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
-                }
+                } -->
             </div>
 
             <h2>راهکار @title</h2>
