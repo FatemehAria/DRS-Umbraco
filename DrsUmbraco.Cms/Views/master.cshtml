@@ -100,7 +100,7 @@
         Model.Value<string>("introText")
     );
 
-    var seoImage = Model.Value<MediaWithCrops>("seoImage");
+    var seoImage = Model.Value<MediaWithCrops>("seoImage") ?? FirstSiteMedia("defaultOgImage");
 
     var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
     var canonicalUrl = $"{baseUrl}{Model.Url()}";
