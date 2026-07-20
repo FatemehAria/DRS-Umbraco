@@ -1,8 +1,28 @@
 using DrsUmbraco.Cms.Services;
+using System.IO.Compression;
+using Microsoft.AspNetCore.ResponseCompression;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
 builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
 
 builder.CreateUmbracoBuilder()
@@ -16,6 +36,7 @@ WebApplication app = builder.Build();
 
 await app.BootUmbracoAsync();
 
+app.UseResponseCompression();
 
 app.UseUmbraco()
     .WithMiddleware(u =>
