@@ -329,3 +329,49 @@ Planned improvements:
 - Ensured the site uses the correct application pool.
 - Fixed SQL Server connection string for production.
 - Verified Umbraco logs under `umbraco/Logs`.
+
+## Production Optimization Checklist
+
+Run this checklist after the site is moved to the real domain.
+
+### Domain / SEO
+
+- [ ] Replace localhost URLs in robots.txt
+- [ ] Verify sitemap.xml uses the real domain
+- [ ] Verify canonical URLs use the real domain
+- [ ] Verify og:url uses the real domain
+- [ ] Verify og:image uses an absolute production URL
+- [ ] Test View Page Source for title, description, canonical, Open Graph, and Twitter tags
+
+### Performance
+
+- [ ] Verify Response Compression is active
+- [ ] Check response header: content-encoding: br or gzip
+- [ ] Add cache headers for static files
+- [ ] Minify CSS
+- [ ] Minify JavaScript
+- [ ] Consider file versioning/cache busting for CSS and JS
+
+### Security / Access
+
+- [ ] Use real HTTPS certificate
+- [ ] Restrict /umbraco access if required
+- [ ] Verify Content Editor only sees Content and Media
+- [ ] Rotate any secrets that were used during development
+- [ ] Confirm appsettings files are not tracked by Git
+
+### Forms
+
+- [ ] Test Home demo form
+- [ ] Test Contact form
+- [ ] Test Product demo form
+- [ ] Test Job application form with PDF upload
+- [ ] Verify records in SQL Server
+- [ ] Verify uploaded resume files are stored correctly
+
+### Backup
+
+- [ ] Backup SQL Server database
+- [ ] Backup wwwroot/media
+- [ ] Backup uploaded resume files
+- [ ] Tag Git release
