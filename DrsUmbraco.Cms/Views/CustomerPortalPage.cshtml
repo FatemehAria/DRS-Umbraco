@@ -1,0 +1,77 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Extensions
+
+@{
+    Layout = "Master.cshtml";
+
+    var title = Model.Value<string>("pageTitle");
+
+    if (string.IsNullOrWhiteSpace(title))
+    {
+        title = Model.Name;
+    }
+
+    var introText = Model.Value<string>("introText");
+
+    var portalCards = Model.Value<IEnumerable<BlockListItem>>("portalCards")?.ToList()
+        ?? new List<BlockListItem>();
+}
+
+<section class="customer-portal-page">
+    <div class="container">
+        <div class="portal-hero reveal-section">
+            <span class="section-kicker">پورتال مشتریان</span>
+
+            <h1>@title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(introText))
+            {
+                <p>@introText</p>
+            }
+        </div>
+
+        @if (portalCards.Any())
+        {
+            <div class="portal-card-grid reveal-section">
+                @foreach (var card in portalCards)
+                {
+                    var cardTitle = card.Content.Value<string>("cardTitle");
+                    var cardDescription = card.Content.Value<string>("cardDescription");
+                    var buttonText = card.Content.Value<string>("buttonText");
+                    var cardUrl = card.Content.Value<string>("cardUrl");
+                    var openInNewTab = card.Content.Value<bool>("openInNewTab");
+
+                    var target = openInNewTab ? "_blank" : "_self";
+                    var rel = openInNewTab ? "noopener noreferrer" : null;
+
+                    if (string.IsNullOrWhiteSpace(cardTitle))
+                    {
+                        continue;
+                    }
+
+                    <article class="portal-card">
+                        <div class="portal-card-content">
+                            <h2>@cardTitle</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(cardDescription))
+                            {
+                                <p>@cardDescription</p>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(cardUrl) && !string.IsNullOrWhiteSpace(buttonText))
+                        {
+                            <a class="portal-card-link"
+                               href="@cardUrl"
+                               target="@target"
+                               rel="@rel">
+                                @buttonText
+                            </a>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

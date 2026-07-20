@@ -3323,3 +3323,130 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   font-weight: 600;
   line-height: 1.8;
 }
+
+.customer-portal-page {
+  padding: 80px 0 100px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(10, 188, 202, 0.14),
+      transparent 34%
+    ),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 100%);
+}
+
+.portal-hero {
+  max-width: 850px;
+  margin: 0 auto 42px;
+  padding: 44px 34px;
+  text-align: center;
+  border: 1px solid rgba(12, 54, 89, 0.1);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 24px 70px rgba(8, 38, 66, 0.08);
+}
+
+.portal-hero h1 {
+  margin: 14px 0 18px;
+  color: #092f57;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.5;
+}
+
+.portal-hero p {
+  max-width: 720px;
+  margin: 0 auto;
+  color: #4c6172;
+  font-size: 1.06rem;
+  line-height: 2.1;
+}
+
+.portal-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.portal-card {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px;
+  border: 1px solid rgba(12, 54, 89, 0.1);
+  border-radius: 26px;
+  background: #ffffff;
+  box-shadow: 0 18px 55px rgba(8, 38, 66, 0.08);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.portal-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(12, 188, 202, 0.35);
+  box-shadow: 0 28px 70px rgba(8, 38, 66, 0.13);
+}
+
+.portal-card h2 {
+  margin: 0 0 14px;
+  color: #092f57;
+  font-size: 1.28rem;
+  line-height: 1.8;
+}
+
+.portal-card p {
+  margin: 0;
+  color: #516879;
+  font-size: 0.96rem;
+  line-height: 2;
+}
+
+.portal-card-link {
+  width: fit-content;
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: #0d6efd;
+  color: #ffffff;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.portal-card-link:hover {
+  transform: translateY(-2px);
+  background: #0757c8;
+  color: #ffffff;
+}
+
+@media (max-width: 1100px) {
+  .portal-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .customer-portal-page {
+    padding: 54px 0 72px;
+  }
+
+  .portal-hero {
+    padding: 32px 22px;
+    border-radius: 22px;
+  }
+
+  .portal-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-card {
+    min-height: auto;
+  }
+}
