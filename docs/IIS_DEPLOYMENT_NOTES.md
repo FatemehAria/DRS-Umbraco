@@ -129,3 +129,23 @@ dotnet .\DrsUmbraco.Cms.dll
 - Robots.txt works.
 - Custom 404 works.
 
+## CRM Reverse Proxy
+
+The website includes a reverse proxy configuration for routing CRM traffic through the website host.
+
+### Development URLs
+
+- Website: `https://localhost:44398/`
+- CRM Proxy: `https://crm.localhost:44398/login`
+- CRM Internal Address: configured in `appsettings.Development.json`
+
+### Purpose
+
+The CRM is displayed through a controlled host so users do not directly navigate to the internal CRM IP address.
+
+### Notes
+
+- Internal CRM URLs must not be committed to Git.
+- Production should use a real host such as `crm.drs.ir`.
+- The reverse proxy is enabled only when the request host is `crm.localhost`.
+- The main website remains available on `localhost`.
