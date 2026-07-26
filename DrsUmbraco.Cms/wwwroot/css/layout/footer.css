@@ -83,7 +83,8 @@
   max-height: 130px;
 }
 
-/* .footer-logos img:nth-child(1) {
-  max-width: 172px;
-  max-height: 98px;
-} */
+.site-footer a.is-active,
+.site-footer a[aria-current="page"] {
+  color: #fff;
+  font-weight: 800;
+}

@@ -45,7 +45,8 @@
         return values.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim();
     }
 
-    var siteName = SettingOrDefault("siteName", "دیدگاه رایانه سما");
+    var siteName = SettingOrDefault("siteName", "");
+    var siteTagline = SettingOrDefault("siteTagline", "");
 
     var headerPhoneText = SettingOrDefault("headerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
 
@@ -111,6 +112,71 @@
 
     var is404Page = Model.ContentType.Alias == "page404";
     var ogType = Model.ContentType.Alias == "newsArticle" ? "article" : "website";
+
+    string NormalizePath(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return string.Empty;
+        }
+
+        url = url.Trim();
+
+        if (url.StartsWith("#") ||
+            url.StartsWith("tel:", StringComparison.OrdinalIgnoreCase) ||
+            url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Empty;
+        }
+
+        if (Uri.TryCreate(url, UriKind.Absolute, out var absoluteUri))
+        {
+            url = absoluteUri.AbsolutePath;
+        }
+
+        url = url.Split('?')[0].Split('#')[0].Trim();
+
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return "/";
+        }
+
+        return "/" + url.Trim('/').ToLowerInvariant();
+    }
+
+    bool PathMatches(string currentPath, string targetPath)
+    {
+        if (string.IsNullOrWhiteSpace(currentPath) ||
+            string.IsNullOrWhiteSpace(targetPath))
+        {
+            return false;
+        }
+
+        if (targetPath == "/")
+        {
+            return currentPath == "/";
+        }
+
+        return currentPath == targetPath ||
+            currentPath.StartsWith(targetPath + "/");
+    }
+
+    bool IsActiveNavLink(string? url)
+    {
+        var targetPath = NormalizePath(url);
+
+        if (string.IsNullOrWhiteSpace(targetPath))
+        {
+            return false;
+        }
+
+        var requestPath = NormalizePath(Context.Request.Path.Value);
+        var modelPath = NormalizePath(Model.Url());
+
+        return PathMatches(requestPath, targetPath) ||
+            PathMatches(modelPath, targetPath);
+    }
+
 }
 
 <!DOCTYPE html>
@@ -167,8 +233,17 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <a class="logo" href="/" aria-label="@siteName">
+            <a class="logo site-brand" href="/" aria-label="@siteName">
                 <img src="@siteLogoUrl" alt="@siteName" />
+
+                <!-- <span class="site-brand__text"> -->
+                    <!-- <strong>@siteName</strong> -->
+
+                    <!-- @if (!string.IsNullOrWhiteSpace(siteTagline))
+                    {
+                        <small>@siteTagline</small>
+                    } -->
+                <!-- </span> -->
             </a>
 
             <button class="mobile-menu-toggle"
@@ -193,7 +268,11 @@
                         if (!string.IsNullOrWhiteSpace(linkText) &&
                             !string.IsNullOrWhiteSpace(linkUrl))
                         {
+                            var isActive = IsActiveNavLink(linkUrl);
+
                             <a href="@linkUrl"
+                            class="@(isActive ? "is-active" : null)"
+                            aria-current="@(isActive ? "page" : null)"
                             target="@(openInNewTab ? "_blank" : null)"
                             rel="@(openInNewTab ? "noopener" : null)">
                                 @linkText
@@ -203,10 +282,11 @@
                 }
                 else
                 {
-                    <a href="/products/">محصولات</a>
-                    <a href="/recruitment/">فرصت‌های شغلی</a>
-                    <a href="/contact-us/">تماس با ما</a>
-                    <a href="/about-us/">درباره ما</a>
+                    <a href="/products/" class="@(IsActiveNavLink("/products/") ? "is-active" : null)">محصولات</a>
+                    <a href="/recruitment/" class="@(IsActiveNavLink("/recruitment/") ? "is-active" : null)">فرصت‌های شغلی</a>
+                    <a href="/contact-us/" class="@(IsActiveNavLink("/contact-us/") ? "is-active" : null)">تماس با ما</a>
+                    <a href="/about-us/" class="@(IsActiveNavLink("/about-us/") ? "is-active" : null)">درباره ما</a>
+                    <a href="/customer-portal/" class="@(IsActiveNavLink("/customer-portal/") ? "is-active" : null)">پورتال مشتریان</a>
                 }
             </nav>
 
@@ -241,9 +321,13 @@
                         if (!string.IsNullOrWhiteSpace(linkText) &&
                             !string.IsNullOrWhiteSpace(linkUrl))
                         {
+                            var isFooterActive = IsActiveNavLink(linkUrl);
+
                             <a href="@linkUrl"
-                            target="@(openInNewTab ? "_blank" : null)"
-                            rel="@(openInNewTab ? "noopener" : null)">
+                                class="@(isFooterActive ? "is-active" : null)"
+                                aria-current="@(isFooterActive ? "page" : null)"
+                                target="@(openInNewTab ? "_blank" : null)"
+                                rel="@(openInNewTab ? "noopener" : null)">
                                 @linkText
                             </a>
                         }

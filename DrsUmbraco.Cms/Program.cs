@@ -53,6 +53,8 @@ await app.BootUmbracoAsync();
 
 app.UseResponseCompression();
 
+app.UseStaticFiles();
+
 app.MapWhen(
     context => string.Equals(
         context.Request.Host.Host,
@@ -61,6 +63,8 @@ app.MapWhen(
     proxyApp =>
     {
         proxyApp.UseRouting();
+
+        proxyApp.UseStaticFiles();
 
         proxyApp.Use(async (context, next) =>
         {
@@ -71,7 +75,14 @@ app.MapWhen(
                 path.StartsWithSegments("/sso/logout") ||
                 path.StartsWithSegments("/login");
 
-            if (isSsoPath)
+            var isStaticAssetPath =
+                path.StartsWithSegments("/css") ||
+                path.StartsWithSegments("/js") ||
+                path.StartsWithSegments("/assets") ||
+                path.StartsWithSegments("/media") ||
+                path.StartsWithSegments("/umbraco");
+
+            if (isSsoPath || isStaticAssetPath)
             {
                 await next();
                 return;
@@ -97,138 +108,133 @@ app.MapWhen(
 
         proxyApp.UseEndpoints(endpoints =>
         {
+
             endpoints.MapGet("/sso/login", async context =>
+        {
+            PreventBrowserCache(context);
+
+            if (HasCrmSession(context))
             {
-                PreventBrowserCache(context);
+                context.Response.Redirect("/dashboard");
+                return;
+            }
 
-                var isExpiredRequest = context.Request.Query.ContainsKey("expired");
+            context.Response.ContentType = "text/html; charset=utf-8";
 
-                if (isExpiredRequest)
-                {
-                    ExpireAllCrmCookies(context);
-                }
-                else if (HasCrmSession(context))
-                {
-                    context.Response.Redirect("/dashboard");
-                    return;
-                }
-
-                context.Response.ContentType = "text/html; charset=utf-8";
-
-                await context.Response.WriteAsync("""
+            await context.Response.WriteAsync("""
                 <!doctype html>
                 <html lang="fa" dir="rtl">
                 <head>
                     <meta charset="utf-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <title>ورود به سامانه پشتیبانی</title>
-                    <style>
-                        body {
-                            margin: 0;
-                            min-height: 100vh;
-                            display: grid;
-                            place-items: center;
-                            font-family: Tahoma, Arial, sans-serif;
-                            background: #f3f7fb;
-                            color: #0b3558;
-                        }
+                    <title>ورود به سامانه</title>
 
-                        form {
-                            width: min(420px, calc(100% - 32px));
-                            padding: 32px;
-                            border-radius: 24px;
-                            background: white;
-                            box-shadow: 0 24px 70px rgba(8, 38, 66, .12);
-                        }
-
-                        h1 {
-                            margin: 0 0 20px;
-                            font-size: 1.5rem;
-                        }
-
-                        label {
-                            display: block;
-                            margin-top: 16px;
-                            font-weight: 700;
-                        }
-
-                        input {
-                            width: 100%;
-                            box-sizing: border-box;
-                            margin-top: 8px;
-                            padding: 12px 14px;
-                            border: 1px solid #d9e4ee;
-                            border-radius: 14px;
-                            font: inherit;
-                            direction: ltr;
-                        }
-
-                        button {
-                            width: 100%;
-                            margin-top: 24px;
-                            padding: 13px 16px;
-                            border: 0;
-                            border-radius: 999px;
-                            background: #0b4c7d;
-                            color: white;
-                            font: inherit;
-                            font-weight: 800;
-                            cursor: pointer;
-                        }
-                    </style>
+                    <link rel="stylesheet" href="/css/sama.css" />
+                    <link rel="stylesheet" href="/css/pages/login-portal.css" />
                 </head>
-                <body>
-                    <form method="post" action="/sso/login">
-                        <h1>ورود به سامانه پشتیبانی</h1>
+                <body class="login-portal-page">
+                    <header class="login-header">
+                        <a class="login-header__logo" href="/customer-portal/" aria-label="بازگشت به پورتال مشتریان">
+                            <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
+                        </a>
 
-                        <label>
-                            نام کاربری
-                            <input name="UserNo" autocomplete="UserNo" required />
-                        </label>
+                        <a class="login-header__back" href="/customer-portal/">
+                            <span>بازگشت به پورتال مشتریان</span>
+                            <span aria-hidden="true">←</span>
+                        </a>
+                    </header>
 
-                        <label>
-                            رمز عبور
-                            <input name="WebPWD" type="password" autocomplete="current-password" required />
-                        </label>
+                    <main class="login-shell">
+                        <section class="login-art" aria-hidden="true">
+                            <img class="login-art__image"
+                                src="/assets/sama/login/login-illustration.png"
+                                alt="" />
+                        </section>
 
-                        <button type="submit">ورود به سامانه</button>
-                    </form>
-                </body>
+                        <section class="login-card" aria-labelledby="loginTitle">
+                            <h1 id="loginTitle">ورود به سامانه</h1>
+                            <p class="login-card__intro">
+                                برای ادامه، نام کاربری و رمز عبور خود را وارد کنید.
+                            </p>
 
-                <script>
-                    function clearCrmStorage() {
-                        localStorage.removeItem("loginSystemName");
-                        localStorage.removeItem("sama-token");
-                        sessionStorage.clear();
-                    }
+                            <form class="login-form" method="post" action="/sso/login" autocomplete="on">
+                                <div class="login-error" id="loginError">
+                                    نام کاربری یا رمز عبور صحیح نیست.
+                                </div>
 
-                    try {
-                        const params = new URLSearchParams(window.location.search);
+                                <div class="login-field">
+                                    <label for="userNo">نام کاربری</label>
 
-                        if (params.has("expired")) {
-                            clearCrmStorage();
-                            window.history.replaceState({}, document.title, "/sso/login");
-                        } else {
-                            const raw = localStorage.getItem("sama-token");
+                                    <div class="login-input">
+                                        <input id="userNo"
+                                            name="UserNo"
+                                            type="text"
+                                            autocomplete="username"
+                                            placeholder="نام کاربری خود را وارد کنید"
+                                            required />
 
-                            if (raw) {
-                                const loginData = JSON.parse(raw);
-                                const expireDate = loginData.expireDateTime
-                                    ? new Date(loginData.expireDateTime)
-                                    : null;
+                                        <svg class="login-input__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12 12.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2.1c-4.1 0-7.4 2.1-7.4 4.7 0 .7.5 1.2 1.2 1.2h12.4c.7 0 1.2-.5 1.2-1.2 0-2.6-3.3-4.7-7.4-4.7Z" fill="currentColor"/>
+                                        </svg>
+                                    </div>
+                                </div>
 
-                                if (expireDate && expireDate <= new Date()) {
-                                    clearCrmStorage();
-                                }
+                                <div class="login-field">
+                                    <label for="password">رمز عبور</label>
+
+                                    <div class="login-input">
+                                        <input id="password"
+                                            name="WebPWD"
+                                            type="password"
+                                            autocomplete="current-password"
+                                            placeholder="رمز عبور خود را وارد کنید"
+                                            required />
+
+                                        <svg class="login-input__icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm3 8.7V17h-2v-1.3a2 2 0 1 1 2 0Z" fill="currentColor"/>
+                                        </svg>
+
+                                        <button class="login-input__toggle"
+                                                type="button"
+                                                aria-label="نمایش یا مخفی کردن رمز عبور"
+                                                data-password-toggle>
+                                            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                                                <path d="M12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4C20.7 13.9 17.3 19 12 19s-8.7-5.1-9.4-6.3a1.4 1.4 0 0 1 0-1.4C3.3 10.1 6.7 5 12 5Zm0 2c-3.8 0-6.5 3.4-7.4 5 .9 1.6 3.6 5 7.4 5s6.5-3.4 7.4-5c-.9-1.6-3.6-5-7.4-5Zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6Z" fill="currentColor"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="login-actions">
+                                    <a class="login-forgot" href="#">
+                                        رمز عبور را فراموش کرده‌ام
+                                    </a>
+                                </div>
+
+                                <input type="hidden" name="SystemName" value="sama" />
+
+                                <button class="login-button" type="submit">
+                                    ورود
+                                </button>
+                            </form>
+                        </section>
+                    </main>
+
+                    <script>
+                        document.querySelector("[data-password-toggle]")?.addEventListener("click", function () {
+                            const input = document.getElementById("password");
+
+                            if (!input) {
+                                return;
                             }
-                        }
-                    } catch (error) {
-                        clearCrmStorage();
-                    }
-                </script>
+
+                            input.type = input.type === "password" ? "text" : "password";
+                        });
+                    </script>
+                </body>
                 </html>
-                """);
-            });
+            """);
+        });
 
             endpoints.MapPost("/sso/login", async context =>
             {

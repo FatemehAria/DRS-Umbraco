@@ -1,77 +1,276 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@using Umbraco.Cms.Core.Models
 @using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Models.PublishedContent
 @using Umbraco.Extensions
 
 @{
     Layout = "Master.cshtml";
 
-    var title = Model.Value<string>("pageTitle");
-
-    if (string.IsNullOrWhiteSpace(title))
+    string TextValue(string alias, string fallback)
     {
-        title = Model.Name;
+        var value = Model.Value<string>(alias);
+
+        return string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : value;
     }
 
-    var introText = Model.Value<string>("introText");
+    string NormalizeIconKey(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "default";
+        }
 
-    var portalCards = Model.Value<IEnumerable<BlockListItem>>("portalCards")?.ToList()
-        ?? new List<BlockListItem>();
+        return value
+            .Trim()
+            .ToLowerInvariant()
+            .Replace(" ", "-")
+            .Replace("_", "-");
+    }
+
+    string InferCardIconKey(string? configuredIconKey, string title, string cardType, int index)
+    {
+        var iconKey = NormalizeIconKey(configuredIconKey);
+
+        if (iconKey != "default")
+        {
+            return iconKey;
+        }
+
+        if (cardType == "support" || cardType == "support-login" ||
+            title.Contains("ورود") || title.Contains("پشتیبانی"))
+        {
+            return "support";
+        }
+
+        if (cardType == "docs" || cardType == "documents" ||
+            title.Contains("راهنما") || title.Contains("مستند"))
+        {
+            return "docs";
+        }
+
+        if (cardType == "faq" ||
+            title.Contains("سوال") || title.Contains("سؤال") || title.Contains("پرسش"))
+        {
+            return "faq";
+        }
+
+        return index switch
+        {
+            0 => "support",
+            1 => "docs",
+            2 => "faq",
+            _ => "default"
+        };
+    }
+
+    string InferBenefitIconKey(string? configuredIconKey, string title, int index)
+    {
+        var iconKey = NormalizeIconKey(configuredIconKey);
+
+        if (iconKey != "default")
+        {
+            return iconKey;
+        }
+
+        if (title.Contains("امنیت") || title.Contains("محرمانگی"))
+        {
+            return "security";
+        }
+
+        if (title.Contains("دسترسی") || title.Contains("سریع") || title.Contains("آسان"))
+        {
+            return "access";
+        }
+
+        if (title.Contains("پشتیبانی") || title.Contains("حرفه‌ای") || title.Contains("همراه"))
+        {
+            return "people";
+        }
+
+        return index switch
+        {
+            0 => "security",
+            1 => "access",
+            2 => "people",
+            _ => "default"
+        };
+    }
+
+    string ResolveCardUrl(string? rawUrl, string cardType)
+    {
+        if (cardType == "support" || cardType == "support-login")
+        {
+            return Configuration["Crm:PublicLoginUrl"]
+                ?? Configuration["Crm:LoginUrl"]
+                ?? "https://crm.localhost:44398/sso/login";
+        }
+
+        return string.IsNullOrWhiteSpace(rawUrl)
+            ? "#"
+            : rawUrl;
+    }
+
+    var pageTitle = TextValue("pageTitle", Model.Name);
+    ViewData["PageTitle"] = pageTitle;
+
+    var heroEyebrow = TextValue("heroEyebrow", "");
+
+    var introText = TextValue(
+        "introText",
+        "");
+
+    var heroImage = Model.Value<MediaWithCrops>("heroImage");
+    var heroImageUrl = heroImage?.MediaUrl() ?? "/assets/sama/portal/customer-portal-hero-art.png";
+
+    var portalBlocks = Model
+        .Value<IEnumerable<BlockListItem>>("portalCards")?
+        .ToList() ?? new List<BlockListItem>();
+
+    var portalCards = new List<(
+        string Title,
+        string Description,
+        string ButtonText,
+        string Url,
+        bool OpenInNewTab,
+        string IconKey,
+        string CardType)>();
+
+    foreach (var block in portalBlocks)
+    {
+        var title = block.Content.Value<string>("cardTitle");
+        var description = block.Content.Value<string>("cardDescription");
+        var buttonText = block.Content.Value<string>("buttonText");
+        var cardType = NormalizeIconKey(block.Content.Value<string>("cardType"));
+        var url = ResolveCardUrl(block.Content.Value<string>("cardUrl"), cardType);
+        var iconKey = InferCardIconKey(block.Content.Value<string>("iconKey"), title ?? string.Empty, cardType, portalCards.Count);
+        var openInNewTab = block.Content.Value<bool?>("openInNewTab") ?? false;
+
+        portalCards.Add((
+            string.IsNullOrWhiteSpace(title) ? "دسترسی پورتال" : title,
+            string.IsNullOrWhiteSpace(description) ? "دسترسی سریع به خدمات و اطلاعات مرتبط با مشتریان." : description,
+            string.IsNullOrWhiteSpace(buttonText) ? "مشاهده" : buttonText,
+            url,
+            openInNewTab,
+            iconKey,
+            cardType));
+    }
+
+    if (!portalCards.Any())
+    {
+        portalCards.Add((
+            "ورود به سامانه پشتیبانی",
+            "ثبت و پیگیری تیکت‌ها و مشاهده وضعیت درخواست‌های پشتیبانی.",
+            "ورود به سامانه",
+            ResolveCardUrl(null, "support-login"),
+            false,
+            "support",
+            "support-login"));
+
+        portalCards.Add((
+            "راهنماها و مستندات",
+            "دسترسی به فایل‌های آموزشی و راهنمای استفاده از سامانه‌ها.",
+            "مشاهده راهنماها",
+            "#",
+            false,
+            "docs",
+            "docs"));
+
+        portalCards.Add((
+            "سوالات متداول",
+            "پاسخ به رایج‌ترین سوالات کاربران درباره خدمات و سامانه‌ها.",
+            "مشاهده سوالات",
+            "#",
+            false,
+            "faq",
+            "faq"));
+    }
+
+    var showPortalBenefits = Model.Value<bool>("showPortalBenefits");
+
+    var benefitBlocks = Model
+        .Value<IEnumerable<BlockListItem>>("portalBenefits")?
+        .ToList() ?? new List<BlockListItem>();
+
+    var benefits = new List<(
+        string Title,
+        string Description,
+        string IconKey)>();
+
+    foreach (var block in benefitBlocks)
+    {
+        var title = block.Content.Value<string>("benefitTitle");
+        var description = block.Content.Value<string>("benefitDescription");
+        var iconKey = InferBenefitIconKey(block.Content.Value<string>("iconKey"), title ?? string.Empty, benefits.Count);
+
+        benefits.Add((
+            string.IsNullOrWhiteSpace(title) ? "مزیت پورتال" : title,
+            string.IsNullOrWhiteSpace(description) ? "توضیح کوتاه درباره این مزیت." : description,
+            iconKey));
+    }
 }
 
-<section class="customer-portal-page">
-    <div class="container">
-        <div class="portal-hero reveal-section">
-            <span class="section-kicker">پورتال مشتریان</span>
-
-            <h1>@title</h1>
-
-            @if (!string.IsNullOrWhiteSpace(introText))
-            {
+<main class="customer-portal-page">
+    <section class="customer-portal-hero">
+        <div class="container customer-portal-hero__grid">
+            <div class="customer-portal-hero__content">
+                <span class="customer-portal-eyebrow">@heroEyebrow</span>
+                <h1>@pageTitle</h1>
                 <p>@introText</p>
+                <span class="customer-portal-title-mark" aria-hidden="true"></span>
+            </div>
+
+            <div class="customer-portal-visual" aria-hidden="true">
+                <img class="customer-portal-visual__image"
+                     src="@heroImageUrl"
+                     alt="" />
+            </div>
+        </div>
+    </section>
+
+    <section id="portal-options" class="container customer-portal-options reveal-section">
+        <div class="customer-portal-card-grid">
+            @foreach (var card in portalCards)
+            {
+                var isPrimary = card.CardType == "support" ||
+                                card.CardType == "support-login" ||
+                                card.Url.Contains("sso", StringComparison.OrdinalIgnoreCase);
+
+                <a class="customer-portal-card @(isPrimary ? "customer-portal-card--primary" : null)"
+                   href="@card.Url"
+                   target="@(card.OpenInNewTab ? "_blank" : null)"
+                   rel="@(card.OpenInNewTab ? "noopener" : null)">
+                    <span class="customer-portal-card__icon portal-icon portal-icon--@card.IconKey"
+                          aria-hidden="true"></span>
+
+                    <span class="customer-portal-card__body">
+                        <strong>@card.Title</strong>
+                        <small>@card.Description</small>
+                    </span>
+
+                    <span class="customer-portal-card__button">@card.ButtonText</span>
+                </a>
             }
         </div>
+    </section>
 
-        @if (portalCards.Any())
-        {
-            <div class="portal-card-grid reveal-section">
-                @foreach (var card in portalCards)
+    @if (showPortalBenefits)
+    {
+        <section class="customer-portal-benefits" aria-label="مزایای پورتال مشتریان">
+            <div class="container customer-portal-benefits__grid">
+                @foreach (var benefit in benefits)
                 {
-                    var cardTitle = card.Content.Value<string>("cardTitle");
-                    var cardDescription = card.Content.Value<string>("cardDescription");
-                    var buttonText = card.Content.Value<string>("buttonText");
-                    var cardUrl = card.Content.Value<string>("cardUrl");
-                    var openInNewTab = card.Content.Value<bool>("openInNewTab");
-
-                    var target = openInNewTab ? "_blank" : "_self";
-                    var rel = openInNewTab ? "noopener noreferrer" : null;
-
-                    if (string.IsNullOrWhiteSpace(cardTitle))
-                    {
-                        continue;
-                    }
-
-                    <article class="portal-card">
-                        <div class="portal-card-content">
-                            <h2>@cardTitle</h2>
-
-                            @if (!string.IsNullOrWhiteSpace(cardDescription))
-                            {
-                                <p>@cardDescription</p>
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(cardUrl) && !string.IsNullOrWhiteSpace(buttonText))
-                        {
-                            <a class="portal-card-link"
-                               href="@cardUrl"
-                               target="@target"
-                               rel="@rel">
-                                @buttonText
-                            </a>
-                        }
-                    </article>
+                    <div class="customer-portal-benefit">
+                        <span class="customer-portal-benefit__icon portal-icon portal-icon--@benefit.IconKey"
+                            aria-hidden="true"></span>
+                        <strong>@benefit.Title</strong>
+                        <small>@benefit.Description</small>
+                    </div>
                 }
             </div>
-        }
-    </div>
-</section>
+        </section>
+    }
+</main>
