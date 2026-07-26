@@ -62,17 +62,57 @@ app.MapWhen(
     {
         proxyApp.UseRouting();
 
+        proxyApp.Use(async (context, next) =>
+        {
+            var path = context.Request.Path;
+
+            var isSsoPath =
+                path.StartsWithSegments("/sso/login") ||
+                path.StartsWithSegments("/sso/logout") ||
+                path.StartsWithSegments("/login");
+
+            if (isSsoPath)
+            {
+                await next();
+                return;
+            }
+
+            var hasGatewaySession =
+                context.Request.Cookies.ContainsKey("CrmGatewaySession");
+
+            if (!hasGatewaySession)
+            {
+                if (path.StartsWithSegments("/api"))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return;
+                }
+
+                context.Response.Redirect("/sso/login?expired=1");
+                return;
+            }
+
+            await next();
+        });
+
         proxyApp.UseEndpoints(endpoints =>
         {
             endpoints.MapGet("/sso/login", async context =>
             {
                 PreventBrowserCache(context);
 
-                if (HasCrmSession(context))
+                var isExpiredRequest = context.Request.Query.ContainsKey("expired");
+
+                if (isExpiredRequest)
+                {
+                    ExpireAllCrmCookies(context);
+                }
+                else if (HasCrmSession(context))
                 {
                     context.Response.Redirect("/dashboard");
                     return;
                 }
+
                 context.Response.ContentType = "text/html; charset=utf-8";
 
                 await context.Response.WriteAsync("""
@@ -156,27 +196,34 @@ app.MapWhen(
                 </body>
 
                 <script>
-                    try {
-                        const raw = localStorage.getItem("sama-token");
-
-                        if (raw) {
-                            const loginData = JSON.parse(raw);
-                            const expireDate = loginData.expireDateTime
-                                ? new Date(loginData.expireDateTime)
-                                : null;
-
-                            if (!expireDate || expireDate > new Date()) {
-                                window.location.replace("/dashboard");
-                            } else {
-                                localStorage.removeItem("loginSystemName");
-                                localStorage.removeItem("sama-token");
-                                sessionStorage.clear();
-                            }
-                        }
-                    } catch (error) {
+                    function clearCrmStorage() {
                         localStorage.removeItem("loginSystemName");
                         localStorage.removeItem("sama-token");
                         sessionStorage.clear();
+                    }
+
+                    try {
+                        const params = new URLSearchParams(window.location.search);
+
+                        if (params.has("expired")) {
+                            clearCrmStorage();
+                            window.history.replaceState({}, document.title, "/sso/login");
+                        } else {
+                            const raw = localStorage.getItem("sama-token");
+
+                            if (raw) {
+                                const loginData = JSON.parse(raw);
+                                const expireDate = loginData.expireDateTime
+                                    ? new Date(loginData.expireDateTime)
+                                    : null;
+
+                                if (expireDate && expireDate <= new Date()) {
+                                    clearCrmStorage();
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        clearCrmStorage();
                     }
                 </script>
                 </html>
@@ -231,6 +278,26 @@ app.MapWhen(
                     context.Response.Headers.Append("Set-Cookie", setCookieHeader);
                 }
 
+                var gatewaySessionExpires = GetCrmGatewaySessionExpires(responseBody, configuration);
+                var gatewaySessionMaxAge = gatewaySessionExpires - DateTimeOffset.UtcNow;
+
+                if (gatewaySessionMaxAge <= TimeSpan.Zero)
+                {
+                    gatewaySessionExpires = DateTimeOffset.UtcNow.AddMinutes(30);
+                    gatewaySessionMaxAge = TimeSpan.FromMinutes(30);
+                }
+
+                context.Response.Cookies.Append(
+                    "CrmGatewaySession",
+                    "1",
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Lax,
+                        Expires = gatewaySessionExpires,
+                        MaxAge = gatewaySessionMaxAge
+                    });
 
                 context.Response.ContentType = "text/html; charset=utf-8";
 
@@ -322,10 +389,107 @@ static void PreventBrowserCache(HttpContext context)
 
 static bool HasCrmSession(HttpContext context)
 {
-    return context.Request.Cookies.ContainsKey("X-Token")
-        || context.Request.Cookies.ContainsKey("SystemName");
+    return context.Request.Cookies.ContainsKey("CrmGatewaySession");
 }
 
+static void ExpireAllCrmCookies(HttpContext context)
+{
+    ExpireCrmCookie(context, ".SAMA.Session");
+    ExpireCrmCookie(context, "SystemName");
+    ExpireCrmCookie(context, "X-Token");
+    ExpireCrmCookie(context, "X-Ip");
+    ExpireCrmCookie(context, "CrmGatewaySession");
+}
+
+static DateTimeOffset GetCrmGatewaySessionExpires(
+    string responseBody,
+    IConfiguration configuration)
+{
+    var fallbackExpires = DateTimeOffset.UtcNow.AddMinutes(30);
+
+    try
+    {
+        using var document = System.Text.Json.JsonDocument.Parse(responseBody);
+
+        var expireText = GetJsonStringCaseInsensitive(
+            document.RootElement,
+            "expireDateTime");
+
+        if (string.IsNullOrWhiteSpace(expireText))
+        {
+            return fallbackExpires;
+        }
+
+        if (!DateTime.TryParse(
+                expireText,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out var crmLocalDateTime))
+        {
+            return fallbackExpires;
+        }
+
+        var crmTimeZone = GetCrmTimeZone(configuration);
+
+        var unspecifiedCrmDateTime = DateTime.SpecifyKind(
+            crmLocalDateTime,
+            DateTimeKind.Unspecified);
+
+        var utcDateTime = TimeZoneInfo.ConvertTimeToUtc(
+            unspecifiedCrmDateTime,
+            crmTimeZone);
+
+        var expireDateTime = new DateTimeOffset(utcDateTime, TimeSpan.Zero);
+
+        if (expireDateTime <= DateTimeOffset.UtcNow)
+        {
+            return fallbackExpires;
+        }
+
+        return expireDateTime;
+    }
+    catch
+    {
+        return fallbackExpires;
+    }
+}
+
+static string? GetJsonStringCaseInsensitive(
+    System.Text.Json.JsonElement element,
+    string propertyName)
+{
+    foreach (var property in element.EnumerateObject())
+    {
+        if (string.Equals(
+                property.Name,
+                propertyName,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return property.Value.GetString();
+        }
+    }
+
+    return null;
+}
+
+static TimeZoneInfo GetCrmTimeZone(IConfiguration configuration)
+{
+    var configuredTimeZoneId = configuration["Crm:TimeZoneId"];
+
+    if (!string.IsNullOrWhiteSpace(configuredTimeZoneId))
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(configuredTimeZoneId);
+    }
+
+    try
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById("Iran Standard Time");
+    }
+    catch
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById("Asia/Tehran");
+    }
+}
 
 static async Task HandleCrmLogoutRedirect(HttpContext context)
 {
@@ -336,10 +500,7 @@ static async Task HandleCrmLogoutRedirect(HttpContext context)
         configuration["Crm:LogoutRedirectUrl"]
         ?? "https://localhost:44398/customer-portal/";
 
-    ExpireCrmCookie(context, ".SAMA.Session");
-    ExpireCrmCookie(context, "SystemName");
-    ExpireCrmCookie(context, "X-Token");
-    ExpireCrmCookie(context, "X-Ip");
+    ExpireAllCrmCookies(context);
 
     context.Response.ContentType = "text/html; charset=utf-8";
 

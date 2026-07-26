@@ -1,0 +1,35 @@
+/* =====================================================
+   Testimonial Header Refinement
+   ===================================================== */
+
+.testimonial-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.testimonial-header .quote-mark {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+}
+
+.testimonial-header .testimonial-person {
+  display: grid;
+  gap: 4px;
+  margin-top: 0;
+  text-align: right;
+}
+
+.testimonial-header .testimonial-person strong {
+  color: var(--sama-primary-dark);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.testimonial-header .testimonial-person span {
+  color: var(--sama-muted);
+  font-size: 14px;
+  font-weight: 700;
+}

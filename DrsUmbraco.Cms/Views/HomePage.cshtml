@@ -399,13 +399,13 @@
                             }
 
                             var summary = product.Value<string>("summary");
-                            var icon = product.Value<MediaWithCrops>("icon");
+                            var icon = FirstMedia(product, "icon");
 
                             var cardClass = "product-card product-card-polished";
-                            if (i == 1)
+                            <!-- if (i == 1)
                             {
                                 cardClass += " is-featured";
-                            }
+                            } -->
 
                             <a class="@cardClass" href="@product.Url()">
                                 <div class="product-icon">

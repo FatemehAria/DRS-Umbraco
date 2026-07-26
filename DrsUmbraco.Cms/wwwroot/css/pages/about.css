@@ -1,0 +1,114 @@
+/* =====================================================
+   About Page
+   ===================================================== */
+
+.about-page {
+  padding: 82px 0 50px;
+}
+
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.about-content-card,
+.about-side-panel,
+.about-value-card {
+  background: #fff;
+  border: 1px solid var(--sama-border);
+  border-radius: 32px;
+  box-shadow: var(--sama-shadow-sm);
+}
+
+.about-content-card {
+  padding: 42px;
+}
+
+.about-content-card h2 {
+  margin: 0 0 22px;
+  color: var(--sama-primary-dark);
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.6;
+  font-weight: 900;
+}
+
+.about-body {
+  color: var(--sama-text);
+  line-height: 2.3;
+  font-size: 16px;
+}
+
+.about-body p {
+  margin: 0 0 18px;
+}
+
+.about-side-panel {
+  overflow: hidden;
+  position: sticky;
+  top: 96px;
+}
+
+.about-side-panel img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.about-side-caption {
+  padding: 24px;
+}
+
+.about-side-caption strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--sama-primary-dark);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.about-side-caption span {
+  color: var(--sama-muted);
+  line-height: 2;
+}
+
+.about-values-section {
+  padding: 36px 0 96px;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.about-value-card {
+  padding: 30px;
+}
+
+.about-value-card span {
+  display: inline-flex;
+  margin-bottom: 14px;
+  padding: 6px 13px;
+  color: var(--sama-primary);
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.about-value-card h3 {
+  margin: 0 0 14px;
+  color: var(--sama-primary-dark);
+  font-size: 21px;
+  line-height: 1.7;
+  font-weight: 900;
+}
+
+.about-value-card p {
+  margin: 0;
+  color: var(--sama-muted);
+  line-height: 2;
+  font-size: 14px;
+}

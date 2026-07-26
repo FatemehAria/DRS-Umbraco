@@ -1,0 +1,27 @@
+/* =====================================================
+   Resume Upload Field
+   ===================================================== */
+
+.resume-upload-field input[type="file"] {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  color: var(--sama-text);
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px dashed rgba(15, 76, 129, 0.32);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.resume-upload-field input[type="file"]:focus {
+  border-color: var(--sama-primary);
+  box-shadow: 0 0 0 4px rgba(15, 76, 129, 0.12);
+  outline: none;
+}
+
+.field-hint {
+  color: var(--sama-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.8;
+}

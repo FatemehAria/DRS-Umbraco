@@ -1,0 +1,25 @@
+/* =====================================================
+   Design Tokens
+   ===================================================== */
+
+:root {
+  --sama-primary: #0f4c81;
+  --sama-primary-dark: #082f55;
+  --sama-accent: #f5a623;
+
+  --sama-text: #172033;
+  --sama-muted: #6b7280;
+  --sama-bg: #f6f8fc;
+  --sama-card: #ffffff;
+  --sama-border: #e6eaf0;
+
+  --sama-shadow-sm: 0 10px 30px rgba(15, 76, 129, 0.08);
+  --sama-shadow-md: 0 18px 48px rgba(15, 76, 129, 0.16);
+
+  --sama-radius-xl: 28px;
+  --sama-radius-lg: 22px;
+  --sama-radius-md: 16px;
+
+  --container-width: 1180px;
+  --container-padding: 40px;
+}

@@ -1,0 +1,142 @@
+/* =====================================================
+   Product Cards
+   Shared by Home products section and Product List page
+   ===================================================== */
+
+.products-section {
+  padding-top: 74px;
+  padding-bottom: 74px;
+}
+
+.product-grid-polished {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  align-items: stretch;
+}
+
+.product-card-polished {
+  position: relative;
+  isolation: isolate;
+  min-height: 320px;
+  display: block;
+  overflow: hidden;
+  padding: 32px;
+  color: var(--sama-text);
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(15, 76, 129, 0.08),
+      transparent 34%
+    ),
+    #fff;
+  border: 1px solid var(--sama-border);
+  border-radius: var(--sama-radius-xl);
+  box-shadow: var(--sama-shadow-sm);
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.42s ease,
+    color 0.35s ease;
+}
+
+.product-card-polished::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  background:
+    linear-gradient(135deg, rgba(15, 76, 129, 0.97), rgba(8, 47, 85, 0.97)),
+    #0f4c81;
+  transition: opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-card-polished:hover {
+  color: #fff;
+  transform: translateY(-7px);
+  border-color: rgba(15, 76, 129, 0.28);
+  box-shadow: var(--sama-shadow-md);
+}
+
+.product-card-polished:hover::before {
+  opacity: 1;
+}
+
+.product-icon {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 24px;
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 22px;
+  transition:
+    background 0.35s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+
+.product-icon img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  opacity: 0.9;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-card-polished:hover .product-icon {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.product-card-polished:hover .product-icon img {
+  opacity: 1;
+  transform: scale(1.05);
+  filter: brightness(0) saturate(100%) invert(19%) sepia(61%) saturate(1680%)
+    hue-rotate(179deg) brightness(91%) contrast(95%);
+}
+
+.product-card-polished h3 {
+  margin: 0 0 14px;
+  color: var(--sama-primary-dark);
+  font-size: 22px;
+  font-weight: 900;
+  transition: color 0.35s ease;
+}
+
+.product-card-polished p {
+  margin: 0;
+  color: var(--sama-muted);
+  line-height: 2;
+  font-size: 14px;
+  transition: color 0.35s ease;
+}
+
+.product-card-polished span {
+  display: inline-flex;
+  margin-top: 24px;
+  color: var(--sama-primary);
+  font-size: 15px;
+  font-weight: 900;
+  transition: color 0.35s ease;
+}
+
+.product-card-polished:hover h3,
+.product-card-polished:hover p,
+.product-card-polished:hover span {
+  color: #fff;
+}
+
+.product-card-polished span::after {
+  content: "←";
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.product-card-polished:hover span::after {
+  transform: translateX(-4px);
+}

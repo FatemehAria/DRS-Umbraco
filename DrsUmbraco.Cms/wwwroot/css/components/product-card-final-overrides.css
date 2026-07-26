@@ -1,0 +1,35 @@
+/* =====================================================
+   Product Icon Final Overrides
+   Loaded late because Product List and Product Detail add page-specific sizing.
+   ===================================================== */
+
+.product-list-card .product-icon {
+  width: 84px;
+  height: 84px;
+  background: #eef4f8;
+  border-radius: 24px;
+}
+
+.product-list-card .product-icon img {
+  width: 58px;
+  height: 58px;
+  display: block;
+  object-fit: contain;
+  filter: none;
+}
+
+.product-detail-hero-panel .product-detail-icon {
+  width: 96px;
+  height: 96px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+}
+
+.product-detail-hero-panel .product-detail-icon img {
+  width: 64px;
+  height: 64px;
+  display: block;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}

@@ -1,0 +1,95 @@
+/* =====================================================
+   Client Logo Carousel
+   ===================================================== */
+
+.clients-section {
+  overflow: hidden;
+  padding: 76px 0 54px;
+  background: #fff;
+}
+
+.logo-carousel {
+  position: relative;
+  direction: ltr;
+  overflow: hidden;
+  padding: 18px 0 28px;
+}
+
+.logo-carousel::before,
+.logo-carousel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 160px;
+  pointer-events: none;
+}
+
+.logo-carousel::before {
+  left: 0;
+  background: linear-gradient(90deg, #fff, transparent);
+}
+
+.logo-carousel::after {
+  right: 0;
+  background: linear-gradient(270deg, #fff, transparent);
+}
+
+.logo-track {
+  width: max-content;
+  display: flex;
+  gap: 0;
+  animation: samaLogoMarquee 60s linear infinite;
+  will-change: transform;
+}
+
+.logo-group {
+  flex-shrink: 0;
+  display: flex;
+  gap: 28px;
+  padding-inline-end: 28px;
+}
+
+.logo-carousel:hover .logo-track {
+  animation-play-state: paused;
+}
+
+.logo-item {
+  width: 190px;
+  height: 110px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid var(--sama-border);
+  border-radius: 22px;
+  box-shadow: var(--sama-shadow-sm);
+  filter: grayscale(0.25);
+  opacity: 0.92;
+  transition:
+    filter 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.logo-item:hover {
+  filter: grayscale(0);
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+.logo-item img {
+  max-width: 120px;
+  max-height: 72px;
+  object-fit: contain;
+}
+
+@keyframes samaLogoMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
