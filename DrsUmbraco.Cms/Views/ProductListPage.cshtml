@@ -2,11 +2,12 @@
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Cms.Core.Models.PublishedContent
 @using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models.Blocks
 
 @{
     Layout = "Master.cshtml";
 
-    MediaWithCrops? FirstMedia(IPublishedContent content, string alias)
+    MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
     {
         var singleMedia = content.Value<MediaWithCrops>(alias);
 
@@ -50,6 +51,87 @@
         .Where(x => x.ContentType.Alias == "productItem")
         .OrderBy(x => x.SortOrder)
         .ToList();
+
+    var productCategoryBlocks = Model.Value<BlockListModel>("productCategoryFilters");
+    var productCategories = new List<ProductFilterCategory>();
+
+    if (productCategoryBlocks != null)
+    {
+        foreach (var block in productCategoryBlocks)
+        {
+            var category = block.Content;
+
+            var isVisible = category.GetProperty("isVisible") == null || category.Value<bool>("isVisible");
+
+            if (!isVisible)
+            {
+                continue;
+            }
+
+            var key = category.Value<string>("categoryKey");
+            var title = category.Value<string>("categoryTitle");
+            var icon = FirstMedia(category, "categoryIcon");
+
+            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(title))
+            {
+                continue;
+            }
+
+            productCategories.Add(new ProductFilterCategory
+            {
+                Key = key,
+                Title = title,
+                Icon = icon
+            });
+        }
+    }
+}
+
+@functions {
+    private sealed class ProductFilterCategory
+    {
+        public string Key { get; set; } = "";
+        public string Title { get; set; } = "";
+        public MediaWithCrops? Icon { get; set; }
+    }
+
+    private string ResolveProductCategory(IPublishedContent product, string productTitle)
+    {
+        var category = product.Value<string>("productCategory");
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            return category;
+        }
+
+        // fallback موقت برای محصولاتی که هنوز category نگرفته‌اند
+        if (productTitle.Contains("حسابداری") || productTitle.Contains("مالی") || productTitle.Contains("خزانه"))
+        {
+            return "financial";
+        }
+
+        if (productTitle.Contains("اداری") || productTitle.Contains("دبیرخانه"))
+        {
+            return "administrative";
+        }
+
+        if (productTitle.Contains("فروش") || productTitle.Contains("درآمد"))
+        {
+            return "sales";
+        }
+
+        if (productTitle.Contains("منابع انسانی"))
+        {
+            return "humanResources";
+        }
+
+        if (productTitle.Contains("انبار"))
+        {
+            return "supplyChain";
+        }
+
+        return "uncategorized";
+    }
 }
 
 @if (showHero)
@@ -77,6 +159,33 @@
     </section>
 }
 
+@if (products.Count > 0 && productCategories.Count > 0)
+{
+    <section class="container products-filter-wrap">
+        <div class="products-filter" aria-label="دسته‌بندی محصولات">
+            @foreach (var category in productCategories)
+            {
+                var isActive = category.Key == "all";
+
+                <button
+                    type="button"
+                    class="products-filter__item @(isActive ? "is-active" : "")"
+                    data-product-filter="@category.Key">
+
+                    <span class="products-filter__label">@category.Title</span>
+
+                    @if (category.Icon != null)
+                    {
+                        <span class="products-filter__icon" aria-hidden="true">
+                            <img src="@category.Icon.MediaUrl()" alt="" loading="lazy" />
+                        </span>
+                    }
+                </button>
+            }
+        </div>
+    </section>
+}
+
 <section class="container product-list-page reveal-section">
     @if (products.Count == 0)
     {
@@ -98,8 +207,11 @@
 
                 var summary = product.Value<string>("summary");
                 var icon = FirstMedia(product, "icon");
+                var productCategory = ResolveProductCategory(product, title);
 
-                <a class="product-card product-card-polished product-list-card" href="@product.Url()">
+                <a class="product-card product-card-polished product-list-card"
+                    href="@product.Url()"
+                    data-product-category="@productCategory">
                     <div class="product-icon">
                         @if (icon != null)
                         {
@@ -124,3 +236,113 @@
         </div>
     }
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filter = document.querySelector(".products-filter");
+        const filterButtons = Array.from(document.querySelectorAll("[data-product-filter]"));
+        const productGrid = document.querySelector(".product-list-grid");
+        const productCards = Array.from(document.querySelectorAll("[data-product-category]"));
+
+        if (!filter || !filterButtons.length || !productGrid || !productCards.length) {
+            return;
+        }
+
+        let currentCategory =
+            document.querySelector(".products-filter__item.is-active")?.getAttribute("data-product-filter") ||
+            "all";
+
+        let filterTimer = null;
+        let heightTimer = null;
+
+        function moveActivePill(button) {
+            const filterRect = filter.getBoundingClientRect();
+            const buttonRect = button.getBoundingClientRect();
+
+            const x = buttonRect.left - filterRect.left + filter.scrollLeft;
+
+            filter.style.setProperty("--products-filter-active-x", `${Math.round(x)}px`);
+            filter.style.setProperty("--products-filter-active-width", `${Math.round(buttonRect.width)}px`);
+        }
+
+        function setCardsVisibility(selectedCategory) {
+            productCards.forEach(function (card) {
+                const productCategory = card.getAttribute("data-product-category");
+
+                const shouldShow =
+                    selectedCategory === "all" ||
+                    productCategory === selectedCategory;
+
+                card.classList.toggle("is-hidden", !shouldShow);
+            });
+        }
+
+        function applyProductFilter(selectedCategory) {
+            window.clearTimeout(filterTimer);
+            window.clearTimeout(heightTimer);
+
+            const startHeight = productGrid.getBoundingClientRect().height;
+
+            productGrid.classList.add("is-height-animating");
+            productGrid.classList.add("is-filtering");
+            productGrid.style.height = `${startHeight}px`;
+
+            filterTimer = window.setTimeout(function () {
+                setCardsVisibility(selectedCategory);
+
+                productGrid.style.height = "auto";
+                const targetHeight = productGrid.getBoundingClientRect().height;
+
+                productGrid.style.height = `${startHeight}px`;
+                productGrid.offsetHeight; // force reflow
+
+                productGrid.style.height = `${targetHeight}px`;
+
+                requestAnimationFrame(function () {
+                    productGrid.classList.remove("is-filtering");
+                });
+
+                heightTimer = window.setTimeout(function () {
+                    productGrid.style.height = "";
+                    productGrid.classList.remove("is-height-animating");
+                }, 300);
+            }, 150);
+        }
+
+        const initialActiveButton =
+            document.querySelector(".products-filter__item.is-active") ||
+            filterButtons[0];
+
+        requestAnimationFrame(function () {
+            moveActivePill(initialActiveButton);
+        });
+
+        filterButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                const selectedCategory = button.getAttribute("data-product-filter");
+
+                if (selectedCategory === currentCategory) {
+                    return;
+                }
+
+                currentCategory = selectedCategory;
+
+                filterButtons.forEach(function (item) {
+                    item.classList.remove("is-active");
+                });
+
+                button.classList.add("is-active");
+                moveActivePill(button);
+                applyProductFilter(selectedCategory);
+            });
+        });
+
+        window.addEventListener("resize", function () {
+            const activeButton = document.querySelector(".products-filter__item.is-active");
+
+            if (activeButton) {
+                moveActivePill(activeButton);
+            }
+        });
+    });
+</script>
