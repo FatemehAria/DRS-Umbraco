@@ -1,8 +1,24 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.PublishedContent
 @using Umbraco.Extensions
 
 @{
     Layout = "Master.cshtml";
+
+    MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
+    {
+        var singleMedia = content.Value<MediaWithCrops>(alias);
+
+        if (singleMedia != null)
+        {
+            return singleMedia;
+        }
+
+        var mediaItems = content.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return mediaItems?.FirstOrDefault();
+    }
 
     var pageTitle = Model.Value<string>("pageTitle");
     if (string.IsNullOrWhiteSpace(pageTitle))
@@ -14,31 +30,52 @@
 
     var introText = Model.Value<string>("introText");
 
+    var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
+
+    var heroBadgeText = Model.Value<string>("heroBadgeText");
+    if (string.IsNullOrWhiteSpace(heroBadgeText))
+    {
+        heroBadgeText = "همکاری با ما";
+    }
+
+    var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
+    var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
+
+    if (string.IsNullOrWhiteSpace(heroBackgroundUrl))
+    {
+        heroBackgroundUrl = "/assets/sama/job/job-opportunities-bg.png";
+    }
+
     var jobs = Model.Children()
         .Where(x => x.ContentType.Alias == "jobOpening")
         .OrderBy(x => x.SortOrder)
         .ToList();
 }
 
-<section class="inner-page-hero recruitment-hero-clean">
-    <div class="container">
-        <span class="inner-page-badge">همکاری با ما</span>
+@if (showHero)
+{
+    <section class="recruitment-hero" style="--recruitment-hero-image: url('@heroBackgroundUrl');">
+        <div class="container recruitment-hero__inner">
+            <div class="recruitment-hero__content">
+                <span class="recruitment-hero__badge">@heroBadgeText</span>
 
-        <h1>@pageTitle</h1>
+                <h1>@pageTitle</h1>
 
-        @if (!string.IsNullOrWhiteSpace(introText))
-        {
-            <p>@introText</p>
-        }
-        else
-        {
-            <p>
-                اگر به یادگیری، حل مسئله و ساخت نرم‌افزارهای سازمانی علاقه‌مند هستید،
-                فرصت‌های همکاری با دیدگاه رایانه سما را بررسی کنید.
-            </p>
-        }
-    </div>
-</section>
+                @if (!string.IsNullOrWhiteSpace(introText))
+                {
+                    <p>@introText</p>
+                }
+                else
+                {
+                    <p>
+                        ما در دیدگاه شبکه سما به دنبال افرادی هستیم که به یادگیری،
+                        حل مسئله و ساخت راهکارهای سازمانی علاقه‌مند باشند.
+                    </p>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 <section class="container recruitment-page reveal-section">
     <div class="section-heading">
