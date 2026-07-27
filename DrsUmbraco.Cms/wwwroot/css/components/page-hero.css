@@ -1,0 +1,196 @@
+/* =====================================================
+   Sama Page Hero - Shared Component
+   ===================================================== */
+
+.sama-page-hero {
+  --page-hero-height: 450px;
+  --page-hero-image-fallback: none;
+  --page-hero-gradient: linear-gradient(
+    90deg,
+    rgba(2, 18, 42, 0.18) 0%,
+    rgba(5, 33, 72, 0.34) 38%,
+    rgba(2, 37, 79, 0.8) 68%,
+    rgba(1, 28, 64, 0.97) 100%
+  );
+
+  position: relative;
+  min-height: var(--page-hero-height);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: #fff;
+
+  background-image:
+    var(--page-hero-gradient),
+    var(--page-hero-image, var(--page-hero-image-fallback));
+
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    100% 100%,
+    cover;
+  background-position:
+    center center,
+    center center;
+}
+
+.sama-page-hero__inner {
+  position: relative;
+  z-index: 1;
+  min-height: var(--page-hero-height);
+  display: flex;
+  align-items: center;
+  direction: ltr;
+}
+
+.sama-page-hero__content {
+  width: min(100%, 660px);
+  margin-left: auto;
+  direction: rtl;
+  text-align: right;
+}
+
+.sama-page-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.sama-page-hero__content h1 {
+  position: relative;
+  width: fit-content;
+  margin: 22px 0 0;
+  color: #fff;
+  font-size: clamp(38px, 4.4vw, 62px);
+  line-height: 1.35;
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  text-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
+}
+
+.sama-page-hero__content h1::before {
+  content: "";
+  position: absolute;
+  right: -22px;
+  top: 8px;
+  width: 3px;
+  height: 72%;
+  border-radius: 999px;
+  background: var(--sama-accent);
+}
+
+.sama-page-hero__content h1::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -14px;
+  width: 86px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sama-accent);
+  box-shadow: 0 8px 22px rgba(245, 166, 35, 0.28);
+}
+
+.sama-page-hero__content p {
+  max-width: 760px;
+  margin: 36px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 2.15;
+  font-size: 15.5px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Page-specific fallback images */
+
+.sama-page-hero--products {
+  --page-hero-image-fallback: url("/assets/sama/products/products-hero-bg-final.png");
+}
+
+.sama-page-hero--recruitment {
+  --page-hero-image-fallback: url("/assets/sama/job/job-opportunities-bg.png");
+}
+
+.sama-page-hero--contact {
+  --page-hero-image-fallback: url("/assets/sama/contact/contact-us-bg.png");
+}
+
+/* Tablet / small desktop */
+@media (max-width: 1200px) {
+  .sama-page-hero {
+    --page-hero-height: 360px;
+
+    background-size:
+      100% 100%,
+      auto 100%;
+    background-position:
+      center center,
+      left center;
+  }
+
+  .sama-page-hero__content {
+    width: min(100%, 560px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .sama-page-hero {
+    --page-hero-height: 320px;
+
+    background-image:
+      radial-gradient(
+        circle at 18% 20%,
+        rgba(28, 113, 185, 0.22),
+        transparent 32%
+      ),
+      linear-gradient(135deg, #062d60 0%, #04264f 48%, #021b3d 100%);
+
+    background-size: 100% 100%;
+    background-position: center;
+  }
+
+  .sama-page-hero__content h1 {
+    font-size: 42px;
+  }
+
+  .sama-page-hero__content p {
+    max-width: 560px;
+    font-size: 14px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .sama-page-hero {
+    --page-hero-height: 300px;
+  }
+
+  .sama-page-hero__content {
+    width: 100%;
+  }
+
+  .sama-page-hero__badge {
+    padding: 7px 15px;
+    font-size: 13px;
+  }
+
+  .sama-page-hero__content h1 {
+    font-size: 34px;
+  }
+
+  .sama-page-hero__content h1::before {
+    right: -14px;
+  }
+
+  .sama-page-hero__content p {
+    max-width: 100%;
+    font-size: 13px;
+    line-height: 2;
+  }
+}

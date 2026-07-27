@@ -1,8 +1,25 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Models.Blocks
 @using Umbraco.Extensions
 
 @{
     Layout = "Master.cshtml";
+
+    MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
+    {
+        var singleMedia = content.Value<MediaWithCrops>(alias);
+
+        if (singleMedia != null)
+        {
+            return singleMedia;
+        }
+
+        var mediaItems = content.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return mediaItems?.FirstOrDefault();
+    }
 
     var pageTitle = Model.Value<string>("pageTitle");
     if (string.IsNullOrWhiteSpace(pageTitle))
@@ -13,30 +30,54 @@
     ViewData["PageTitle"] = pageTitle;
 
     var introText = Model.Value<string>("introText");
+
+    var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
+
+    var heroBadgeText = Model.Value<string>("heroBadgeText");
+    if (string.IsNullOrWhiteSpace(heroBadgeText))
+    {
+        heroBadgeText = "تماس با ما";
+    }
+
+    var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
+    var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
+
+    if (string.IsNullOrWhiteSpace(heroBackgroundUrl))
+    {
+        heroBackgroundUrl = "/assets/sama/contact/contact-us-bg.png";
+    }
+
     var address = Model.Value<string>("address");
     var phone = Model.Value<string>("phone");
     var workingHours = Model.Value<string>("workingHours");
+
+    var contactInfoBlocks = Model.Value<BlockListModel>("contactInfoItems");
 }
 
-<section class="inner-page-hero contact-hero-clean">
-    <div class="container">
-        <span class="inner-page-badge">ارتباط با ما</span>
+@if (showHero)
+{
+    <section class="sama-page-hero sama-page-hero--contact" style="--page-hero-image: url('@heroBackgroundUrl');">
+        <div class="container sama-page-hero__inner">
+            <div class="sama-page-hero__content">
+                <span class="sama-page-hero__badge">@heroBadgeText</span>
 
-        <h1>@pageTitle</h1>
+                <h1>@pageTitle</h1>
 
-        @if (!string.IsNullOrWhiteSpace(introText))
-        {
-            <p>@introText</p>
-        }
-        else
-        {
-            <p>
-                برای دریافت مشاوره، درخواست دمو یا ارتباط با تیم دیدگاه رایانه سما،
-                از طریق اطلاعات تماس یا فرم زیر با ما در ارتباط باشید.
-            </p>
-        }
-    </div>
-</section>
+                @if (!string.IsNullOrWhiteSpace(introText))
+                {
+                    <p>@introText</p>
+                }
+                else
+                {
+                    <p>
+                        برای دریافت مشاوره، درخواست دمو یا ارتباط با تیم دیدگاه رایانه سما،
+                        از طریق اطلاعات تماس یا فرم زیر با ما در ارتباط باشید.
+                    </p>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 <section class="container contact-page reveal-section">
     <div class="contact-grid">
@@ -46,20 +87,66 @@
             <h2>راه‌های ارتباطی</h2>
 
             <div class="contact-info-list">
-                <div class="contact-info-item">
-                    <strong>آدرس</strong>
-                    <p>@(string.IsNullOrWhiteSpace(address) ? "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱" : address)</p>
-                </div>
+                @if (contactInfoBlocks != null && contactInfoBlocks.Any())
+                {
+                    foreach (var block in contactInfoBlocks)
+                    {
+                        var item = block.Content;
 
-                <div class="contact-info-item">
-                    <strong>تلفن</strong>
-                    <p>@(string.IsNullOrWhiteSpace(phone) ? "۰۲۱-۸۸۳۳۴۱۱۷" : phone)</p>
-                </div>
+                        var isVisible = item.GetProperty("isVisible") == null || item.Value<bool>("isVisible");
 
-                <div class="contact-info-item">
-                    <strong>ساعات کاری</strong>
-                    <p>@(string.IsNullOrWhiteSpace(workingHours) ? "شنبه تا چهارشنبه، ساعت ۸ تا ۱۶" : workingHours)</p>
-                </div>
+                        if (!isVisible)
+                        {
+                            continue;
+                        }
+
+                        var title = item.Value<string>("contactInfoTitle");
+                        var text = item.Value<string>("contactInfoText");
+                        var icon = FirstMedia(item, "contactInfoIcon");
+
+                        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(text))
+                        {
+                            continue;
+                        }
+
+                        <div class="contact-info-item">
+                            @if (icon != null)
+                            {
+                                <span class="contact-info-icon" aria-hidden="true">
+                                    <img src="@icon.MediaUrl()" alt="" loading="lazy" />
+                                </span>
+                            }
+
+                            <div class="contact-info-content">
+                                <strong>@title</strong>
+                                <p>@text</p>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="contact-info-item">
+                        <div class="contact-info-content">
+                            <strong>آدرس</strong>
+                            <p>@(string.IsNullOrWhiteSpace(address) ? "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱" : address)</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-item">
+                        <div class="contact-info-content">
+                            <strong>تلفن</strong>
+                            <p>@(string.IsNullOrWhiteSpace(phone) ? "۰۲۱-۸۸۳۳۴۱۱۷" : phone)</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-item">
+                        <div class="contact-info-content">
+                            <strong>ساعات کاری</strong>
+                            <p>@(string.IsNullOrWhiteSpace(workingHours) ? "شنبه تا چهارشنبه، ساعت ۸ تا ۱۶" : workingHours)</p>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 

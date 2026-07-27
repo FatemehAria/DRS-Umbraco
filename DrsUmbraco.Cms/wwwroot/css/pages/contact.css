@@ -1,6 +1,4 @@
-/* =====================================================
-   Contact Page
-   ===================================================== */
+/* Contact Page */
 
 .contact-page {
   padding: 82px 0 96px;
@@ -53,6 +51,10 @@
 }
 
 .contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  direction: rtl;
   padding: 20px;
   background:
     radial-gradient(
@@ -63,6 +65,42 @@
     #f8fafc;
   border: 1px solid rgba(15, 76, 129, 0.08);
   border-radius: 22px;
+}
+
+.contact-info-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: inline-grid;
+  place-items: center;
+  background: rgba(15, 76, 129, 0.08);
+  border: 1px solid rgba(15, 76, 129, 0.08);
+  border-radius: 18px;
+}
+
+.contact-info-icon img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  object-fit: contain;
+}
+
+.contact-info-content {
+  min-width: 0;
+  text-align: right;
+}
+
+.contact-info-content strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--sama-primary);
+  font-weight: 900;
+}
+
+.contact-info-content p {
+  margin: 0;
+  color: var(--sama-text);
+  line-height: 2;
 }
 
 .contact-info-item strong {
