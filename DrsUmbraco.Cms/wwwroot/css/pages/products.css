@@ -49,54 +49,6 @@
   text-align: right;
 }
 
-/* .products-hero {
-  position: relative;
-  min-height: 380px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  isolation: isolate;
-  color: #fff;
-  background: #062d60;
-} */
-
-/* لایه عکس */
-/* .products-hero::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: -350px;
-  z-index: 0;
-  pointer-events: none;
-
-  background-image: url("/assets/sama/products/products-hero-bg@2x.webp");
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: cover;
-
-  filter: contrast(1.08) saturate(1.04);
-} */
-
-/* لایه گرادیان روی عکس */
-/* .products-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(2, 18, 42, 0.24) 0%,
-      rgba(5, 33, 72, 0.38) 38%,
-      rgba(2, 37, 79, 0.78) 68%,
-      rgba(1, 28, 64, 0.96) 100%
-    );
-} */
-
 .products-hero__badge {
   display: inline-flex;
   align-items: center;
@@ -152,55 +104,6 @@
   text-align: right;
 }
 
-/* @media (max-width: 900px) {
-  .products-hero {
-    min-height: 300px;
-  }
-
-  .products-hero::before {
-    left: -60px;
-    background-position: left center;
-  }
-
-  .products-hero::after {
-    background: linear-gradient(
-      90deg,
-      rgba(1, 28, 64, 0.72),
-      rgba(1, 28, 64, 0.96)
-    );
-  }
-
-  .products-hero__inner {
-    min-height: 300px;
-  }
-
-  .products-hero__content {
-    width: min(100%, 560px);
-  }
-}
-
-@media (max-width: 640px) {
-  .products-hero {
-    min-height: 280px;
-  }
-
-  .products-hero::before {
-    left: 0;
-  }
-
-  .products-hero__content h1 {
-    font-size: 34px;
-  }
-
-  .products-hero__content h1::before {
-    right: -14px;
-  }
-
-  .products-hero__content p {
-    font-size: 14px;
-  }
-} */
-
 @media (max-width: 1200px) {
   .products-hero {
     min-height: 360px;
@@ -233,26 +136,22 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .products-hero {
     min-height: 320px;
 
+    /* زیر 1024px عکس حذف می‌شود */
     background-image:
-      linear-gradient(
-        90deg,
-        rgba(1, 28, 64, 0.62) 0%,
-        rgba(1, 28, 64, 0.78) 45%,
-        rgba(1, 28, 64, 0.96) 100%
+      radial-gradient(
+        circle at 18% 20%,
+        rgba(28, 113, 185, 0.22),
+        transparent 32%
       ),
-      url("/assets/sama/products/products-hero-bg-final.png");
+      linear-gradient(135deg, #062d60 0%, #04264f 48%, #021b3d 100%);
 
-    background-size:
-      100% 100%,
-      auto 100%;
-
-    background-position:
-      center center,
-      left center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
   }
 
   .products-hero__inner {
@@ -260,7 +159,9 @@
   }
 
   .products-hero__content {
-    width: min(100%, 520px);
+    width: min(100%, 560px);
+    margin-left: auto;
+    margin-right: 0;
   }
 
   .products-hero__content h1 {
@@ -268,7 +169,7 @@
   }
 
   .products-hero__content p {
-    max-width: 520px;
+    max-width: 560px;
     font-size: 14px;
   }
 }
@@ -276,23 +177,6 @@
 @media (max-width: 640px) {
   .products-hero {
     min-height: 300px;
-
-    background-image:
-      linear-gradient(
-        90deg,
-        rgba(1, 28, 64, 0.82) 0%,
-        rgba(1, 28, 64, 0.9) 48%,
-        rgba(1, 28, 64, 0.98) 100%
-      ),
-      url("/assets/sama/products/products-hero-bg-final.png");
-
-    background-size:
-      100% 100%,
-      auto 100%;
-
-    background-position:
-      center center,
-      left center;
   }
 
   .products-hero__inner {
@@ -301,6 +185,11 @@
 
   .products-hero__content {
     width: 100%;
+  }
+
+  .products-hero__badge {
+    font-size: 13px;
+    padding: 7px 15px;
   }
 
   .products-hero__content h1 {
@@ -312,6 +201,7 @@
   }
 
   .products-hero__content p {
+    max-width: 100%;
     font-size: 13px;
     line-height: 2;
   }
