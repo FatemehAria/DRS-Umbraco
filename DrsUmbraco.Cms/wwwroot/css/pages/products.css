@@ -2,6 +2,321 @@
    Product Pages
    ===================================================== */
 
+/* =====================================================
+   Products Hero
+   ===================================================== */
+
+.products-hero {
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: #fff;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(2, 18, 42, 0.18) 0%,
+      rgba(5, 33, 72, 0.32) 38%,
+      rgba(2, 37, 79, 0.78) 68%,
+      rgba(1, 28, 64, 0.96) 100%
+    ),
+    url("/assets/sama/products/products-hero-bg-final.png");
+
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    100% 100%,
+    cover;
+  background-position:
+    center center,
+    center center;
+}
+
+.products-hero__inner {
+  position: relative;
+  z-index: 1;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  direction: ltr;
+}
+
+.products-hero__content {
+  width: min(100%, 620px);
+  margin-left: auto;
+  direction: rtl;
+  text-align: right;
+}
+
+/* .products-hero {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: #062d60;
+} */
+
+/* لایه عکس */
+/* .products-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: -350px;
+  z-index: 0;
+  pointer-events: none;
+
+  background-image: url("/assets/sama/products/products-hero-bg@2x.webp");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: cover;
+
+  filter: contrast(1.08) saturate(1.04);
+} */
+
+/* لایه گرادیان روی عکس */
+/* .products-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(2, 18, 42, 0.24) 0%,
+      rgba(5, 33, 72, 0.38) 38%,
+      rgba(2, 37, 79, 0.78) 68%,
+      rgba(1, 28, 64, 0.96) 100%
+    );
+} */
+
+.products-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.products-hero__content h1 {
+  position: relative;
+  width: fit-content;
+  margin: 22px 0 0;
+  color: #fff;
+  font-size: clamp(38px, 4.2vw, 58px);
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.products-hero__content h1::before {
+  content: "";
+  position: absolute;
+  right: -22px;
+  top: 8px;
+  width: 3px;
+  height: 72%;
+  border-radius: 999px;
+  background: var(--sama-accent);
+}
+
+.products-hero__content h1::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -13px;
+  width: 78px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--sama-accent);
+}
+
+.products-hero__content p {
+  max-width: 720px;
+  margin: 36px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 2.15;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* @media (max-width: 900px) {
+  .products-hero {
+    min-height: 300px;
+  }
+
+  .products-hero::before {
+    left: -60px;
+    background-position: left center;
+  }
+
+  .products-hero::after {
+    background: linear-gradient(
+      90deg,
+      rgba(1, 28, 64, 0.72),
+      rgba(1, 28, 64, 0.96)
+    );
+  }
+
+  .products-hero__inner {
+    min-height: 300px;
+  }
+
+  .products-hero__content {
+    width: min(100%, 560px);
+  }
+}
+
+@media (max-width: 640px) {
+  .products-hero {
+    min-height: 280px;
+  }
+
+  .products-hero::before {
+    left: 0;
+  }
+
+  .products-hero__content h1 {
+    font-size: 34px;
+  }
+
+  .products-hero__content h1::before {
+    right: -14px;
+  }
+
+  .products-hero__content p {
+    font-size: 14px;
+  }
+} */
+
+@media (max-width: 1200px) {
+  .products-hero {
+    min-height: 360px;
+
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(2, 18, 42, 0.2) 0%,
+        rgba(5, 33, 72, 0.36) 38%,
+        rgba(2, 37, 79, 0.82) 68%,
+        rgba(1, 28, 64, 0.96) 100%
+      ),
+      url("/assets/sama/products/products-hero-bg-final.png");
+
+    background-size:
+      100% 100%,
+      auto 100%;
+
+    background-position:
+      center center,
+      left center;
+  }
+
+  .products-hero__inner {
+    min-height: 360px;
+  }
+
+  .products-hero__content {
+    width: min(100%, 560px);
+  }
+}
+
+@media (max-width: 900px) {
+  .products-hero {
+    min-height: 320px;
+
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(1, 28, 64, 0.62) 0%,
+        rgba(1, 28, 64, 0.78) 45%,
+        rgba(1, 28, 64, 0.96) 100%
+      ),
+      url("/assets/sama/products/products-hero-bg-final.png");
+
+    background-size:
+      100% 100%,
+      auto 100%;
+
+    background-position:
+      center center,
+      left center;
+  }
+
+  .products-hero__inner {
+    min-height: 320px;
+  }
+
+  .products-hero__content {
+    width: min(100%, 520px);
+  }
+
+  .products-hero__content h1 {
+    font-size: 42px;
+  }
+
+  .products-hero__content p {
+    max-width: 520px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .products-hero {
+    min-height: 300px;
+
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(1, 28, 64, 0.82) 0%,
+        rgba(1, 28, 64, 0.9) 48%,
+        rgba(1, 28, 64, 0.98) 100%
+      ),
+      url("/assets/sama/products/products-hero-bg-final.png");
+
+    background-size:
+      100% 100%,
+      auto 100%;
+
+    background-position:
+      center center,
+      left center;
+  }
+
+  .products-hero__inner {
+    min-height: 300px;
+  }
+
+  .products-hero__content {
+    width: 100%;
+  }
+
+  .products-hero__content h1 {
+    font-size: 34px;
+  }
+
+  .products-hero__content h1::before {
+    right: -14px;
+  }
+
+  .products-hero__content p {
+    font-size: 13px;
+    line-height: 2;
+  }
+}
+
 .product-list-page {
   padding: 82px 0 100px;
 }

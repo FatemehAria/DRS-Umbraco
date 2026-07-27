@@ -30,31 +30,52 @@
 
     var introText = Model.Value<string>("introText");
 
+    var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
+
+    var heroBadgeText = Model.Value<string>("heroBadgeText");
+    if (string.IsNullOrWhiteSpace(heroBadgeText))
+    {
+        heroBadgeText = "محصولات";
+    }
+
+    var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
+    var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
+
+    if (string.IsNullOrWhiteSpace(heroBackgroundUrl))
+    {
+        heroBackgroundUrl = "/assets/sama/products/products-hero-bg.png";
+    }
+
     var products = Model.Children()
         .Where(x => x.ContentType.Alias == "productItem")
         .OrderBy(x => x.SortOrder)
         .ToList();
 }
 
-<section class="inner-page-hero product-hero-clean">
-    <div class="container">
-        <span class="inner-page-badge">محصولات</span>
+@if (showHero)
+{
+    <section class="products-hero" style="--products-hero-image: url('@heroBackgroundUrl');">
+        <div class="container products-hero__inner">
+            <div class="products-hero__content">
+                <span class="products-hero__badge">@heroBadgeText</span>
 
-        <h1>@pageTitle</h1>
+                <h1>@pageTitle</h1>
 
-        @if (!string.IsNullOrWhiteSpace(introText))
-        {
-            <p>@introText</p>
-        }
-        else
-        {
-            <p>
-                مجموعه‌ای از راهکارهای نرم‌افزاری سازمانی برای مدیریت بهتر فرایندهای مالی،
-                فروش، منابع انسانی و عملیات داخلی سازمان.
-            </p>
-        }
-    </div>
-</section>
+                @if (!string.IsNullOrWhiteSpace(introText))
+                {
+                    <p>@introText</p>
+                }
+                else
+                {
+                    <p>
+                        راهکارهای نرم‌افزاری سما برای پوشش نیازهای مالی، منابع انسانی،
+                        فروش و فرایندهای سازمانی طراحی شده‌اند.
+                    </p>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 <section class="container product-list-page reveal-section">
     @if (products.Count == 0)
