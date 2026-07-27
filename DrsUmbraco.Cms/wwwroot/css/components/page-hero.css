@@ -121,6 +121,10 @@
   --page-hero-image-fallback: url("/assets/sama/contact/contact-us-bg.png");
 }
 
+.sama-page-hero--about {
+  --page-hero-image-fallback: url("/assets/sama/about/about-us-hero-bg.png");
+}
+
 /* Tablet / small desktop */
 @media (max-width: 1200px) {
   .sama-page-hero {

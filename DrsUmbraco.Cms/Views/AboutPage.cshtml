@@ -1,9 +1,24 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.PublishedContent
 @using Umbraco.Extensions
 
 @{
     Layout = "Master.cshtml";
+
+    MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
+    {
+        var singleMedia = content.Value<MediaWithCrops>(alias);
+
+        if (singleMedia != null)
+        {
+            return singleMedia;
+        }
+
+        var mediaItems = content.Value<IEnumerable<MediaWithCrops>>(alias);
+
+        return mediaItems?.FirstOrDefault();
+    }
 
     var pageTitle = Model.Value<string>("pageTitle");
     if (string.IsNullOrWhiteSpace(pageTitle))
@@ -18,20 +33,48 @@
     var missionText = Model.Value<string>("missionText");
     var visionText = Model.Value<string>("visionText");
     var heroImage = Model.Value<MediaWithCrops>("heroImage");
+
+    var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
+
+    var heroBadgeText = Model.Value<string>("heroBadgeText");
+    if (string.IsNullOrWhiteSpace(heroBadgeText))
+    {
+        heroBadgeText = "درباره ما";
+    }
+
+    var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
+    var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
+
+    if (string.IsNullOrWhiteSpace(heroBackgroundUrl))
+    {
+        heroBackgroundUrl = "/assets/sama/about/about-us-hero-bg.png";
+    }
 }
 
-<section class="inner-page-hero about-hero-clean">
-    <div class="container">
-        <span class="inner-page-badge">درباره ما</span>
+@if (showHero)
+{
+    <section class="sama-page-hero sama-page-hero--about" style="--page-hero-image: url('@heroBackgroundUrl');">
+        <div class="container sama-page-hero__inner">
+            <div class="sama-page-hero__content">
+                <span class="sama-page-hero__badge">@heroBadgeText</span>
 
-        <h1>@pageTitle</h1>
+                <h1>@pageTitle</h1>
 
-        @if (!string.IsNullOrWhiteSpace(introText))
-        {
-            <p>@introText</p>
-        }
-    </div>
-</section>
+                @if (!string.IsNullOrWhiteSpace(introText))
+                {
+                    <p>@introText</p>
+                }
+                else
+                {
+                    <p>
+                        شرکت دیدبان شبکه سما با تکیه بر دانش فنی، تجربه و شناخت نیازهای
+                        سازمانی، راهکارهای نرم‌افزاری قابل اعتماد و توسعه‌پذیر ارائه می‌دهد.
+                    </p>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 <section class="container about-page reveal-section">
     <div class="about-layout">
