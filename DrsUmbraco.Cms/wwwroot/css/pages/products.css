@@ -1,14 +1,10 @@
-/* =====================================================
-   Product Pages
-   ===================================================== */
-
-/* =====================================================
-   Products Hero
-   ===================================================== */
-
+/* Product Hero */
 .products-hero {
+  --products-hero-height: 450px;
+  --products-hero-image-fallback: url("/assets/sama/products/products-hero-bg-final.png");
+
   position: relative;
-  min-height: 450px;
+  min-height: var(--products-hero-height);
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -22,7 +18,7 @@
       rgba(2, 37, 79, 0.78) 68%,
       rgba(1, 28, 64, 0.96) 100%
     ),
-    url("/assets/sama/products/products-hero-bg-final.png");
+    var(--products-hero-image, var(--products-hero-image-fallback));
 
   background-repeat: no-repeat, no-repeat;
   background-size:
@@ -36,7 +32,7 @@
 .products-hero__inner {
   position: relative;
   z-index: 1;
-  min-height: 450px;
+  min-height: var(--products-hero-height);
   display: flex;
   align-items: center;
   direction: ltr;
@@ -104,9 +100,10 @@
   text-align: right;
 }
 
+/* Tablet / small desktop: image is still visible */
 @media (max-width: 1200px) {
   .products-hero {
-    min-height: 360px;
+    --products-hero-height: 360px;
 
     background-image:
       linear-gradient(
@@ -116,19 +113,14 @@
         rgba(2, 37, 79, 0.82) 68%,
         rgba(1, 28, 64, 0.96) 100%
       ),
-      url("/assets/sama/products/products-hero-bg-final.png");
+      var(--products-hero-image, var(--products-hero-image-fallback));
 
     background-size:
       100% 100%,
       auto 100%;
-
     background-position:
       center center,
       left center;
-  }
-
-  .products-hero__inner {
-    min-height: 360px;
   }
 
   .products-hero__content {
@@ -136,11 +128,11 @@
   }
 }
 
+/* Tablet and mobile: image is hidden */
 @media (max-width: 1024px) {
   .products-hero {
-    min-height: 320px;
+    --products-hero-height: 320px;
 
-    /* زیر 1024px عکس حذف می‌شود */
     background-image:
       radial-gradient(
         circle at 18% 20%,
@@ -149,13 +141,8 @@
       ),
       linear-gradient(135deg, #062d60 0%, #04264f 48%, #021b3d 100%);
 
-    background-repeat: no-repeat;
     background-size: 100% 100%;
     background-position: center;
-  }
-
-  .products-hero__inner {
-    min-height: 320px;
   }
 
   .products-hero__content {
@@ -174,13 +161,10 @@
   }
 }
 
+/* Mobile */
 @media (max-width: 640px) {
   .products-hero {
-    min-height: 300px;
-  }
-
-  .products-hero__inner {
-    min-height: 300px;
+    --products-hero-height: 300px;
   }
 
   .products-hero__content {
@@ -188,8 +172,8 @@
   }
 
   .products-hero__badge {
-    font-size: 13px;
     padding: 7px 15px;
+    font-size: 13px;
   }
 
   .products-hero__content h1 {
@@ -207,24 +191,10 @@
   }
 }
 
+/* Product List */
+
 .product-list-page {
   padding: 82px 0 100px;
-}
-
-.product-list-grid {
-  margin-bottom: 0;
-}
-
-.product-list-card {
-  min-height: 340px;
-}
-
-.product-list-card h3 {
-  line-height: 1.7;
-}
-
-.product-list-card p {
-  min-height: 84px;
 }
 
 /* Product Detail */
