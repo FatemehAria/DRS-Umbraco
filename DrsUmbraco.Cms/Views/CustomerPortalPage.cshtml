@@ -129,6 +129,8 @@
     var portalBlocks = Model
         .Value<IEnumerable<BlockListItem>>("portalCards")?
         .ToList() ?? new List<BlockListItem>();
+    
+    var hasConfiguredPortalCards = portalBlocks.Any();
 
     var portalCards = new List<(
         string Title,
@@ -141,6 +143,14 @@
 
     foreach (var block in portalBlocks)
     {
+        var isVisible = block.Content.GetProperty("isVisible") == null ||
+                    block.Content.Value<bool>("isVisible");
+
+        if (!isVisible)
+        {
+            continue;
+        }
+
         var title = block.Content.Value<string>("cardTitle");
         var description = block.Content.Value<string>("cardDescription");
         var buttonText = block.Content.Value<string>("buttonText");
@@ -159,7 +169,7 @@
             cardType));
     }
 
-    if (!portalCards.Any())
+    if (!hasConfiguredPortalCards)
     {
         portalCards.Add((
             "ورود به سامانه پشتیبانی",
@@ -231,31 +241,34 @@
         </div>
     </section>
 
-    <section id="portal-options" class="container customer-portal-options reveal-section">
-        <div class="customer-portal-card-grid">
-            @foreach (var card in portalCards)
-            {
-                var isPrimary = card.CardType == "support" ||
-                                card.CardType == "support-login" ||
-                                card.Url.Contains("sso", StringComparison.OrdinalIgnoreCase);
+    @if (portalCards.Any())
+    {
+        <section id="portal-options" class="container customer-portal-options reveal-section">
+            <div class="customer-portal-card-grid">
+                @foreach (var card in portalCards)
+                {
+                    var isPrimary = card.CardType == "support" ||
+                                    card.CardType == "support-login" ||
+                                    card.Url.Contains("sso", StringComparison.OrdinalIgnoreCase);
 
-                <a class="customer-portal-card @(isPrimary ? "customer-portal-card--primary" : null)"
-                   href="@card.Url"
-                   target="@(card.OpenInNewTab ? "_blank" : null)"
-                   rel="@(card.OpenInNewTab ? "noopener" : null)">
-                    <span class="customer-portal-card__icon portal-icon portal-icon--@card.IconKey"
-                          aria-hidden="true"></span>
+                    <a class="customer-portal-card @(isPrimary ? "customer-portal-card--primary" : null)"
+                    href="@card.Url"
+                    target="@(card.OpenInNewTab ? "_blank" : null)"
+                    rel="@(card.OpenInNewTab ? "noopener" : null)">
+                        <span class="customer-portal-card__icon portal-icon portal-icon--@card.IconKey"
+                            aria-hidden="true"></span>
 
-                    <span class="customer-portal-card__body">
-                        <strong>@card.Title</strong>
-                        <small>@card.Description</small>
-                    </span>
+                        <span class="customer-portal-card__body">
+                            <strong>@card.Title</strong>
+                            <small>@card.Description</small>
+                        </span>
 
-                    <span class="customer-portal-card__button">@card.ButtonText</span>
-                </a>
-            }
-        </div>
-    </section>
+                        <span class="customer-portal-card__button">@card.ButtonText</span>
+                    </a>
+                }
+            </div>
+        </section>
+    }
 
     @if (showPortalBenefits)
     {

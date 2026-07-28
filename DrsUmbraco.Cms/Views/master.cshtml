@@ -9,6 +9,9 @@
         .SelectMany(x => x.DescendantsOrSelf())
         .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
 
+    var isCustomerPortalPage =
+        Context.Request.Path.StartsWithSegments("/پورتال-مشتریان", StringComparison.OrdinalIgnoreCase);
+
     var headerNavigationLinks = siteSettings?
         .Value<IEnumerable<BlockListItem>>("headerNavigationLinks")?
         .ToList();
@@ -177,6 +180,48 @@
             PathMatches(modelPath, targetPath);
     }
 
+    bool IsCustomerPortalLink(string? linkText, string? linkUrl)
+    {
+        var normalizedUrl = NormalizePath(linkUrl);
+
+        return normalizedUrl == "/customer-portal" ||
+            normalizedUrl == "/customer-portal/" ||
+            (!string.IsNullOrWhiteSpace(linkText) &&
+                linkText.Contains("پورتال مشتریان"));
+    }
+
+    var portalLinkText = "پورتال مشتریان";
+    var portalLinkUrl = "/customer-portal/";
+    var portalOpenInNewTab = false;
+
+    var portalNavItem = headerNavigationLinks?
+        .FirstOrDefault(x =>
+        {
+            var text = x.Content.Value<string>("linkText");
+            var url = x.Content.Value<string>("linkUrl");
+
+            return IsCustomerPortalLink(text, url);
+        });
+
+    if (portalNavItem != null)
+    {
+        var text = portalNavItem.Content.Value<string>("linkText");
+        var url = portalNavItem.Content.Value<string>("linkUrl");
+        var openInNewTab = portalNavItem.Content.Value<bool>("openInNewTab");
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            portalLinkText = text;
+        }
+
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            portalLinkUrl = url;
+        }
+
+        portalOpenInNewTab = openInNewTab;
+    }
+
 }
 
 <!DOCTYPE html>
@@ -268,6 +313,11 @@
                         if (!string.IsNullOrWhiteSpace(linkText) &&
                             !string.IsNullOrWhiteSpace(linkUrl))
                         {
+                            if (IsCustomerPortalLink(linkText, linkUrl))
+                            {
+                                continue;
+                            }
+
                             var isActive = IsActiveNavLink(linkUrl);
 
                             <a href="@linkUrl"
@@ -286,17 +336,33 @@
                     <a href="/recruitment/" class="@(IsActiveNavLink("/recruitment/") ? "is-active" : null)">فرصت‌های شغلی</a>
                     <a href="/contact-us/" class="@(IsActiveNavLink("/contact-us/") ? "is-active" : null)">تماس با ما</a>
                     <a href="/about-us/" class="@(IsActiveNavLink("/about-us/") ? "is-active" : null)">درباره ما</a>
-                    <a href="/customer-portal/" class="@(IsActiveNavLink("/customer-portal/") ? "is-active" : null)">پورتال مشتریان</a>
                 }
             </nav>
 
             @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
                 !string.IsNullOrWhiteSpace(headerPhoneLink))
             {
-                <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
-                    <span>☎</span>
-                    <strong>@headerPhoneText</strong>
-                </a>
+                <div class="header-actions">
+                    @if (!isCustomerPortalPage)
+                    {
+                        <a class="header-portal-btn @(IsActiveNavLink(portalLinkUrl) ? "is-active" : null)"
+                        href="@portalLinkUrl"
+                        aria-current="@(IsActiveNavLink(portalLinkUrl) ? "page" : null)"
+                        target="@(portalOpenInNewTab ? "_blank" : null)"
+                        rel="@(portalOpenInNewTab ? "noopener" : null)">
+                            <span>پورتال مشتریان</span>
+                        </a>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
+                        !string.IsNullOrWhiteSpace(headerPhoneLink))
+                    {
+                        <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
+                            <span>☎</span>
+                            <strong>@headerPhoneText</strong>
+                        </a>
+                    }
+                </div>
             }
         </div>
     </header>

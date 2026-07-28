@@ -40,7 +40,7 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   .site-header {
     position: sticky;
   }
@@ -68,7 +68,7 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   }
 
   .main-nav,
-  .header-phone {
+  .header-actions {
     grid-column: 1 / -1;
   }
 
@@ -101,15 +101,22 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
     display: none;
   }
 
-  .header-phone {
+  .header-actions {
     display: none;
     width: 100%;
     margin: 0;
-    justify-content: center;
   }
 
-  body.mobile-nav-open .header-phone {
-    display: flex;
+  body.mobile-nav-open .header-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .header-portal-btn,
+  .header-phone {
+    width: 100%;
+    justify-content: center;
   }
 
   body.is-scrolled .header-inner {

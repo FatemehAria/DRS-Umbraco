@@ -119,9 +119,15 @@ app.MapWhen(
                 return;
             }
 
+            var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
+
+            var mainSiteUrl =
+                configuration["Site:PublicBaseUrl"]
+                ?? "https://localhost:44398/";
+
             context.Response.ContentType = "text/html; charset=utf-8";
 
-            await context.Response.WriteAsync("""
+            await context.Response.WriteAsync($$"""
                 <!doctype html>
                 <html lang="fa" dir="rtl">
                 <head>
@@ -134,13 +140,8 @@ app.MapWhen(
                 </head>
                 <body class="login-portal-page">
                     <header class="login-header">
-                        <a class="login-header__logo" href="/customer-portal/" aria-label="بازگشت به پورتال مشتریان">
+                        <a class="login-header__logo" href="{{mainSiteUrl}}" aria-label="صفحه اصلی">
                             <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
-                        </a>
-
-                        <a class="login-header__back" href="/customer-portal/">
-                            <span>بازگشت به پورتال مشتریان</span>
-                            <span aria-hidden="true">←</span>
                         </a>
                     </header>
 
