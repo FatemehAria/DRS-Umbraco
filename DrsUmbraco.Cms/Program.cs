@@ -55,11 +55,31 @@ app.UseResponseCompression();
 
 app.UseStaticFiles();
 
+var crmGatewayHosts =
+    app.Configuration
+        .GetSection("Crm:GatewayHosts")
+        .Get<string[]>()
+    ?? Array.Empty<string>();
+
+var crmGatewayPorts =
+    app.Configuration
+        .GetSection("Crm:GatewayPorts")
+        .Get<int[]>()
+    ?? Array.Empty<int>();
+
 app.MapWhen(
-    context => string.Equals(
-        context.Request.Host.Host,
-        "crm.localhost",
-        StringComparison.OrdinalIgnoreCase),
+    context =>
+    {
+        var hostMatches = crmGatewayHosts.Contains(
+            context.Request.Host.Host,
+            StringComparer.OrdinalIgnoreCase);
+
+        var portMatches =
+            context.Request.Host.Port is int port &&
+            crmGatewayPorts.Contains(port);
+
+        return hostMatches || portMatches;
+    },
     proxyApp =>
     {
         proxyApp.UseRouting();
