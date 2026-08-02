@@ -32,17 +32,18 @@
         .Where(image => image != null)
         .Select(image => image.MediaUrl())
         .Where(url => !string.IsNullOrWhiteSpace(url))
+        .Select(url => url!)
         .ToList();
 
-    var heroImageUrls = selectedHeroImages?.Any() == true
+    var heroImageUrls = selectedHeroImages?.Count > 0
         ? selectedHeroImages
         : new List<string>
         {
-            "/assets/sama/uploads/2024/11/hero-office-automation-dashboard.png",
-            "/assets/sama/uploads/2024/11/hero-workflow-demo-meeting.png",
-            "/assets/sama/uploads/2024/11/hero-digital-document-flow.png"
+            "/assets/sama/uploads/2024/11/hero-office-automation-dashboard.webp",
+            "/assets/sama/uploads/2024/11/hero-workflow-demo-meeting.webp",
+            "/assets/sama/uploads/2024/11/hero-digital-document-flow.webp"
         };
-    
+
     string TextOrDefault(string alias, string fallback)
     {
         var value = Model.Value<string>(alias);
@@ -199,11 +200,26 @@
             <section class="hero-slider hero-showcase" data-slider>
                 @for (var i = 0; i < heroImageUrls.Count; i++)
                 {
-                    var slideClass = i == 0 ? "hero-slide is-active" : "hero-slide";
+                    var isFirstSlide = i == 0;
 
-                    <div class="@slideClass"
-                        style="background-image:url('@heroImageUrls[i]')">
-                    </div>
+                    var slideClass = isFirstSlide
+                        ? "hero-slide is-active"
+                        : "hero-slide";
+
+                    if (isFirstSlide)
+                    {
+                        <div class="@slideClass"
+                            style="background-image: url('@heroImageUrls[i]');"
+                            aria-hidden="false">
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="@slideClass"
+                            data-background-url="@heroImageUrls[i]"
+                            aria-hidden="true">
+                        </div>
+                    }
                 }
 
                 <div class="hero-overlay"></div>
@@ -303,7 +319,11 @@
                                 <div class="capability-icon">
                                     @if (icon != null)
                                     {
-                                        <img src="@icon.MediaUrl()" alt="" />
+                                        <img
+                                            src="@icon.MediaUrl()"
+                                            loading="lazy"
+                                            decoding="async"
+                                            alt="" />
                                     }
                                 </div>
 
@@ -358,6 +378,8 @@
                                                 <div class="logo-item">
                                                     <img
                                                         src="@logoImage.MediaUrl()"
+                                                        loading="lazy"
+                                                        decoding="async"
                                                         alt="@(group == 0 && repeat == 0 ? altText : "")" />
                                                 </div>
                                             }
@@ -411,7 +433,11 @@
                                 <div class="product-icon">
                                     @if (icon != null)
                                     {
-                                        <img src="@icon.MediaUrl()" alt="" />
+                                        <img
+                                            src="@icon.MediaUrl()"
+                                            loading="lazy"
+                                            decoding="async"
+                                            alt="" />
                                     }
                                     else
                                     {
@@ -473,7 +499,11 @@
                                 <a href="@item.Url()" class="news-image-link">
                                     @if (coverImage != null)
                                     {
-                                        <img src="@coverImage.MediaUrl()" alt="@title" />
+                                        <img
+                                            src="@coverImage.MediaUrl()"
+                                            loading="lazy"
+                                            decoding="async"
+                                            alt="@title" />
                                     }
                                     else
                                     {

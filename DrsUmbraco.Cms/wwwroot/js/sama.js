@@ -50,6 +50,7 @@
       nextSelector: SELECTORS.heroNext,
       prevSelector: SELECTORS.heroPrev,
       intervalMs: 3000,
+      lazyBackgrounds: true,
     });
   }
 
@@ -77,6 +78,7 @@
     nextSelector,
     prevSelector,
     intervalMs,
+    lazyBackgrounds = false,
   }) {
     const slides = Array.from(root.querySelectorAll(slideSelector));
     const dots = Array.from(root.querySelectorAll(dotSelector));
@@ -87,17 +89,18 @@
       return;
     }
 
-    let currentIndex = slides.findIndex((slide) =>
-      slide.classList.contains(ACTIVE_CLASS),
-    );
+    let currentIndex = slides.findIndex(function (slide) {
+      return slide.classList.contains(ACTIVE_CLASS);
+    });
 
     if (currentIndex < 0) {
       currentIndex = 0;
     }
 
     let timerId = null;
+    let latestChangeRequest = 0;
 
-    showSlide(currentIndex);
+    setActiveState(currentIndex);
     startAutoPlay();
 
     nextButton?.addEventListener("click", function () {
@@ -115,21 +118,148 @@
         showSlide(dotIndex);
         restartAutoPlay();
       });
+
+      /*
+       * وقتی موس روی نقطه یک اسلاید می‌رود،
+       * تصویر همان اسلاید کمی زودتر دانلود می‌شود.
+       */
+      if (lazyBackgrounds) {
+        dot.addEventListener("mouseenter", function () {
+          loadSlideBackground(slides[dotIndex]);
+        });
+      }
     });
 
     root.addEventListener("mouseenter", stopAutoPlay);
     root.addEventListener("mouseleave", startAutoPlay);
 
-    function showSlide(nextIndex) {
+    /*
+     * وقتی کاربر موس را روی فلش می‌برد،
+     * تصویر مقصد کمی زودتر دانلود می‌شود.
+     */
+    if (lazyBackgrounds) {
+      nextButton?.addEventListener("mouseenter", function () {
+        const nextIndex = normalizeIndex(currentIndex + 1, slides.length);
+
+        loadSlideBackground(slides[nextIndex]);
+      });
+
+      prevButton?.addEventListener("mouseenter", function () {
+        const previousIndex = normalizeIndex(currentIndex - 1, slides.length);
+
+        loadSlideBackground(slides[previousIndex]);
+      });
+    }
+
+    async function showSlide(nextIndex) {
       const normalizedIndex = normalizeIndex(nextIndex, slides.length);
 
-      slides[currentIndex]?.classList.remove(ACTIVE_CLASS);
-      dots[currentIndex]?.classList.remove(ACTIVE_CLASS);
+      if (normalizedIndex === currentIndex) {
+        return;
+      }
+
+      const requestedChange = ++latestChangeRequest;
+      const targetSlide = slides[normalizedIndex];
+
+      const imageLoaded = await loadSlideBackground(targetSlide);
+
+      /*
+       * اگر تصویر لود نشد، اسلاید خالی نمایش داده نشود.
+       */
+      if (!imageLoaded) {
+        return;
+      }
+
+      /*
+       * ممکن است هنگام دانلود تصویر، کاربر روی اسلاید
+       * دیگری کلیک کرده باشد. در این حالت درخواست قبلی
+       * نباید اعمال شود.
+       */
+      if (requestedChange !== latestChangeRequest) {
+        return;
+      }
 
       currentIndex = normalizedIndex;
+      setActiveState(currentIndex);
+    }
 
-      slides[currentIndex]?.classList.add(ACTIVE_CLASS);
-      dots[currentIndex]?.classList.add(ACTIVE_CLASS);
+    function setActiveState(activeIndex) {
+      slides.forEach(function (slide, slideIndex) {
+        const isActive = slideIndex === activeIndex;
+
+        slide.classList.toggle(ACTIVE_CLASS, isActive);
+
+        if (lazyBackgrounds) {
+          slide.setAttribute("aria-hidden", isActive ? "false" : "true");
+        }
+      });
+
+      dots.forEach(function (dot, dotIndex) {
+        const isActive = dotIndex === activeIndex;
+
+        dot.classList.toggle(ACTIVE_CLASS, isActive);
+
+        if (isActive) {
+          dot.setAttribute("aria-current", "true");
+        } else {
+          dot.removeAttribute("aria-current");
+        }
+      });
+    }
+
+    function loadSlideBackground(slide) {
+      /*
+       * برای Testimonials و اسلایدرهایی که تصویر
+       * پس‌زمینه ندارند، کاری انجام نمی‌دهیم.
+       */
+      if (!lazyBackgrounds) {
+        return Promise.resolve(true);
+      }
+
+      const imageUrl = slide.dataset.backgroundUrl;
+
+      /*
+       * اسلاید اول background-image دارد، یا تصویر این
+       * اسلاید قبلاً دانلود و data attribute حذف شده است.
+       */
+      if (!imageUrl) {
+        return Promise.resolve(true);
+      }
+
+      /*
+       * اگر دانلود همین تصویر قبلاً شروع شده، همان Promise
+       * را برمی‌گردانیم تا درخواست تکراری ساخته نشود.
+       */
+      if (slide.backgroundLoadPromise) {
+        return slide.backgroundLoadPromise;
+      }
+
+      slide.backgroundLoadPromise = new Promise(function (resolve) {
+        const image = new Image();
+
+        image.onload = function () {
+          slide.style.backgroundImage = `url("${imageUrl}")`;
+
+          slide.removeAttribute("data-background-url");
+
+          resolve(true);
+        };
+
+        image.onerror = function () {
+          console.error("Hero image could not be loaded:", imageUrl);
+
+          /*
+           * اجازه می‌دهیم در تلاش بعدی دوباره دانلود شود.
+           */
+          delete slide.backgroundLoadPromise;
+
+          resolve(false);
+        };
+
+        image.src = imageUrl;
+      });
+
+      return slide.backgroundLoadPromise;
     }
 
     function startAutoPlay() {

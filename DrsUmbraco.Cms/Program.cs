@@ -161,7 +161,7 @@ app.MapWhen(
                 <body class="login-portal-page">
                     <header class="login-header">
                         <a class="login-header__logo" href="{{mainSiteUrl}}" aria-label="صفحه اصلی">
-                            <img src="/assets/sama/uploads/2024/11/لوگو_ی_شرکت-removebg-preview.png" alt="دیدگاه رایانه سما" />
+                            <img src="/assets/sama/uploads/2024/11/Sama-Logo.png" alt="دیدگاه رایانه سما" />
                         </a>
                     </header>
 
