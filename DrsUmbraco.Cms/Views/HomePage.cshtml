@@ -5,7 +5,7 @@
 @using Umbraco.Cms.Core.Models.PublishedContent
 
 @{
-    
+
     Layout = "Master.cshtml";
 
     var showHero = Model.Value<bool?>("showHero") ?? true;
@@ -28,29 +28,29 @@
     }
 
     var selectedHeroImages = Model
-        .Value<IEnumerable<MediaWithCrops>>("heroImages")?
-        .Where(image => image != null)
-        .Select(image => image.MediaUrl())
-        .Where(url => !string.IsNullOrWhiteSpace(url))
-        .Select(url => url!)
-        .ToList();
+    .Value<IEnumerable<MediaWithCrops>>("heroImages")?
+    .Where(image => image != null)
+    .Select(image => image.MediaUrl())
+    .Where(url => !string.IsNullOrWhiteSpace(url))
+    .Select(url => url!)
+    .ToList();
 
     var heroImageUrls = selectedHeroImages?.Count > 0
-        ? selectedHeroImages
-        : new List<string>
-        {
-            "/assets/sama/uploads/2024/11/hero-office-automation-dashboard.webp",
-            "/assets/sama/uploads/2024/11/hero-workflow-demo-meeting.webp",
-            "/assets/sama/uploads/2024/11/hero-digital-document-flow.webp"
-        };
+    ? selectedHeroImages
+    : new List<string>
+    {
+"/assets/sama/uploads/2024/11/hero-office-automation-dashboard.webp",
+"/assets/sama/uploads/2024/11/hero-workflow-demo-meeting.webp",
+"/assets/sama/uploads/2024/11/hero-digital-document-flow.webp"
+    };
 
     string TextOrDefault(string alias, string fallback)
     {
         var value = Model.Value<string>(alias);
 
         return string.IsNullOrWhiteSpace(value)
-            ? fallback
-            : value.Trim();
+        ? fallback
+        : value.Trim();
     }
 
     int NumberOrDefault(string alias, int fallback, int min, int max)
@@ -78,51 +78,51 @@
     var newsSectionItemCount = NumberOrDefault("newsSectionItemCount", 3, 1, 12);
 
     var latestNewsItems = Umbraco.ContentAtRoot()
-        .SelectMany(x => x.DescendantsOrSelf())
-        .Where(x => x.ContentType.Alias == "newsArticle")
-        .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
-        .Take(newsSectionItemCount)
-        .ToList();
+    .SelectMany(x => x.DescendantsOrSelf())
+    .Where(x => x.ContentType.Alias == "newsArticle")
+    .OrderByDescending(x => x.Value<DateTime?>("publishDate") ?? x.CreateDate)
+    .Take(newsSectionItemCount)
+    .ToList();
 
     var homeProducts = Umbraco.ContentAtRoot()
-        .SelectMany(x => x.DescendantsOrSelf())
-        .Where(x => x.ContentType.Alias == "productItem")
-        .OrderBy(x => x.SortOrder)
-        .Take(productsSectionItemCount)
-        .ToList();
+    .SelectMany(x => x.DescendantsOrSelf())
+    .Where(x => x.ContentType.Alias == "productItem")
+    .OrderBy(x => x.SortOrder)
+    .Take(productsSectionItemCount)
+    .ToList();
 
     var showCapabilitySection = Model.Value<bool?>("showCapabilitySection") ?? true;
 
     var capabilityCards = Model
-        .Value<IEnumerable<BlockListItem>>("capabilityCards")?
-        .ToList();
-    
+    .Value<IEnumerable<BlockListItem>>("capabilityCards")?
+    .ToList();
+
     var showClientsSection = Model.Value<bool?>("showClientsSection") ?? true;
 
     var clientsSectionLabel = TextOrDefault("clientsSectionLabel", "مورد اعتماد سازمان‌ها");
     var clientsSectionTitle = TextOrDefault("clientsSectionTitle", "۳۰ سال تجربه در کنار مشتریان سازمانی");
     var clientsSectionDescription = TextOrDefault(
-        "clientsSectionDescription",
-        "نمونه‌ای از سازمان‌ها و مجموعه‌هایی که از راهکارهای نرم‌افزاری سما استفاده کرده‌اند."
+    "clientsSectionDescription",
+    "نمونه‌ای از سازمان‌ها و مجموعه‌هایی که از راهکارهای نرم‌افزاری سما استفاده کرده‌اند."
     );
 
     var clientLogoItems = Model
-        .Value<IEnumerable<BlockListItem>>("clientLogoItems")?
-        .ToList();
-    
+    .Value<IEnumerable<BlockListItem>>("clientLogoItems")?
+    .ToList();
+
 
     var showTestimonialsSection = Model.Value<bool?>("showTestimonialsSection") ?? true;
 
     var testimonialsSectionLabel = TextOrDefault("testimonialsSectionLabel", "بازخورد مشتریان");
     var testimonialsSectionTitle = TextOrDefault("testimonialsSectionTitle", "چرا سازمان‌ها سما را انتخاب می‌کنند؟");
     var testimonialsSectionDescription = TextOrDefault(
-        "testimonialsSectionDescription",
-        "نمونه‌ای از تجربه مشتریان در استفاده از راهکارهای نرم‌افزاری سازمانی."
+    "testimonialsSectionDescription",
+    "نمونه‌ای از تجربه مشتریان در استفاده از راهکارهای نرم‌افزاری سازمانی."
     );
 
     var testimonialItems = Model
-        .Value<IEnumerable<BlockListItem>>("testimonialItems")?
-        .ToList();
+    .Value<IEnumerable<BlockListItem>>("testimonialItems")?
+    .ToList();
 
     var showDemoSection = Model.Value<bool?>("showDemoSection") ?? true;
 
@@ -130,8 +130,8 @@
     var demoTitle = TextOrDefault("demoTitle", "درخواست دمو یا مشاوره");
 
     var demoDescription = TextOrDefault(
-        "demoDescription",
-        "برای بررسی نیازهای سازمان، دریافت مشاوره یا مشاهده دمو، فرم را تکمیل کنید. کارشناسان ما پس از بررسی درخواست با شما تماس می‌گیرند."
+    "demoDescription",
+    "برای بررسی نیازهای سازمان، دریافت مشاوره یا مشاهده دمو، فرم را تکمیل کنید. کارشناسان ما پس از بررسی درخواست با شما تماس می‌گیرند."
     );
 
     var demoBenefit1 = TextOrDefault("demoBenefit1", "بررسی نیاز سازمان");
@@ -153,10 +153,10 @@
 
     var demoBenefits = new[]
     {
-        demoBenefit1,
-        demoBenefit2,
-        demoBenefit3
-    }
+demoBenefit1,
+demoBenefit2,
+demoBenefit3
+}
     .Where(x => !string.IsNullOrWhiteSpace(x))
     .ToList();
 
@@ -164,8 +164,8 @@
     var heroTitleLine2 = TextOrDefault("heroTitleLine2", "برای سازمان‌های حرفه‌ای");
 
     var heroDescription = TextOrDefault(
-        "heroDescription",
-        "طراحی و توسعه سامانه‌های سازمانی در حوزه مالی، منابع انسانی، فروش، درآمد و فرایندهای اداری با تمرکز بر پایداری، پشتیبانی و تجربه کاربری بهتر."
+    "heroDescription",
+    "طراحی و توسعه سامانه‌های سازمانی در حوزه مالی، منابع انسانی، فروش، درآمد و فرایندهای اداری با تمرکز بر پایداری، پشتیبانی و تجربه کاربری بهتر."
     );
 
     var heroPrimaryButtonText = TextOrDefault("heroPrimaryButtonText", "درخواست دمو یا مشاوره");
@@ -176,533 +176,479 @@
 
     var heroStats = new[]
     {
-        new
-        {
-            Value = TextOrDefault("heroStat1Value", "۳۰+"),
-            Label = TextOrDefault("heroStat1Label", "سال تجربه")
-        },
-        new
-        {
-            Value = TextOrDefault("heroStat2Value", "سازمانی"),
-            Label = TextOrDefault("heroStat2Label", "راهکارهای یکپارچه")
-        },
-        new
-        {
-            Value = TextOrDefault("heroStat3Value", "پشتیبانی"),
-            Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
-        }
-    };
+new
+{
+Value = TextOrDefault("heroStat1Value", "۳۰+"),
+Label = TextOrDefault("heroStat1Label", "سال تجربه")
+},
+new
+{
+Value = TextOrDefault("heroStat2Value", "سازمانی"),
+Label = TextOrDefault("heroStat2Label", "راهکارهای یکپارچه")
+},
+new
+{
+Value = TextOrDefault("heroStat3Value", "پشتیبانی"),
+Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
+}
+};
 }
 
 
-        <!-- Hero -->
-        @if(showHero) {
-            <section class="hero-slider hero-showcase" data-slider>
+<!-- Hero -->
+@if (showHero)
+{
+    <section class="hero-slider hero-showcase" data-slider>
+        @for (var i = 0; i < heroImageUrls.Count; i++)
+        {
+            var isFirstSlide = i == 0;
+
+            var slideClass = isFirstSlide
+            ? "hero-slide is-active"
+            : "hero-slide";
+
+            if (isFirstSlide)
+            {
+                <div class="@slideClass" style="background-image: url('@heroImageUrls[i]');" aria-hidden="false">
+                </div>
+            }
+            else
+            {
+                <div class="@slideClass" data-background-url="@heroImageUrls[i]" aria-hidden="true">
+                </div>
+            }
+        }
+
+        <div class="hero-overlay"></div>
+
+        <div class="container hero-content">
+            <h1>
+                @heroTitleLine1
+
+                @if (!string.IsNullOrWhiteSpace(heroTitleLine2))
+                {
+                    <br />
+                    @heroTitleLine2
+                }
+            </h1>
+
+            @if (!string.IsNullOrWhiteSpace(heroDescription))
+            {
+                <p>@heroDescription</p>
+            }
+
+            <div class="hero-actions">
+                @if (!string.IsNullOrWhiteSpace(heroPrimaryButtonText) &&
+                            !string.IsNullOrWhiteSpace(heroPrimaryButtonUrl))
+                {
+                    <a class="ui-btn ui-btn-primary" href="@heroPrimaryButtonUrl">
+                        @heroPrimaryButtonText
+                    </a>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(heroSecondaryButtonText) &&
+                            !string.IsNullOrWhiteSpace(heroSecondaryButtonUrl))
+                {
+                    <a class="ui-btn ui-btn-outline" href="@heroSecondaryButtonUrl">
+                        @heroSecondaryButtonText
+                    </a>
+                }
+            </div>
+
+            <div class="hero-stats" aria-label="آمار شرکت">
+                @foreach (var stat in heroStats)
+                {
+                    if (!string.IsNullOrWhiteSpace(stat.Value) ||
+                    !string.IsNullOrWhiteSpace(stat.Label))
+                    {
+                        <div>
+                            <strong>@stat.Value</strong>
+                            <span>@stat.Label</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        @if (heroImageUrls.Count > 1)
+        {
+            <button class="slider-arrow prev" type="button" data-prev aria-label="اسلاید قبلی">‹</button>
+            <button class="slider-arrow next" type="button" data-next aria-label="اسلاید بعدی">›</button>
+        }
+
+        @if (heroImageUrls.Count > 1)
+        {
+            <div class="slider-dots" data-dots>
                 @for (var i = 0; i < heroImageUrls.Count; i++)
                 {
-                    var isFirstSlide = i == 0;
+                    var dotClass = i == 0 ? "is-active" : null;
 
-                    var slideClass = isFirstSlide
-                        ? "hero-slide is-active"
-                        : "hero-slide";
-
-                    if (isFirstSlide)
-                    {
-                        <div class="@slideClass"
-                            style="background-image: url('@heroImageUrls[i]');"
-                            aria-hidden="false">
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="@slideClass"
-                            data-background-url="@heroImageUrls[i]"
-                            aria-hidden="true">
-                        </div>
-                    }
-                }
-
-                <div class="hero-overlay"></div>
-
-                <div class="container hero-content">
-                    <h1>
-                        @heroTitleLine1
-
-                        @if (!string.IsNullOrWhiteSpace(heroTitleLine2))
-                        {
-                            <br />
-                            @heroTitleLine2
-                        }
-                    </h1>
-
-                    @if (!string.IsNullOrWhiteSpace(heroDescription))
-                    {
-                        <p>@heroDescription</p>
-                    }
-
-                    <div class="hero-actions">
-                        @if (!string.IsNullOrWhiteSpace(heroPrimaryButtonText) &&
-                            !string.IsNullOrWhiteSpace(heroPrimaryButtonUrl))
-                        {
-                            <a class="ui-btn ui-btn-primary" href="@heroPrimaryButtonUrl">
-                                @heroPrimaryButtonText
-                            </a>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(heroSecondaryButtonText) &&
-                            !string.IsNullOrWhiteSpace(heroSecondaryButtonUrl))
-                        {
-                            <a class="ui-btn ui-btn-outline" href="@heroSecondaryButtonUrl">
-                                @heroSecondaryButtonText
-                            </a>
-                        }
-                    </div>
-
-                    <div class="hero-stats" aria-label="آمار شرکت">
-                        @foreach (var stat in heroStats)
-                        {
-                            if (!string.IsNullOrWhiteSpace(stat.Value) ||
-                                !string.IsNullOrWhiteSpace(stat.Label))
-                            {
-                                <div>
-                                    <strong>@stat.Value</strong>
-                                    <span>@stat.Label</span>
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
-
-                @if (heroImageUrls.Count > 1)
-                {
-                    <button class="slider-arrow prev" type="button" data-prev aria-label="اسلاید قبلی">‹</button>
-                    <button class="slider-arrow next" type="button" data-next aria-label="اسلاید بعدی">›</button>
-                }
-
-                @if (heroImageUrls.Count > 1)
-                {
-                    <div class="slider-dots" data-dots>
-                        @for (var i = 0; i < heroImageUrls.Count; i++)
-                        {
-                            var dotClass = i == 0 ? "is-active" : null;
-
-                            <button type="button"
-                                    class="@dotClass"
-                                    aria-label="اسلاید @(i + 1)">
-                            </button>
-                        }
-                    </div>
-                }
-            </section>
-        }
-
-        <!-- Capabilities -->
-        @if (showCapabilitySection)
-        {
-            <section class="container capability-section reveal-section">
-                @if (capabilityCards?.Any() == true)
-                {
-                    <div class="capability-grid">
-                        @foreach (var card in capabilityCards)
-                        {
-                            var number = card.Content.Value<string>("number");
-                            var title = card.Content.Value<string>("title");
-                            var description = card.Content.Value<string>("description");
-                            var icon = FirstMedia(card.Content, "icon");
-
-                            <article class="capability-card">
-                                @if (!string.IsNullOrWhiteSpace(number))
-                                {
-                                    <span class="capability-number">@number</span>
-                                }
-
-                                <div class="capability-icon">
-                                    @if (icon != null)
-                                    {
-                                        <img
-                                            src="@icon.MediaUrl()"
-                                            loading="lazy"
-                                            decoding="async"
-                                            alt="" />
-                                    }
-                                </div>
-
-                                @if (!string.IsNullOrWhiteSpace(title))
-                                {
-                                    <h2>@title</h2>
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(description))
-                                {
-                                    <p>@description</p>
-                                }
-                            </article>
-                        }
-                    </div>
-                }
-            </section>
-        }
-
-        <!-- Clients -->
-        @if (showClientsSection)
-        {
-            <section class="clients-section reveal-section">
-                <div class="container">
-                    <div class="section-heading">
-                        <span>@clientsSectionLabel</span>
-                        <h2>@clientsSectionTitle</h2>
-
-                        @if (!string.IsNullOrWhiteSpace(clientsSectionDescription))
-                        {
-                            <p>@clientsSectionDescription</p>
-                        }
-                    </div>
-                </div>
-
-                @if (clientLogoItems?.Any() == true)
-                {
-                    <div class="logo-carousel" aria-label="لوگوی مشتریان">
-                        <div class="logo-track">
-                            @for (var group = 0; group < 2; group++)
-                            {
-                                <div class="logo-group" aria-hidden="@(group == 1 ? "true" : null)">
-                                    @for (var repeat = 0; repeat < 3; repeat++)
-                                    {
-                                        foreach (var logoBlock in clientLogoItems)
-                                        {
-                                            var logoImage = FirstMedia(logoBlock.Content, "logoImage");
-                                            var altText = logoBlock.Content.Value<string>("altText");
-
-                                            if (logoImage != null)
-                                            {
-                                                <div class="logo-item">
-                                                    <img
-                                                        src="@logoImage.MediaUrl()"
-                                                        loading="lazy"
-                                                        decoding="async"
-                                                        alt="@(group == 0 && repeat == 0 ? altText : "")" />
-                                                </div>
-                                            }
-                                        }
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-            </section>
-        }
-
-        <!-- Products -->
-        @if (showProductsSection)
-        {
-            <section class="container products-section reveal-section">
-                <div class="section-heading">
-                    <span>@productsSectionLabel</span>
-                    <h2>@productsSectionTitle</h2>
-
-                    @if (!string.IsNullOrWhiteSpace(productsSectionDescription))
-                    {
-                        <p>@productsSectionDescription</p>
-                    }
-                </div>
-
-                @if (homeProducts.Any())
-                {
-                    <div class="product-grid product-grid-polished">
-                        @for (var i = 0; i < homeProducts.Count; i++)
-                        {
-                            var product = homeProducts[i];
-
-                            var title = product.Value<string>("title");
-                            if (string.IsNullOrWhiteSpace(title))
-                            {
-                                title = product.Name;
-                            }
-
-                            var summary = product.Value<string>("summary");
-                            var icon = FirstMedia(product, "icon");
-
-                            var cardClass = "product-card product-card-polished";
-                            <!-- if (i == 1)
-                            {
-                                cardClass += " is-featured";
-                            } -->
-
-                            <a class="@cardClass" href="@product.Url()">
-                                <div class="product-icon">
-                                    @if (icon != null)
-                                    {
-                                        <img
-                                            src="@icon.MediaUrl()"
-                                            loading="lazy"
-                                            decoding="async"
-                                            alt="" />
-                                    }
-                                    else
-                                    {
-                                        <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
-                                    }
-                                </div>
-
-                                <h3>@title</h3>
-
-                                @if (!string.IsNullOrWhiteSpace(summary))
-                                {
-                                    <p>@summary</p>
-                                }
-
-                                <span>مشاهده جزئیات</span>
-                            </a>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="news-empty-state">
-                        <h2>هنوز محصولی ثبت نشده است</h2>
-                    </div>
-                }
-            </section>
-        }
-
-        <!-- News -->
-        @if (showNewsSection)
-        {
-            <section class="container news-section-polished reveal-section">
-                <div class="section-heading">
-                    <span>@newsSectionLabel</span>
-                    <h2>@newsSectionTitle</h2>
-
-                    @if (!string.IsNullOrWhiteSpace(newsSectionDescription))
-                    {
-                        <p>@newsSectionDescription</p>
-                    }
-                </div>
-
-                @if (latestNewsItems?.Any() == true)
-                {
-                    <div class="news-grid news-grid-premium">
-                        @foreach (var item in latestNewsItems)
-                        {
-                            var title = item.Value<string>("title");
-                            if (string.IsNullOrWhiteSpace(title))
-                            {
-                                title = item.Name;
-                            }
-
-                            var summary = item.Value<string>("summary");
-                            var publishDate = item.Value<DateTime?>("publishDate");
-                            var coverImage = FirstMedia(item, "coverImage");
-
-                            <article class="news-card news-card-premium">
-                                <a href="@item.Url()" class="news-image-link">
-                                    @if (coverImage != null)
-                                    {
-                                        <img
-                                            src="@coverImage.MediaUrl()"
-                                            loading="lazy"
-                                            decoding="async"
-                                            alt="@title" />
-                                    }
-                                    else
-                                    {
-                                        <img src="/assets/sama/uploads/2024/11/5565.jpg" alt="@title" />
-                                    }
-                                </a>
-
-                                <div class="news-card-body">
-                                    <span class="news-meta">
-                                        @(publishDate.HasValue ? publishDate.Value.ToString("yyyy/MM/dd") : "اخبار")
-                                    </span>
-
-                                    <h3>@title</h3>
-
-                                    @if (!string.IsNullOrWhiteSpace(summary))
-                                    {
-                                        <p>@summary</p>
-                                    }
-
-                                    <a href="@item.Url()" class="news-read-more">مشاهده خبر</a>
-                                </div>
-                            </article>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="news-empty-state">
-                        <h2>هنوز خبری منتشر نشده است</h2>
-                        <p>بعد از انتشار خبرها در Umbraco، آخرین اخبار در صفحه اصلی نمایش داده می‌شوند.</p>
-                    </div>
-                }
-            </section>
-        }
-
-        <!-- Testimonials -->
-        @if (showTestimonialsSection && testimonialItems?.Any() == true)
-        {
-            <section class="testimonial-section reveal-section" data-testimonials>
-                <div class="container">
-                    <div class="section-heading">
-                        <span>@testimonialsSectionLabel</span>
-                        <h2>@testimonialsSectionTitle</h2>
-
-                        @if (!string.IsNullOrWhiteSpace(testimonialsSectionDescription))
-                        {
-                            <p>@testimonialsSectionDescription</p>
-                        }
-                    </div>
-
-                    <div class="testimonial-shell">
-                        @if (testimonialItems.Count > 1)
-                        {
-                            <button class="testimonial-nav testimonial-prev"
-                                    type="button"
-                                    data-testimonial-prev
-                                    aria-label="نظر قبلی">
-                                ‹
-                            </button>
-                        }
-
-                        <div class="testimonial-slider">
-                            @for (var i = 0; i < testimonialItems.Count; i++)
-                            {
-                                var item = testimonialItems[i];
-
-                                var personTitle = item.Content.Value<string>("personTitle");
-                                var organizationLabel = item.Content.Value<string>("organizationLabel");
-                                var quoteText = item.Content.Value<string>("quoteText");
-
-                                var slideClass = i == 0
-                                    ? "testimonial-slide is-active"
-                                    : "testimonial-slide";
-
-                                <article class="@slideClass">
-                                    <div class="testimonial-header">
-                                        <div class="quote-mark">”</div>
-
-                                        <div class="testimonial-person">
-                                            @if (!string.IsNullOrWhiteSpace(personTitle))
-                                            {
-                                                <strong>@personTitle</strong>
-                                            }
-
-                                            @if (!string.IsNullOrWhiteSpace(organizationLabel))
-                                            {
-                                                <span>@organizationLabel</span>
-                                            }
-                                        </div>
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(quoteText))
-                                    {
-                                        <p>@quoteText</p>
-                                    }
-                                </article>
-                            }
-                        </div>
-
-                        @if (testimonialItems.Count > 1)
-                        {
-                            <button class="testimonial-nav testimonial-next"
-                                    type="button"
-                                    data-testimonial-next
-                                    aria-label="نظر بعدی">
-                                ›
-                            </button>
-                        }
-                    </div>
-
-                    @if (testimonialItems.Count > 1)
-                    {
-                        <div class="testimonial-dots" data-testimonial-dots>
-                            @for (var i = 0; i < testimonialItems.Count; i++)
-                            {
-                                var dotClass = i == 0 ? "is-active" : null;
-
-                                <button type="button"
-                                        class="@dotClass"
-                                        aria-label="نظر @(i + 1)">
-                                </button>
-                            }
-                        </div>
-                    }
-                </div>
-            </section>
-        }
-
-        <!-- Demo Request Form -->
-        @if (showDemoSection)
-        {
-            <section id="demo-form" class="container demo-section reveal-section">
-                <div class="demo-text">
-                    @if (!string.IsNullOrWhiteSpace(demoBadge))
-                    {
-                        <span class="demo-badge">@demoBadge</span>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(demoTitle))
-                    {
-                        <h2>@demoTitle</h2>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(demoDescription))
-                    {
-                        <p>@demoDescription</p>
-                    }
-
-                    @if (demoBenefits.Any())
-                    {
-                        <div class="demo-benefits">
-                            @foreach (var benefit in demoBenefits)
-                            {
-                                <span>✓ @benefit</span>
-                            }
-                        </div>
-                    }
-                </div>
-
-                <form id="consultRequestForm" class="demo-form sama-consult-form">
-                    <input type="hidden" name="formName" value="consult_form" />
-
-                    <div class="form-row">
-                        <label>
-                            @demoFullNameLabel
-                            <input type="text"
-                                placeholder="@demoFullNamePlaceholder"
-                                name="fullName"
-                                required />
-                        </label>
-
-                        <label>
-                            @demoMobileLabel
-                            <input type="tel"
-                                placeholder="@demoMobilePlaceholder"
-                                name="mobile"
-                                required />
-                        </label>
-                    </div>
-
-                    <label>
-                        @demoRequestTypeLabel
-                        <select name="requestType" required>
-                            <option value="دمو">درخواست دمو</option>
-                            <option value="مشاوره">درخواست مشاوره</option>
-                        </select>
-                    </label>
-
-                    <label>
-                        @demoMessageLabel
-                        <textarea name="message"
-                                placeholder="@demoMessagePlaceholder"></textarea>
-                    </label>
-
-                    <button type="submit" data-submit-text="@demoSubmitButtonText">
-                        @demoSubmitButtonText
+                    <button type="button" class="@dotClass" aria-label="اسلاید @(i + 1)">
                     </button>
-
-                    <div id="consultRequestMessage"></div>
-                </form>
-            </section>
+                }
+            </div>
         }
+    </section>
+}
+
+<!-- Capabilities -->
+@if (showCapabilitySection)
+{
+    <section class="container capability-section reveal-section">
+        @if (capabilityCards?.Any() == true)
+        {
+            <div class="capability-grid">
+                @foreach (var card in capabilityCards)
+                {
+                    var number = card.Content.Value<string>("number");
+                    var title = card.Content.Value<string>("title");
+                    var description = card.Content.Value<string>("description");
+                    var icon = FirstMedia(card.Content, "icon");
+
+                    <article class="capability-card">
+                        @if (!string.IsNullOrWhiteSpace(number))
+                        {
+                            <span class="capability-number">@number</span>
+                        }
+
+                        <div class="capability-icon">
+                            @if (icon != null)
+                            {
+                                <img src="@icon.MediaUrl()" loading="lazy" decoding="async" alt="" />
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            <h2>@title</h2>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(description))
+                        {
+                            <p>@description</p>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </section>
+}
+
+<!-- Clients -->
+@if (showClientsSection)
+{
+    <section class="clients-section reveal-section">
+        <div class="container">
+            <div class="section-heading">
+                <span>@clientsSectionLabel</span>
+                <h2>@clientsSectionTitle</h2>
+
+                @if (!string.IsNullOrWhiteSpace(clientsSectionDescription))
+                {
+                    <p>@clientsSectionDescription</p>
+                }
+            </div>
+        </div>
+
+        @if (clientLogoItems?.Any() == true)
+        {
+            <div class="logo-carousel" aria-label="لوگوی مشتریان">
+                <div class="logo-track">
+                    @for (var group = 0; group < 2; group++)
+                    {
+                        <div class="logo-group" aria-hidden="@(group == 1 ? "true" : null)">
+                            @for (var repeat = 0; repeat < 3; repeat++)
+                            {
+                                foreach (var logoBlock in clientLogoItems)
+                                {
+                                    var logoImage = FirstMedia(logoBlock.Content, "logoImage");
+                                    var altText = logoBlock.Content.Value<string>("altText");
+
+                                    if (logoImage != null)
+                                    {
+                                        <div class="logo-item">
+                                            <img src="@logoImage.MediaUrl()" loading="lazy" decoding="async"
+                                                alt="@(group == 0 && repeat == 0 ? altText : "")" />
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+}
+
+<!-- Products -->
+@if (showProductsSection && homeProducts.Any())
+{
+    <section class="container products-section reveal-section">
+        <div class="section-heading">
+            <span>@productsSectionLabel</span>
+            <h2>@productsSectionTitle</h2>
+
+            @if (!string.IsNullOrWhiteSpace(productsSectionDescription))
+            {
+                <p>@productsSectionDescription</p>
+            }
+        </div>
+
+        <div class="product-grid product-grid-polished">
+            @for (var i = 0; i < homeProducts.Count; i++)
+            {
+                var product = homeProducts[i];
+
+                var title = product.Value<string>("title");
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = product.Name;
+                }
+
+                var summary = product.Value<string>("summary");
+                var icon = FirstMedia(product, "icon");
+
+                var cardClass = "product-card product-card-polished";
+
+                <a class="@cardClass" href="@product.Url()">
+                    <div class="product-icon">
+                        @if (icon != null)
+                        {
+                            <img src="@icon.MediaUrl()" loading="lazy" decoding="async" alt="" />
+                        }
+                        else
+                        {
+                            <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                        }
+                    </div>
+
+                    <h3>@title</h3>
+
+                    @if (!string.IsNullOrWhiteSpace(summary))
+                    {
+                        <p>@summary</p>
+                    }
+
+                    <span>مشاهده جزئیات</span>
+                </a>
+            }
+        </div>
+    </section>
+}
+
+<!-- News -->
+@if (showNewsSection && latestNewsItems.Any())
+{
+    <section class="container news-section-polished reveal-section">
+        <div class="section-heading">
+            <span>@newsSectionLabel</span>
+            <h2>@newsSectionTitle</h2>
+
+            @if (!string.IsNullOrWhiteSpace(newsSectionDescription))
+            {
+                <p>@newsSectionDescription</p>
+            }
+        </div>
+
+        <div class="news-grid news-grid-premium">
+            @foreach (var item in latestNewsItems)
+            {
+                var title = item.Value<string>("title");
+                if (string.IsNullOrWhiteSpace(title))
+                {
+                    title = item.Name;
+                }
+
+                var summary = item.Value<string>("summary");
+                var publishDate = item.Value<DateTime?>("publishDate");
+                var coverImage = FirstMedia(item, "coverImage");
+
+                <article class="news-card news-card-premium">
+                    <a href="@item.Url()" class="news-image-link">
+                        @if (coverImage != null)
+                        {
+                            <img src="@coverImage.MediaUrl()" loading="lazy" decoding="async" alt="@title" />
+                        }
+                        else
+                        {
+                            <img src="/assets/sama/uploads/2024/11/5565.jpg" alt="@title" />
+                        }
+                </a>
+
+                <div class="news-card-body">
+                    <span class="news-meta">
+                        @(publishDate.HasValue
+                                            ? publishDate.Value.ToString("yyyy/MM/dd")
+                                            : "اخبار")
+                        </span>
+
+                        <h3>@title</h3>
+
+                        @if (!string.IsNullOrWhiteSpace(summary))
+                        {
+                            <p>@summary</p>
+                        }
+
+                        <a href="@item.Url()" class="news-read-more">
+                            مشاهده خبر
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+}
+
+<!-- Testimonials -->
+@if (showTestimonialsSection && testimonialItems?.Any() == true)
+{
+    <section class="testimonial-section reveal-section" data-testimonials>
+        <div class="container">
+            <div class="section-heading">
+                <span>@testimonialsSectionLabel</span>
+                <h2>@testimonialsSectionTitle</h2>
+
+                @if (!string.IsNullOrWhiteSpace(testimonialsSectionDescription))
+                {
+                    <p>@testimonialsSectionDescription</p>
+                }
+            </div>
+
+            <div class="testimonial-shell">
+                @if (testimonialItems.Count > 1)
+                {
+                    <button class="testimonial-nav testimonial-prev" type="button" data-testimonial-prev aria-label="نظر قبلی">
+                        ‹
+                    </button>
+                }
+
+                <div class="testimonial-slider">
+                    @for (var i = 0; i < testimonialItems.Count; i++)
+                    {
+                        var item = testimonialItems[i];
+
+                        var personTitle = item.Content.Value<string>("personTitle");
+                        var organizationLabel = item.Content.Value<string>("organizationLabel");
+                        var quoteText = item.Content.Value<string>("quoteText");
+
+                        var slideClass = i == 0
+                        ? "testimonial-slide is-active"
+                        : "testimonial-slide";
+
+                        <article class="@slideClass">
+                            <div class="testimonial-header">
+                                <div class="quote-mark">”</div>
+
+                                <div class="testimonial-person">
+                                    @if (!string.IsNullOrWhiteSpace(personTitle))
+                                    {
+                                        <strong>@personTitle</strong>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(organizationLabel))
+                                    {
+                                        <span>@organizationLabel</span>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(quoteText))
+                            {
+                                <p>@quoteText</p>
+                            }
+                        </article>
+                    }
+                </div>
+
+                @if (testimonialItems.Count > 1)
+                {
+                    <button class="testimonial-nav testimonial-next" type="button" data-testimonial-next aria-label="نظر بعدی">
+                        ›
+                    </button>
+                }
+            </div>
+
+            @if (testimonialItems.Count > 1)
+            {
+                <div class="testimonial-dots" data-testimonial-dots>
+                    @for (var i = 0; i < testimonialItems.Count; i++)
+                    {
+                        var dotClass = i == 0 ? "is-active" : null;
+
+                        <button type="button" class="@dotClass" aria-label="نظر @(i + 1)">
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- Demo Request Form -->
+@if (showDemoSection)
+{
+    <section id="demo-form" class="container demo-section reveal-section">
+        <div class="demo-text">
+            @if (!string.IsNullOrWhiteSpace(demoBadge))
+            {
+                <span class="demo-badge">@demoBadge</span>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(demoTitle))
+            {
+                <h2>@demoTitle</h2>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(demoDescription))
+            {
+                <p>@demoDescription</p>
+            }
+
+            @if (demoBenefits.Any())
+            {
+                <div class="demo-benefits">
+                    @foreach (var benefit in demoBenefits)
+                    {
+                        <span>✓ @benefit</span>
+                    }
+                </div>
+            }
+        </div>
+
+        <form id="consultRequestForm" class="demo-form sama-consult-form">
+            <input type="hidden" name="formName" value="consult_form" />
+
+            <div class="form-row">
+                <label>
+                    @demoFullNameLabel
+                    <input type="text" placeholder="@demoFullNamePlaceholder" name="fullName" required />
+                </label>
+
+                <label>
+                    @demoMobileLabel
+                    <input type="tel" placeholder="@demoMobilePlaceholder" name="mobile" required />
+                </label>
+            </div>
+
+            <label>
+                @demoRequestTypeLabel
+                <select name="requestType" required>
+                    <option value="دمو">درخواست دمو</option>
+                    <option value="مشاوره">درخواست مشاوره</option>
+                </select>
+            </label>
+
+            <label>
+                @demoMessageLabel
+                <textarea name="message" placeholder="@demoMessagePlaceholder"></textarea>
+            </label>
+
+            <button type="submit" data-submit-text="@demoSubmitButtonText">
+                @demoSubmitButtonText
+            </button>
+
+            <div id="consultRequestMessage"></div>
+        </form>
+    </section>
+}

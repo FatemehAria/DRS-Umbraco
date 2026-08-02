@@ -33,13 +33,29 @@
     <RazorCompileOnPublish>false</RazorCompileOnPublish>
   </PropertyGroup>
 
-  <Target Name="BuildCssBundle" BeforeTargets="Publish">
-    <Exec
-      WorkingDirectory="$(ProjectDir)"
-      Command="npm ci" />
+  <Target Name="InstallFrontendDependencies"
+    BeforeTargets="BuildCssBundle"
+    Condition="!Exists('$(ProjectDir)node_modules')">
 
-    <Exec
-      WorkingDirectory="$(ProjectDir)"
+    <Message Text="Installing frontend dependencies..."
+      Importance="high" />
+
+    <Exec WorkingDirectory="$(ProjectDir)"
+      Command="npm ci --no-audit --no-fund" />
+
+  </Target>
+
+  <Target Name="BuildCssBundle"
+    BeforeTargets="Build;Publish">
+
+    <Message Text="Building CSS bundle..."
+      Importance="high" />
+
+    <Exec WorkingDirectory="$(ProjectDir)"
       Command="npm run css:build" />
+
+    <Error Condition="!Exists('$(ProjectDir)wwwroot/css/sama.bundle.min.css')"
+      Text="CSS bundle was not generated at wwwroot/css/sama.bundle.min.css." />
+
   </Target>
 </Project>

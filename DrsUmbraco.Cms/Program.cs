@@ -28,10 +28,6 @@ await app.BootUmbracoAsync();
 
 app.UseResponseCompression();
 
-/*
- * تنظیم فعلی Static Files خودت را بدون تغییر نگه دار.
- * مخصوصاً اگر WebP mapping یا محافظ asset اضافه کرده‌ای.
- */
 app.UseStaticFiles();
 
 app.MapCrmGateway();
