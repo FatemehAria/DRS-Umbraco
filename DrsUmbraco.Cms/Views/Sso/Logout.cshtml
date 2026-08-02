@@ -1,0 +1,41 @@
+@using System.Text.Json
+@model DrsUmbraco.Cms.Models.Sso.LogoutViewModel
+
+@{
+    Layout = "_PortalLayout";
+
+    ViewData["Title"] = "خروج از سامانه";
+    ViewData["BodyClass"] = "logout-redirect-page";
+
+    var serializedRedirectUrl =
+    JsonSerializer.Serialize(Model.RedirectUrl);
+}
+
+<main class="login-shell">
+    <section class="login-card">
+        <h1>در حال خروج از سامانه...</h1>
+        <p>لطفاً چند لحظه صبر کنید.</p>
+    </section>
+</main>
+
+@section Scripts {
+    <script>
+        try {
+            localStorage.removeItem(
+                "loginSystemName"
+            );
+
+            localStorage.removeItem(
+                "sama-token"
+            );
+
+            sessionStorage.clear();
+        } catch (error) {
+            console.error(error);
+        }
+
+        window.location.replace(
+            @Html.Raw(serializedRedirectUrl)
+        );
+    </script>
+}

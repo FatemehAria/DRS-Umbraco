@@ -1,0 +1,68 @@
+@using System.Text.Json
+@model DrsUmbraco.Cms.Models.Sso.LoginSuccessViewModel
+
+@{
+    Layout = "_PortalLayout";
+
+    ViewData["Title"] = "در حال ورود";
+    ViewData["BodyClass"] = "login-redirect-page";
+
+    var serializedResponseBody =
+    JsonSerializer.Serialize(Model.ResponseBody);
+}
+
+<main class="login-shell">
+    <section class="login-card">
+        <h1>در حال ورود به سامانه...</h1>
+        <p>لطفاً چند لحظه صبر کنید.</p>
+    </section>
+</main>
+
+@section Scripts {
+    <script>
+        const responseText =
+                @Html.Raw(serializedResponseBody);
+
+        const loginData =
+            JSON.parse(responseText);
+
+        try {
+            const configItems =
+                JSON.parse(loginData.config || "[]");
+
+            for (const item of configItems) {
+                const name =
+                    (item.ParamName || "").toLowerCase();
+
+                if (
+                    name === "apiaddress" ||
+                    name === "baseaddress"
+                ) {
+                    item.ParamValue = "/api/";
+                }
+
+                if (name === "filesimulate") {
+                    item.ParamValue =
+                        "/api/misc/filesimulate";
+                }
+            }
+
+            loginData.config =
+                JSON.stringify(configItems);
+        } catch (error) {
+            console.error(error);
+        }
+
+        localStorage.setItem(
+            "loginSystemName",
+            loginData.systemName || "sama"
+        );
+
+        localStorage.setItem(
+            "sama-token",
+            JSON.stringify(loginData)
+        );
+
+        window.location.replace("/dashboard");
+    </script>
+}
