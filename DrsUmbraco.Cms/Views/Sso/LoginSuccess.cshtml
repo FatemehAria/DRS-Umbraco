@@ -5,23 +5,30 @@
     Layout = "_PortalLayout";
 
     ViewData["Title"] = "در حال ورود";
-    ViewData["BodyClass"] = "login-redirect-page";
+    ViewData["BodyClass"] = "portal-redirect-page";
 
     var serializedResponseBody =
     JsonSerializer.Serialize(Model.ResponseBody);
 }
 
-<main class="login-shell">
-    <section class="login-card">
-        <h1>در حال ورود به سامانه...</h1>
-        <p>لطفاً چند لحظه صبر کنید.</p>
-    </section>
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/portal-redirect.css" asp-append-version="true" />
+}
+
+<main class="portal-redirect" role="status" aria-live="polite">
+
+    <div class="portal-redirect__spinner" aria-hidden="true">
+    </div>
+
+    <span class="visually-hidden">
+        در حال ورود به سامانه، لطفاً صبر کنید.
+    </span>
 </main>
 
 @section Scripts {
     <script>
         const responseText =
-                @Html.Raw(serializedResponseBody);
+                                        @Html.Raw(serializedResponseBody);
 
         const loginData =
             JSON.parse(responseText);
