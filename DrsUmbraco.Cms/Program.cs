@@ -155,13 +155,13 @@ app.MapWhen(
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
                     <title>ورود به سامانه</title>
 
-                    <link rel="stylesheet" href="/css/sama.css" />
+                    <link rel="stylesheet" href="/css/sama.bundle.min.css" />
                     <link rel="stylesheet" href="/css/pages/login-portal.css" />
                 </head>
                 <body class="login-portal-page">
                     <header class="login-header">
-                        <a class="login-header__logo" href="{{mainSiteUrl}}" aria-label="صفحه اصلی">
-                            <img src="/assets/sama/uploads/2024/11/Sama-Logo.png" alt="دیدگاه رایانه سما" />
+                        <a class="login-header__logo" href="/" aria-label="صفحه اصلی">
+                            <img src="/assets/sama/uploads/2024/11/Sama-Logo.webp" alt="دیدگاه رایانه سما" />
                         </a>
                     </header>
 

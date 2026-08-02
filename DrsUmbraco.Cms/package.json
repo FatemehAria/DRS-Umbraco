@@ -1,0 +1,21 @@
+{
+  "name": "drsumbraco.cms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "css:build": "postcss wwwroot/css/sama.css --output wwwroot/css/sama.bundle.min.css",
+    "css:watch": "postcss wwwroot/css/sama.css --output wwwroot/css/sama.bundle.min.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "cssnano": "^8.0.2",
+    "postcss": "^8.5.25",
+    "postcss-cli": "^11.0.1",
+    "postcss-import": "^16.1.1",
+    "postcss-url": "^10.1.4"
+  }
+}

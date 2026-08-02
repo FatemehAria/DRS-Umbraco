@@ -6,19 +6,19 @@
 @{
 
     var siteSettings = Umbraco.ContentAtRoot()
-        .SelectMany(x => x.DescendantsOrSelf())
-        .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
+    .SelectMany(x => x.DescendantsOrSelf())
+    .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
 
     var isCustomerPortalPage =
-        Context.Request.Path.StartsWithSegments("/پورتال-مشتریان", StringComparison.OrdinalIgnoreCase);
+    Context.Request.Path.StartsWithSegments("/پورتال-مشتریان", StringComparison.OrdinalIgnoreCase);
 
     var headerNavigationLinks = siteSettings?
-        .Value<IEnumerable<BlockListItem>>("headerNavigationLinks")?
-        .ToList();
+    .Value<IEnumerable<BlockListItem>>("headerNavigationLinks")?
+    .ToList();
 
     var footerQuickLinks = siteSettings?
-        .Value<IEnumerable<BlockListItem>>("footerQuickLinks")?
-        .ToList();
+    .Value<IEnumerable<BlockListItem>>("footerQuickLinks")?
+    .ToList();
 
     MediaWithCrops? FirstSiteMedia(string alias)
     {
@@ -33,14 +33,14 @@
 
         return multipleMedia?.FirstOrDefault();
     }
-    
+
     string SettingOrDefault(string alias, string fallback)
     {
         var value = siteSettings?.Value<string>(alias);
 
         return string.IsNullOrWhiteSpace(value)
-            ? fallback
-            : value.Trim();
+        ? fallback
+        : value.Trim();
     }
 
     string? FirstNonEmpty(params string?[] values)
@@ -56,27 +56,27 @@
     var siteLogo = FirstSiteMedia("siteLogo");
 
     var siteLogoUrl = siteLogo != null
-        ? siteLogo.MediaUrl()
-        : "/assets/sama/uploads/2024/11/Sama-Logo.webp";
+    ? siteLogo.MediaUrl()
+    : "/assets/sama/uploads/2024/11/Sama-Logo.webp";
 
     var footerLicenseLogos = siteSettings?
-        .Value<IEnumerable<MediaWithCrops>>("footerLicenseLogos")?
-        .Where(x => x != null)
-        .ToList();
+    .Value<IEnumerable<MediaWithCrops>>("footerLicenseLogos")?
+    .Where(x => x != null)
+    .ToList();
 
     var headerPhoneLink = SettingOrDefault("headerPhoneLink", "tel:+982188334117");
 
     var footerAddress = SettingOrDefault(
-        "footerAddress",
-        "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱"
+    "footerAddress",
+    "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱"
     );
 
     var footerPhoneText = SettingOrDefault("footerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
     var footerPhoneLink = SettingOrDefault("footerPhoneLink", "tel:+982188334117");
 
     var copyrightText = SettingOrDefault(
-        "copyrightText",
-        "کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد."
+    "copyrightText",
+    "کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد."
     );
 
     var eitaaUrl = SettingOrDefault("eitaaUrl", "https://eitaa.com/YOUR_EITAA_ID");
@@ -85,23 +85,23 @@
     var viewPageTitle = ViewData["PageTitle"]?.ToString();
 
     var seoTitle = FirstNonEmpty(
-        Model.Value<string>("seoTitle"),
-        viewPageTitle,
-        Model.Value<string>("pageTitle"),
-        Model.Value<string>("title"),
-        Model.Name
+    Model.Value<string>("seoTitle"),
+    viewPageTitle,
+    Model.Value<string>("pageTitle"),
+    Model.Value<string>("title"),
+    Model.Name
     );
 
     var browserTitle = string.IsNullOrWhiteSpace(seoTitle)
-        ? siteName
-        : seoTitle.Contains(siteName)
-            ? seoTitle
-            : $"{seoTitle} | {siteName}";
+    ? siteName
+    : seoTitle.Contains(siteName)
+    ? seoTitle
+    : $"{seoTitle} | {siteName}";
 
     var seoDescription = FirstNonEmpty(
-        Model.Value<string>("seoDescription"),
-        Model.Value<string>("summary"),
-        Model.Value<string>("introText")
+    Model.Value<string>("seoDescription"),
+    Model.Value<string>("summary"),
+    Model.Value<string>("introText")
     );
 
     var seoImage = Model.Value<MediaWithCrops>("seoImage") ?? FirstSiteMedia("defaultOgImage");
@@ -110,8 +110,8 @@
     var canonicalUrl = $"{baseUrl}{Model.Url()}";
 
     var ogImageUrl = seoImage != null
-        ? $"{baseUrl}{seoImage.MediaUrl()}"
-        : null;
+    ? $"{baseUrl}{seoImage.MediaUrl()}"
+    : null;
 
     var is404Page = Model.ContentType.Alias == "page404";
     var ogType = Model.ContentType.Alias == "newsArticle" ? "article" : "website";
@@ -126,8 +126,8 @@
         url = url.Trim();
 
         if (url.StartsWith("#") ||
-            url.StartsWith("tel:", StringComparison.OrdinalIgnoreCase) ||
-            url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+        url.StartsWith("tel:", StringComparison.OrdinalIgnoreCase) ||
+        url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
         {
             return string.Empty;
         }
@@ -150,7 +150,7 @@
     bool PathMatches(string currentPath, string targetPath)
     {
         if (string.IsNullOrWhiteSpace(currentPath) ||
-            string.IsNullOrWhiteSpace(targetPath))
+        string.IsNullOrWhiteSpace(targetPath))
         {
             return false;
         }
@@ -161,7 +161,7 @@
         }
 
         return currentPath == targetPath ||
-            currentPath.StartsWith(targetPath + "/");
+        currentPath.StartsWith(targetPath + "/");
     }
 
     bool IsActiveNavLink(string? url)
@@ -177,7 +177,7 @@
         var modelPath = NormalizePath(Model.Url());
 
         return PathMatches(requestPath, targetPath) ||
-            PathMatches(modelPath, targetPath);
+        PathMatches(modelPath, targetPath);
     }
 
     bool IsCustomerPortalLink(string? linkText, string? linkUrl)
@@ -185,9 +185,9 @@
         var normalizedUrl = NormalizePath(linkUrl);
 
         return normalizedUrl == "/customer-portal" ||
-            normalizedUrl == "/customer-portal/" ||
-            (!string.IsNullOrWhiteSpace(linkText) &&
-                linkText.Contains("پورتال مشتریان"));
+        normalizedUrl == "/customer-portal/" ||
+        (!string.IsNullOrWhiteSpace(linkText) &&
+        linkText.Contains("پورتال مشتریان"));
     }
 
     var portalLinkText = "پورتال مشتریان";
@@ -195,13 +195,13 @@
     var portalOpenInNewTab = false;
 
     var portalNavItem = headerNavigationLinks?
-        .FirstOrDefault(x =>
-        {
-            var text = x.Content.Value<string>("linkText");
-            var url = x.Content.Value<string>("linkUrl");
+    .FirstOrDefault(x =>
+    {
+        var text = x.Content.Value<string>("linkText");
+        var url = x.Content.Value<string>("linkUrl");
 
-            return IsCustomerPortalLink(text, url);
-        });
+        return IsCustomerPortalLink(text, url);
+    });
 
     if (portalNavItem != null)
     {
@@ -226,6 +226,7 @@
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -272,7 +273,7 @@
         <meta name="robots" content="noindex,follow" />
     }
 
-    <link rel="stylesheet" href="/css/sama.css" />
+    <link rel="stylesheet" href="~/css/sama.bundle.min.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -282,20 +283,18 @@
                 <img src="@siteLogoUrl" alt="@siteName" />
 
                 <!-- <span class="site-brand__text"> -->
-                    <!-- <strong>@siteName</strong> -->
+                <!-- <strong>@siteName</strong> -->
 
-                    <!-- @if (!string.IsNullOrWhiteSpace(siteTagline))
+                <!-- @if (!string.IsNullOrWhiteSpace(siteTagline))
                     {
-                        <small>@siteTagline</small>
-                    } -->
+                            <small>@siteTagline</small>
+                    }
+ -->
                 <!-- </span> -->
             </a>
 
-            <button class="mobile-menu-toggle"
-                    type="button"
-                    aria-label="باز و بسته کردن منو"
-                    aria-controls="mainNavigation"
-                    aria-expanded="false">
+            <button class="mobile-menu-toggle" type="button" aria-label="باز و بسته کردن منو"
+                aria-controls="mainNavigation" aria-expanded="false">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -311,7 +310,7 @@
                         var openInNewTab = navItem.Content.Value<bool>("openInNewTab");
 
                         if (!string.IsNullOrWhiteSpace(linkText) &&
-                            !string.IsNullOrWhiteSpace(linkUrl))
+                        !string.IsNullOrWhiteSpace(linkUrl))
                         {
                             if (IsCustomerPortalLink(linkText, linkUrl))
                             {
@@ -320,11 +319,8 @@
 
                             var isActive = IsActiveNavLink(linkUrl);
 
-                            <a href="@linkUrl"
-                            class="@(isActive ? "is-active" : null)"
-                            aria-current="@(isActive ? "page" : null)"
-                            target="@(openInNewTab ? "_blank" : null)"
-                            rel="@(openInNewTab ? "noopener" : null)">
+                            <a href="@linkUrl" class="@(isActive ? "is-active" : null)" aria-current="@(isActive ? "page" : null)"
+                                target="@(openInNewTab ? "_blank" : null)" rel="@(openInNewTab ? "noopener" : null)">
                                 @linkText
                             </a>
                         }
@@ -333,29 +329,28 @@
                 else
                 {
                     <a href="/products/" class="@(IsActiveNavLink("/products/") ? "is-active" : null)">محصولات</a>
-                    <a href="/recruitment/" class="@(IsActiveNavLink("/recruitment/") ? "is-active" : null)">فرصت‌های شغلی</a>
+                    <a href="/recruitment/" class="@(IsActiveNavLink("/recruitment/") ? "is-active" : null)">فرصت‌های
+                        شغلی</a>
                     <a href="/contact-us/" class="@(IsActiveNavLink("/contact-us/") ? "is-active" : null)">تماس با ما</a>
                     <a href="/about-us/" class="@(IsActiveNavLink("/about-us/") ? "is-active" : null)">درباره ما</a>
                 }
             </nav>
 
             @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
-                !string.IsNullOrWhiteSpace(headerPhoneLink))
+                        !string.IsNullOrWhiteSpace(headerPhoneLink))
             {
                 <div class="header-actions">
                     @if (!isCustomerPortalPage)
                     {
                         <a class="header-portal-btn @(IsActiveNavLink(portalLinkUrl) ? "is-active" : null)"
-                        href="@portalLinkUrl"
-                        aria-current="@(IsActiveNavLink(portalLinkUrl) ? "page" : null)"
-                        target="@(portalOpenInNewTab ? "_blank" : null)"
-                        rel="@(portalOpenInNewTab ? "noopener" : null)">
+                            href="@portalLinkUrl" aria-current="@(IsActiveNavLink(portalLinkUrl) ? "page" : null)"
+                            target="@(portalOpenInNewTab ? "_blank" : null)" rel="@(portalOpenInNewTab ? "noopener" : null)">
                             <span>پورتال مشتریان</span>
                         </a>
                     }
 
                     @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
-                        !string.IsNullOrWhiteSpace(headerPhoneLink))
+                                    !string.IsNullOrWhiteSpace(headerPhoneLink))
                     {
                         <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
                             <span>☎</span>
@@ -385,14 +380,12 @@
                         var openInNewTab = navItem.Content.Value<bool>("openInNewTab");
 
                         if (!string.IsNullOrWhiteSpace(linkText) &&
-                            !string.IsNullOrWhiteSpace(linkUrl))
+                        !string.IsNullOrWhiteSpace(linkUrl))
                         {
                             var isFooterActive = IsActiveNavLink(linkUrl);
 
-                            <a href="@linkUrl"
-                                class="@(isFooterActive ? "is-active" : null)"
-                                aria-current="@(isFooterActive ? "page" : null)"
-                                target="@(openInNewTab ? "_blank" : null)"
+                            <a href="@linkUrl" class="@(isFooterActive ? "is-active" : null)"
+                                aria-current="@(isFooterActive ? "page" : null)" target="@(openInNewTab ? "_blank" : null)"
                                 rel="@(openInNewTab ? "noopener" : null)">
                                 @linkText
                             </a>
@@ -417,7 +410,7 @@
                 }
 
                 @if (!string.IsNullOrWhiteSpace(footerPhoneText) &&
-                    !string.IsNullOrWhiteSpace(footerPhoneLink))
+                                !string.IsNullOrWhiteSpace(footerPhoneLink))
                 {
                     <p class="footer-phone-container">
                         <span>تلفن:</span>
@@ -431,20 +424,14 @@
                     <div class="footer-social-links">
                         @if (!string.IsNullOrWhiteSpace(eitaaUrl))
                         {
-                            <a href="@eitaaUrl"
-                            target="_blank"
-                            rel="noopener"
-                            aria-label="ایتا @siteName">
+                            <a href="@eitaaUrl" target="_blank" rel="noopener" aria-label="ایتا @siteName">
                                 <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.webp" alt="ایتا" />
                             </a>
                         }
 
                         @if (!string.IsNullOrWhiteSpace(baleUrl))
                         {
-                            <a href="@baleUrl"
-                            target="_blank"
-                            rel="noopener"
-                            aria-label="بله @siteName">
+                            <a href="@baleUrl" target="_blank" rel="noopener" aria-label="بله @siteName">
                                 <img src="/assets/sama/uploads/2024/11/Bale-Logo.webp" alt="بله" />
                             </a>
                         }
@@ -465,7 +452,7 @@
                     }
                     else
                     {
-                        <img src="/assets/sama/uploads/2024/11/Afta-logo.webp" alt="مجوز"  class="footer-logo-it" />
+                        <img src="/assets/sama/uploads/2024/11/Afta-logo.webp" alt="مجوز" class="footer-logo-it" />
                         <img src="/assets/sama/uploads/2024/11/Informatics.webp" alt="شورای عالی انفورماتیک" />
                     }
                 </div>
@@ -486,4 +473,5 @@
 
     <script src="/js/sama.js"></script>
 </body>
+
 </html>
