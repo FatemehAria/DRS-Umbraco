@@ -26,17 +26,37 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Fastest;
 });
 
-builder.Services.AddHttpClient("CrmClient", client =>
+builder.Services.AddHttpClient<
+    ICrmAuthenticationService,
+    CrmAuthenticationService>(client =>
 {
-    var crmBaseUrl = builder.Configuration["Crm:InternalBaseUrl"];
+    var crmBaseUrl =
+        builder.Configuration["Crm:InternalBaseUrl"];
 
-    if (string.IsNullOrWhiteSpace(crmBaseUrl))
+    if (!Uri.TryCreate(
+            crmBaseUrl,
+            UriKind.Absolute,
+            out var crmBaseUri))
     {
-        throw new InvalidOperationException("Crm:InternalBaseUrl is not configured.");
+        throw new InvalidOperationException(
+            "Crm:InternalBaseUrl is missing or invalid.");
     }
 
-    client.BaseAddress = new Uri(crmBaseUrl);
+    client.BaseAddress = crmBaseUri;
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
+
+// builder.Services.AddHttpClient("CrmClient", client =>
+// {
+//     var crmBaseUrl = builder.Configuration["Crm:InternalBaseUrl"];
+
+//     if (string.IsNullOrWhiteSpace(crmBaseUrl))
+//     {
+//         throw new InvalidOperationException("Crm:InternalBaseUrl is not configured.");
+//     }
+
+//     client.BaseAddress = new Uri(crmBaseUrl);
+// });
 
 builder.Services
     .AddReverseProxy()

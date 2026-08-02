@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 using DrsUmbraco.Cms.Models.Sso;
+using DrsUmbraco.Cms.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrsUmbraco.Cms.Controllers;
@@ -9,14 +10,18 @@ namespace DrsUmbraco.Cms.Controllers;
 [Route("sso")]
 public sealed class SsoController : Controller
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ICrmAuthenticationService
+    _crmAuthenticationService;
+
     private readonly IConfiguration _configuration;
 
     public SsoController(
-        IHttpClientFactory httpClientFactory,
-        IConfiguration configuration)
+    ICrmAuthenticationService crmAuthenticationService,
+    IConfiguration configuration)
     {
-        _httpClientFactory = httpClientFactory;
+        _crmAuthenticationService =
+            crmAuthenticationService;
+
         _configuration = configuration;
     }
 
@@ -63,43 +68,37 @@ public sealed class SsoController : Controller
                 "Username and password are required.");
         }
 
-        var loginPath =
-            _configuration["Crm:LoginPath"]
-            ?? "/api/users/login";
+        var loginResult =
+    await _crmAuthenticationService.LoginAsync(
+        model.UserNo.Trim(),
+        model.WebPWD,
+        cancellationToken);
 
-        var crmClient =
-            _httpClientFactory.CreateClient("CrmClient");
-
-        var loginPayload = new
+        if (loginResult.IsUpstreamUnavailable)
         {
-            UserNo = model.UserNo.Trim(),
-            WebPWD = model.WebPWD,
-            SystemName = "sama"
-        };
+            return StatusCode(
+                StatusCodes.Status502BadGateway,
+                "CRM service is unavailable.");
+        }
 
-        using var crmResponse =
-            await crmClient.PostAsJsonAsync(
-                loginPath,
-                loginPayload,
-                cancellationToken);
-
-        var responseBody =
-            await crmResponse.Content.ReadAsStringAsync(
-                cancellationToken);
-
-        if (!crmResponse.IsSuccessStatusCode)
+        if (!loginResult.IsSuccess)
         {
             return Unauthorized("Login failed.");
         }
 
-        CopyCrmCookies(crmResponse);
+        CopyCrmCookies(
+            loginResult.SetCookieHeaders);
 
-        CreateGatewaySessionCookie(responseBody);
+        CreateGatewaySessionCookie(
+            loginResult.ResponseBody);
 
         var viewModel =
-            new LoginSuccessViewModel(responseBody);
+            new LoginSuccessViewModel(
+                loginResult.ResponseBody);
 
-        return View("LoginSuccess", viewModel);
+        return View(
+            "LoginSuccess",
+            viewModel);
     }
 
     [HttpGet("logout")]
@@ -122,16 +121,9 @@ public sealed class SsoController : Controller
     }
 
     private void CopyCrmCookies(
-        HttpResponseMessage crmResponse)
+    IEnumerable<string> setCookieHeaders)
     {
-        var cookies =
-            crmResponse.Headers.TryGetValues(
-                "Set-Cookie",
-                out var setCookieHeaders)
-                ? setCookieHeaders
-                : Enumerable.Empty<string>();
-
-        foreach (var cookie in cookies)
+        foreach (var cookie in setCookieHeaders)
         {
             Response.Headers.Append(
                 "Set-Cookie",
