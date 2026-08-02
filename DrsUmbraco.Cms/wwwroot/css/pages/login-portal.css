@@ -305,7 +305,7 @@
   display: block;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1600px) {
   .login-shell {
     width: min(calc(100% - 48px), 620px);
 
