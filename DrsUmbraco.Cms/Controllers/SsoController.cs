@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.Net.Http.Json;
-using System.Text.Json;
 using DrsUmbraco.Cms.Models.Sso;
 using DrsUmbraco.Cms.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,17 +7,22 @@ namespace DrsUmbraco.Cms.Controllers;
 [Route("sso")]
 public sealed class SsoController : Controller
 {
-    private readonly ICrmAuthenticationService
-    _crmAuthenticationService;
+    private readonly ICrmAuthenticationService _crmAuthenticationService;
 
     private readonly IConfiguration _configuration;
 
+    private readonly ICrmSessionService _crmSessionService;
+
     public SsoController(
     ICrmAuthenticationService crmAuthenticationService,
+    ICrmSessionService crmSessionService,
     IConfiguration configuration)
     {
         _crmAuthenticationService =
             crmAuthenticationService;
+
+        _crmSessionService =
+            crmSessionService;
 
         _configuration = configuration;
     }
@@ -69,10 +71,10 @@ public sealed class SsoController : Controller
         }
 
         var loginResult =
-    await _crmAuthenticationService.LoginAsync(
-        model.UserNo.Trim(),
-        model.WebPWD,
-        cancellationToken);
+        await _crmAuthenticationService.LoginAsync(
+            model.UserNo.Trim(),
+            model.WebPWD,
+            cancellationToken);
 
         if (loginResult.IsUpstreamUnavailable)
         {
@@ -86,11 +88,7 @@ public sealed class SsoController : Controller
             return Unauthorized("Login failed.");
         }
 
-        CopyCrmCookies(
-            loginResult.SetCookieHeaders);
-
-        CreateGatewaySessionCookie(
-            loginResult.ResponseBody);
+        _crmSessionService.EstablishSession(Response, loginResult);
 
         var viewModel =
             new LoginSuccessViewModel(
@@ -113,175 +111,11 @@ public sealed class SsoController : Controller
             _configuration["Crm:LogoutRedirectUrl"]
             ?? "https://localhost:44398/customer-portal/";
 
-        ExpireAllCrmCookies();
+        _crmSessionService.ClearSession(Response);
 
         var model = new LogoutViewModel(redirectUrl);
 
         return View("Logout", model);
-    }
-
-    private void CopyCrmCookies(
-    IEnumerable<string> setCookieHeaders)
-    {
-        foreach (var cookie in setCookieHeaders)
-        {
-            Response.Headers.Append(
-                "Set-Cookie",
-                cookie);
-        }
-    }
-
-    private void CreateGatewaySessionCookie(
-        string responseBody)
-    {
-        var expires =
-            GetCrmGatewaySessionExpires(
-                responseBody);
-
-        var maxAge =
-            expires - DateTimeOffset.UtcNow;
-
-        if (maxAge <= TimeSpan.Zero)
-        {
-            expires =
-                DateTimeOffset.UtcNow.AddMinutes(30);
-
-            maxAge =
-                TimeSpan.FromMinutes(30);
-        }
-
-        Response.Cookies.Append(
-            "CrmGatewaySession",
-            "1",
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,
-                Expires = expires,
-                MaxAge = maxAge
-            });
-    }
-
-    private DateTimeOffset GetCrmGatewaySessionExpires(
-        string responseBody)
-    {
-        var fallbackExpires =
-            DateTimeOffset.UtcNow.AddMinutes(30);
-
-        try
-        {
-            using var document =
-                JsonDocument.Parse(responseBody);
-
-            var expireText =
-                GetJsonStringCaseInsensitive(
-                    document.RootElement,
-                    "expireDateTime");
-
-            if (string.IsNullOrWhiteSpace(expireText))
-            {
-                return fallbackExpires;
-            }
-
-            if (!DateTime.TryParse(
-                    expireText,
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out var crmLocalDateTime))
-            {
-                return fallbackExpires;
-            }
-
-            var crmTimeZone =
-                GetCrmTimeZone();
-
-            var unspecifiedCrmDateTime =
-                DateTime.SpecifyKind(
-                    crmLocalDateTime,
-                    DateTimeKind.Unspecified);
-
-            var utcDateTime =
-                TimeZoneInfo.ConvertTimeToUtc(
-                    unspecifiedCrmDateTime,
-                    crmTimeZone);
-
-            var expires =
-                new DateTimeOffset(
-                    utcDateTime,
-                    TimeSpan.Zero);
-
-            return expires > DateTimeOffset.UtcNow
-                ? expires
-                : fallbackExpires;
-        }
-        catch
-        {
-            return fallbackExpires;
-        }
-    }
-
-    private static string? GetJsonStringCaseInsensitive(
-        JsonElement element,
-        string propertyName)
-    {
-        foreach (var property in element.EnumerateObject())
-        {
-            if (string.Equals(
-                    property.Name,
-                    propertyName,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return property.Value.GetString();
-            }
-        }
-
-        return null;
-    }
-
-    private TimeZoneInfo GetCrmTimeZone()
-    {
-        var configuredTimeZoneId =
-            _configuration["Crm:TimeZoneId"];
-
-        if (!string.IsNullOrWhiteSpace(
-                configuredTimeZoneId))
-        {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                configuredTimeZoneId);
-        }
-
-        try
-        {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                "Iran Standard Time");
-        }
-        catch
-        {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                "Asia/Tehran");
-        }
-    }
-
-    private void ExpireAllCrmCookies()
-    {
-        ExpireCrmCookie(".SAMA.Session");
-        ExpireCrmCookie("SystemName");
-        ExpireCrmCookie("X-Token");
-        ExpireCrmCookie("X-Ip");
-        ExpireCrmCookie("CrmGatewaySession");
-    }
-
-    private void ExpireCrmCookie(string name)
-    {
-        Response.Cookies.Delete(
-            name,
-            new CookieOptions
-            {
-                Path = "/",
-                Secure = true,
-                SameSite = SameSiteMode.Lax
-            });
     }
 
     private void PreventBrowserCache()

@@ -5,9 +5,9 @@ using DrsUmbraco.Cms.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
+builder.Services.AddScoped<ICrmSessionService, CrmSessionService>();
 
 builder.Services.AddResponseCompression(options =>
 {
@@ -45,18 +45,6 @@ builder.Services.AddHttpClient<
     client.BaseAddress = crmBaseUri;
     client.Timeout = TimeSpan.FromSeconds(30);
 });
-
-// builder.Services.AddHttpClient("CrmClient", client =>
-// {
-//     var crmBaseUrl = builder.Configuration["Crm:InternalBaseUrl"];
-
-//     if (string.IsNullOrWhiteSpace(crmBaseUrl))
-//     {
-//         throw new InvalidOperationException("Crm:InternalBaseUrl is not configured.");
-//     }
-
-//     client.BaseAddress = new Uri(crmBaseUrl);
-// });
 
 builder.Services
     .AddReverseProxy()
