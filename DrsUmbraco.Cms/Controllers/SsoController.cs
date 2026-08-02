@@ -1,6 +1,8 @@
 using DrsUmbraco.Cms.Models.Sso;
 using DrsUmbraco.Cms.Services;
 using Microsoft.AspNetCore.Mvc;
+using DrsUmbraco.Cms.Options;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Controllers;
 
@@ -8,15 +10,15 @@ namespace DrsUmbraco.Cms.Controllers;
 public sealed class SsoController : Controller
 {
     private readonly ICrmAuthenticationService _crmAuthenticationService;
-
-    private readonly IConfiguration _configuration;
-
+    private readonly CrmOptions _crmOptions;
+    private readonly SiteOptions _siteOptions;
     private readonly ICrmSessionService _crmSessionService;
 
     public SsoController(
     ICrmAuthenticationService crmAuthenticationService,
     ICrmSessionService crmSessionService,
-    IConfiguration configuration)
+    IOptions<CrmOptions> crmOptions,
+    IOptions<SiteOptions> siteOptions)
     {
         _crmAuthenticationService =
             crmAuthenticationService;
@@ -24,7 +26,11 @@ public sealed class SsoController : Controller
         _crmSessionService =
             crmSessionService;
 
-        _configuration = configuration;
+        _crmOptions =
+            crmOptions.Value;
+
+        _siteOptions =
+            siteOptions.Value;
     }
 
     [HttpGet("login")]
@@ -32,26 +38,22 @@ public sealed class SsoController : Controller
     {
         PreventBrowserCache();
 
-        if (Request.Cookies.ContainsKey("CrmGatewaySession"))
+        if (Request.Cookies.ContainsKey(
+                "CrmGatewaySession"))
         {
             return Redirect("/dashboard");
         }
 
-        var configuredPublicBaseUrl =
-            _configuration["Site:PublicBaseUrl"];
+        var publicBaseUri =
+            new Uri(
+                _siteOptions.PublicBaseUrl,
+                UriKind.Absolute);
 
-        if (!Uri.TryCreate(
-                configuredPublicBaseUrl,
-                UriKind.Absolute,
-                out var publicBaseUri))
-        {
-            throw new InvalidOperationException(
-                "Site:PublicBaseUrl is missing or invalid.");
-        }
-
-        var model = new LoginViewModel(
-            PublicHomeUrl:
-                new Uri(publicBaseUri, "/").AbsoluteUri);
+        var model =
+            new LoginViewModel(
+                PublicHomeUrl:
+                    new Uri(publicBaseUri, "/")
+                        .AbsoluteUri);
 
         return View(model);
     }
@@ -107,13 +109,11 @@ public sealed class SsoController : Controller
     {
         PreventBrowserCache();
 
-        var redirectUrl =
-            _configuration["Crm:LogoutRedirectUrl"]
-            ?? "https://localhost:44398/customer-portal/";
-
         _crmSessionService.ClearSession(Response);
 
-        var model = new LogoutViewModel(redirectUrl);
+        var model =
+            new LogoutViewModel(
+                _crmOptions.LogoutRedirectUrl);
 
         return View("Logout", model);
     }

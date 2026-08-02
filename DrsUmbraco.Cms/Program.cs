@@ -1,54 +1,19 @@
-using DrsUmbraco.Cms.Services;
-using System.IO.Compression;
-using Microsoft.AspNetCore.ResponseCompression;
 using DrsUmbraco.Cms.Extensions;
+using DrsUmbraco.Cms.Services;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder =
+    WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
-builder.Services.AddScoped<ICrmSessionService, CrmSessionService>();
 
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-    options.Providers.Add<BrotliCompressionProvider>();
-    options.Providers.Add<GzipCompressionProvider>();
-});
+builder.Services.AddScoped<
+    IElementorSubmissionService,
+    ElementorSubmissionService>();
 
-builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
-{
-    options.Level = CompressionLevel.Fastest;
-});
+builder.Services.AddApplicationCompression();
 
-builder.Services.Configure<GzipCompressionProviderOptions>(options =>
-{
-    options.Level = CompressionLevel.Fastest;
-});
-
-builder.Services.AddHttpClient<
-    ICrmAuthenticationService,
-    CrmAuthenticationService>(client =>
-{
-    var crmBaseUrl =
-        builder.Configuration["Crm:InternalBaseUrl"];
-
-    if (!Uri.TryCreate(
-            crmBaseUrl,
-            UriKind.Absolute,
-            out var crmBaseUri))
-    {
-        throw new InvalidOperationException(
-            "Crm:InternalBaseUrl is missing or invalid.");
-    }
-
-    client.BaseAddress = crmBaseUri;
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-
-builder.Services
-    .AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+builder.Services.AddCrmIntegration(
+    builder.Configuration);
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
@@ -56,31 +21,34 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
-WebApplication app = builder.Build();
-
+WebApplication app =
+    builder.Build();
 
 await app.BootUmbracoAsync();
 
 app.UseResponseCompression();
 
+/*
+ * تنظیم فعلی Static Files خودت را بدون تغییر نگه دار.
+ * مخصوصاً اگر WebP mapping یا محافظ asset اضافه کرده‌ای.
+ */
 app.UseStaticFiles();
 
 app.MapCrmGateway();
 
 app.UseUmbraco()
-    .WithMiddleware(u =>
+    .WithMiddleware(umbraco =>
     {
-        u.UseBackOffice();
-        u.UseWebsite();
+        umbraco.UseBackOffice();
+        umbraco.UseWebsite();
     })
-    .WithEndpoints(u =>
+    .WithEndpoints(umbraco =>
     {
-        u.EndpointRouteBuilder.MapControllers();
+        umbraco.EndpointRouteBuilder
+            .MapControllers();
 
-        u.UseBackOfficeEndpoints();
-        u.UseWebsiteEndpoints();
+        umbraco.UseBackOfficeEndpoints();
+        umbraco.UseWebsiteEndpoints();
     });
-
-// app.MapControllers();
 
 await app.RunAsync();

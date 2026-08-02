@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 using DrsUmbraco.Cms.Models.Sso;
+using DrsUmbraco.Cms.Options;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Services;
 
@@ -15,12 +17,13 @@ public sealed class CrmSessionService : ICrmSessionService
         "CrmGatewaySession"
     ];
 
-    private readonly IConfiguration _configuration;
+    private readonly CrmOptions _crmOptions;
 
     public CrmSessionService(
-        IConfiguration configuration)
+    IOptions<CrmOptions> crmOptions)
     {
-        _configuration = configuration;
+        _crmOptions =
+            crmOptions.Value;
     }
 
     public void EstablishSession(
@@ -160,8 +163,7 @@ public sealed class CrmSessionService : ICrmSessionService
 
     private TimeZoneInfo GetCrmTimeZone()
     {
-        var configuredTimeZoneId =
-            _configuration["Crm:TimeZoneId"];
+        var configuredTimeZoneId = _crmOptions.TimeZoneId;
 
         if (!string.IsNullOrWhiteSpace(
                 configuredTimeZoneId))

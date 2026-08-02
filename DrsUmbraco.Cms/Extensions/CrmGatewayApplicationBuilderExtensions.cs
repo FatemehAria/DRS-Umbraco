@@ -1,3 +1,6 @@
+using DrsUmbraco.Cms.Options;
+using Microsoft.Extensions.Options;
+
 namespace DrsUmbraco.Cms.Extensions;
 
 public static class CrmGatewayApplicationBuilderExtensions
@@ -5,18 +8,13 @@ public static class CrmGatewayApplicationBuilderExtensions
     public static void MapCrmGateway(this WebApplication app)
     {
         // تنظیمات و MapWhen فعلی اینجا منتقل می‌شود.
+        var crmOptions = app.Services.GetRequiredService<IOptions<CrmOptions>>().Value;
 
         var crmGatewayHosts =
-    app.Configuration
-        .GetSection("Crm:GatewayHosts")
-        .Get<string[]>()
-    ?? Array.Empty<string>();
+            crmOptions.GatewayHosts;
 
         var crmGatewayPorts =
-            app.Configuration
-                .GetSection("Crm:GatewayPorts")
-                .Get<int[]>()
-            ?? Array.Empty<int>();
+            crmOptions.GatewayPorts;
 
         app.MapWhen(
             context =>
