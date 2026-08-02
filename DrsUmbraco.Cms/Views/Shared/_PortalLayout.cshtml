@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/css/sama.bundle.min.css" asp-append-version="true" />
+
+    @await RenderSectionAsync(
+    "Styles",
+        required: false)
+</head>
+
+<body class="@ViewData["BodyClass"]">
+
+    @RenderBody()
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+
+</html>

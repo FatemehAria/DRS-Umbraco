@@ -1,0 +1,100 @@
+@model DrsUmbraco.Cms.Models.Sso.LoginViewModel
+
+@{
+    Layout = "_PortalLayout";
+
+    ViewData["Title"] = "ورود به سامانه";
+    ViewData["BodyClass"] = "login-portal-page";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/login-portal.css" asp-append-version="true" />
+}
+
+<header class="login-header">
+    <a class="login-header__logo" href="@Model.PublicHomeUrl" aria-label="صفحه اصلی">
+        <img src="~/assets/sama/uploads/2024/11/Sama-Logo.webp" asp-append-version="true" alt="دیدگاه رایانه سما" />
+    </a>
+</header>
+
+<main class="login-shell">
+    <section class="login-art" aria-hidden="true">
+        <img class="login-art__image" src="/assets/sama/login/login-illustration.png" alt="" />
+    </section>
+
+    <section class="login-card" aria-labelledby="loginTitle">
+        <h1 id="loginTitle">ورود به سامانه</h1>
+        <p class="login-card__intro">
+            برای ادامه، نام کاربری و رمز عبور خود را وارد کنید.
+        </p>
+
+        <form class="login-form" method="post" action="/sso/login" autocomplete="on">
+            <div class="login-error" id="loginError">
+                نام کاربری یا رمز عبور صحیح نیست.
+            </div>
+
+            <div class="login-field">
+                <label for="userNo">نام کاربری</label>
+
+                <div class="login-input">
+                    <input id="userNo" name="UserNo" type="text" autocomplete="username"
+                        placeholder="نام کاربری خود را وارد کنید" required />
+
+                    <svg class="login-input__icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M12 12.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2.1c-4.1 0-7.4 2.1-7.4 4.7 0 .7.5 1.2 1.2 1.2h12.4c.7 0 1.2-.5 1.2-1.2 0-2.6-3.3-4.7-7.4-4.7Z"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="login-field">
+                <label for="password">رمز عبور</label>
+
+                <div class="login-input">
+                    <input id="password" name="WebPWD" type="password" autocomplete="current-password"
+                        placeholder="رمز عبور خود را وارد کنید" required />
+
+                    <svg class="login-input__icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 0 1 4 0v2h-4V7Zm3 8.7V17h-2v-1.3a2 2 0 1 1 2 0Z"
+                            fill="currentColor" />
+                    </svg>
+
+                    <button class="login-input__toggle" type="button" aria-label="نمایش یا مخفی کردن رمز عبور"
+                        data-password-toggle>
+                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                            <path
+                                d="M12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4C20.7 13.9 17.3 19 12 19s-8.7-5.1-9.4-6.3a1.4 1.4 0 0 1 0-1.4C3.3 10.1 6.7 5 12 5Zm0 2c-3.8 0-6.5 3.4-7.4 5 .9 1.6 3.6 5 7.4 5s6.5-3.4 7.4-5c-.9-1.6-3.6-5-7.4-5Zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6Z"
+                                fill="currentColor" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="login-actions">
+                <a class="login-forgot" href="#">
+                    رمز عبور را فراموش کرده‌ام
+                </a>
+            </div>
+
+            <input type="hidden" name="SystemName" value="sama" />
+
+            <button class="login-button" type="submit">
+                ورود
+            </button>
+        </form>
+
+        <script>
+            document.querySelector("[data-password-toggle]")?.addEventListener("click", function () {
+                const input = document.getElementById("password");
+
+                if (!input) {
+                    return;
+                }
+
+                input.type = input.type === "password" ? "text" : "password";
+            });
+        </script>
+    </section>
+</main>
