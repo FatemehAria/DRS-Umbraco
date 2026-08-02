@@ -46,35 +46,60 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   }
 
   .header-inner {
+    width: min(var(--container-width), calc(100% - 42px));
     min-height: 72px;
+
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
-    padding: 10px 0;
-  }
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "toggle empty logo"
+      "nav nav nav"
+      "actions actions actions";
 
-  .logo {
-    display: flex;
     align-items: center;
+    gap: 12px 18px;
+    margin-inline: auto;
+    padding: 10px 0;
+
+    /*
+      چیدمان فیزیکی ستون‌ها را قابل پیش‌بینی می‌کند:
+      toggle چپ، logo راست
+    */
+    direction: ltr;
   }
 
-  .logo img {
+  .logo.site-brand {
+    grid-area: logo;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    direction: rtl;
+  }
+
+  .logo.site-brand img {
+    width: auto;
     max-height: 50px;
     margin: 0;
   }
 
+  .site-brand__text {
+    display: none;
+  }
+
   .mobile-menu-toggle {
+    grid-area: toggle;
+    justify-self: start;
+    align-self: center;
     display: flex;
   }
 
-  .main-nav,
-  .header-actions {
-    grid-column: 1 / -1;
-  }
-
   .main-nav {
+    grid-area: nav;
     display: none;
+    width: 100%;
     padding: 14px;
+    direction: rtl;
     background: #fff;
     border: 1px solid var(--sama-border);
     border-radius: 20px;
@@ -102,9 +127,11 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   }
 
   .header-actions {
+    grid-area: actions;
     display: none;
     width: 100%;
     margin: 0;
+    direction: rtl;
   }
 
   body.mobile-nav-open .header-actions {
@@ -116,6 +143,7 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   .header-portal-btn,
   .header-phone {
     width: 100%;
+    min-width: 0;
     justify-content: center;
   }
 
