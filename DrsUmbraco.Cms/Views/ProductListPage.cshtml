@@ -85,6 +85,16 @@
             });
         }
     }
+
+    productCategories = productCategories
+    .OrderByDescending(category =>
+        string.Equals(
+            category.Key,
+            "all",
+            StringComparison.OrdinalIgnoreCase
+        )
+    )
+    .ToList();
 }
 
 @functions {
@@ -162,7 +172,7 @@
 @if (products.Count > 0 && productCategories.Count > 0)
 {
     <section class="container products-filter-wrap">
-        <div class="products-filter" aria-label="دسته‌بندی محصولات">
+        <div class="products-filter" aria-label="دسته‌بندی محصولات" dir="rtl">
             @foreach (var category in productCategories)
             {
                 var isActive = category.Key == "all";
@@ -313,8 +323,30 @@
             document.querySelector(".products-filter__item.is-active") ||
             filterButtons[0];
 
+        /*
+        * مرحله اول:
+        * موقعیت pill در حالی تنظیم می‌شود که هنوز مخفی
+        * و بدون transition است.
+        */
+        moveActivePill(initialActiveButton);
+
+        /*
+        * باعث می‌شود مرورگر موقعیت تعیین‌شده را همین‌جا اعمال کند.
+        */
+        void filter.offsetWidth;
+
+        /*
+        * مرحله دوم:
+        * pill مستقیماً در محل صحیح نمایش داده می‌شود.
+        */
+        filter.classList.add("is-ready");
+
+        /*
+        * مرحله سوم:
+        * transition فقط برای کلیک‌ها و تغییرات بعدی فعال می‌شود.
+        */
         requestAnimationFrame(function () {
-            moveActivePill(initialActiveButton);
+            filter.classList.add("is-animated");
         });
 
         filterButtons.forEach(function (button) {
