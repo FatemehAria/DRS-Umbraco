@@ -176,8 +176,22 @@
         var requestPath = NormalizePath(Context.Request.Path.Value);
         var modelPath = NormalizePath(Model.Url());
 
-        return PathMatches(requestPath, targetPath) ||
-        PathMatches(modelPath, targetPath);
+        // حالت اول:
+        // آدرس صفحه فعلی دقیقاً همان لینک منو باشد
+        // یا URL صفحه زیرمجموعه URL لینک منو باشد.
+        var matchesUrl =
+            PathMatches(requestPath, targetPath) ||
+            PathMatches(modelPath, targetPath);
+
+        // حالت دوم:
+        // صفحه فعلی در درخت محتوای Umbraco
+        // زیرمجموعه صفحه‌ای مثل Products یا Recruitment باشد.
+        var matchesContentTree = Model
+            .AncestorsOrSelf()
+            .Any(content =>
+                NormalizePath(content.Url()) == targetPath);
+
+        return matchesUrl || matchesContentTree;
     }
 
     bool IsCustomerPortalLink(string? linkText, string? linkUrl)
