@@ -408,6 +408,28 @@
 
         const result = await readJsonSafely(response);
 
+        if (response.status === 429) {
+          const retryAfterSeconds = Number(response.headers.get("Retry-After"));
+
+          const retryMessage =
+            Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+              ? ` لطفاً حدود ${Math.ceil(retryAfterSeconds / 60)} دقیقه دیگر تلاش کنید.`
+              : " لطفاً چند دقیقه دیگر تلاش کنید.";
+
+          showMessage(
+            messageBox,
+            result?.detail ||
+              `تعداد درخواست‌های شما بیش از حد مجاز است.${retryMessage}`,
+            "error",
+          );
+
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(result?.title || "خطا در ثبت درخواست");
+        }
+
         if (!response.ok) {
           throw new Error(result?.title || "خطا در ثبت درخواست");
         }

@@ -1,6 +1,8 @@
+using DrsUmbraco.Cms.Features.ConsultRequests;
 using DrsUmbraco.Cms.Models;
 using DrsUmbraco.Cms.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DrsUmbraco.Cms.Controllers;
 
@@ -22,6 +24,7 @@ public sealed class ConsultRequestsController : ControllerBase
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimitPolicyNames.PublicFormByIp)]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Create(
