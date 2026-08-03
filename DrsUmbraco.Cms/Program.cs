@@ -1,4 +1,5 @@
 using DrsUmbraco.Cms.Extensions;
+using DrsUmbraco.Cms.Features.Chatbot.Services;
 using DrsUmbraco.Cms.Services;
 
 WebApplicationBuilder builder =
@@ -9,6 +10,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<
     IElementorSubmissionService,
     ElementorSubmissionService>();
+
+builder.Services.AddScoped<
+    IChatbotKnowledgeService,
+    UmbracoChatbotKnowledgeService>();
 
 builder.Services.AddApplicationCompression();
 

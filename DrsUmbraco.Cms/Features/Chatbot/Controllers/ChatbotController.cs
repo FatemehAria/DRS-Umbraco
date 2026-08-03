@@ -1,13 +1,23 @@
 using DrsUmbraco.Cms.Features.Chatbot.Contracts;
+using DrsUmbraco.Cms.Features.Chatbot.Models;
+using DrsUmbraco.Cms.Features.Chatbot.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Controllers;
 
 [ApiController]
-[Route("api/chatbot/messages")]
+[Route("api/chatbot")]
 public sealed class ChatbotController : ControllerBase
 {
-    [HttpPost]
+    private readonly IChatbotKnowledgeService _knowledgeService;
+
+    public ChatbotController(
+        IChatbotKnowledgeService knowledgeService)
+    {
+        _knowledgeService = knowledgeService;
+    }
+
+    [HttpPost("messages")]
     public ActionResult<SendMessageResponse> Send(
         SendMessageRequest request)
     {
@@ -23,5 +33,13 @@ public sealed class ChatbotController : ControllerBase
         };
         // برگرداندن پاسخ
         return Ok(response);
+    }
+
+    [HttpGet("knowledge")]
+    public ActionResult<IReadOnlyList<ChatbotKnowledgeItem>> GetKnowledge()
+    {
+        IReadOnlyList<ChatbotKnowledgeItem> items =  _knowledgeService.GetAll();
+
+        return Ok(items);
     }
 }
