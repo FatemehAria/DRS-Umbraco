@@ -427,11 +427,16 @@
         }
 
         if (!response.ok) {
-          throw new Error(result?.title || "خطا در ثبت درخواست");
-        }
+          const validationMessage = result?.errors
+            ? Object.values(result.errors).flat().find(Boolean)
+            : null;
 
-        if (!response.ok) {
-          throw new Error(result?.title || "خطا در ثبت درخواست");
+          throw new Error(
+            validationMessage ||
+              result?.detail ||
+              result?.title ||
+              "خطا در ثبت درخواست",
+          );
         }
 
         const successMessage =
@@ -443,12 +448,12 @@
 
         form.reset();
       } catch (error) {
-        showMessage(
-          messageBox,
-          "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.",
-          "error",
-        );
+        const message =
+          error instanceof Error
+            ? error.message
+            : "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.";
 
+        showMessage(messageBox, message, "error");
         console.error(error);
       } finally {
         setSubmitState({
