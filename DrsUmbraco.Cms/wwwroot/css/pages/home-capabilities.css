@@ -30,7 +30,8 @@
     border-color 0.25s ease;
 }
 
-.capability-card::before {
+/* راست، بالا */
+/* .capability-card::before {
   content: "";
   position: absolute;
   inset-inline-start: -50px;
@@ -39,6 +40,35 @@
   height: 130px;
   background: rgba(15, 76, 129, 0.08);
   border-radius: 50%;
+} */
+
+/* چپ، پایین */
+/* .capability-card::before {
+  content: "";
+  position: absolute;
+
+  inset-inline-end: -50px;
+  bottom: -50px;
+
+  width: 130px;
+  height: 130px;
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
+} */
+
+/* چپ، بالا */
+.capability-card::before {
+  content: "";
+  position: absolute;
+  inset-inline-end: -30px;
+  top: -30px;
+
+  width: 130px;
+  height: 130px;
+  background: rgba(15, 76, 129, 0.08);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .capability-card:hover {
