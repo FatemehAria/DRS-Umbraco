@@ -1,5 +1,6 @@
 using DrsUmbraco.Cms.Extensions;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
+using DrsUmbraco.Cms.Features.Chatbot.Text;
 using DrsUmbraco.Cms.Services;
 
 WebApplicationBuilder builder =
@@ -14,6 +15,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IChatbotKnowledgeService,
     UmbracoChatbotKnowledgeService>();
+
+builder.Services.AddSingleton<
+    IPersianTextNormalizer,
+    PersianTextNormalizer>();
 
 builder.Services.AddApplicationCompression();
 
