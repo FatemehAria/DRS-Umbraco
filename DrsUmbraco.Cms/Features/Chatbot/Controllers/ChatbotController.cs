@@ -12,12 +12,15 @@ public sealed class ChatbotController : ControllerBase
 {
     private readonly IChatbotKnowledgeService _knowledgeService;
     private readonly IPersianTextNormalizer _textNormalizer;
+    private readonly IChatbotMatchingService _matchingService;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
-        IPersianTextNormalizer textNormalizer)
+        IPersianTextNormalizer textNormalizer,
+        IChatbotMatchingService matchingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
+        _matchingService = matchingService;
     }
 
     [HttpPost("messages")]
@@ -29,13 +32,15 @@ public sealed class ChatbotController : ControllerBase
         {
             return BadRequest(new { error = "Message is required." });
         }
-        // ساخت پاسخ ثابت
-        SendMessageResponse response = new()
+
+        var result = _matchingService.FindMatch(request.Message);
+
+        if (result.IsMatch &&                                    result.Answer is string answer)
         {
-            Reply = "پیام شما دریافت شد."
-        };
-        // برگرداندن پاسخ
-        return Ok(response);
+            return Ok(new SendMessageResponse { Reply = answer });
+        }
+
+        return Ok(new SendMessageResponse { Reply = "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید." });
     }
 
     [HttpGet("knowledge")]

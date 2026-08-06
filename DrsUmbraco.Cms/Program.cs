@@ -20,6 +20,10 @@ builder.Services.AddSingleton<
     IPersianTextNormalizer,
     PersianTextNormalizer>();
 
+builder.Services.AddScoped<
+    IChatbotMatchingService,
+    ExactChatbotMatchingService>();
+
 builder.Services.AddApplicationCompression();
 
 builder.Services.AddCrmIntegration(
