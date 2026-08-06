@@ -31,7 +31,7 @@ public sealed class UmbracoChatbotKnowledgeService
         {
             return [];
         }
-        
+
         // 4. خواندن فرزندان chatbotFaqItem
         var faqNodes = knowledgeBase
             .Children()
@@ -54,12 +54,24 @@ public sealed class UmbracoChatbotKnowledgeService
                 continue;
             }
 
+            string[] alternativeQuestions =
+                item.Value<string[]>("alternativeQuestions")
+                ?? [];
+
+            var cleanedAlternativeQuestions = alternativeQuestions
+                .Where(question =>
+                    !string.IsNullOrWhiteSpace(question))
+                .Select(question => question.Trim())
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+
             // 7. تبدیل به ChatbotKnowledgeItem
             var knowledgeItem = new ChatbotKnowledgeItem
             {
                 Id = item.Key,
                 Question = question,
-                Answer = answer
+                Answer = answer,
+                AlternativeQuestions = cleanedAlternativeQuestions
             };
 
             result.Add(knowledgeItem);

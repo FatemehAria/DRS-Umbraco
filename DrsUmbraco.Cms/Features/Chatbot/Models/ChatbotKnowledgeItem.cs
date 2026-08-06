@@ -7,4 +7,7 @@ public sealed class ChatbotKnowledgeItem
     public required string Question { get; init; }
 
     public required string Answer { get; init; }
+
+    public IReadOnlyList<string> AlternativeQuestions { get; init; }
+    = [];
 }

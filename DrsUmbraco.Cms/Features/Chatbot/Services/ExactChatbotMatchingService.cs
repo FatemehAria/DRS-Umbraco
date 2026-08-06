@@ -21,34 +21,47 @@ public sealed class ExactChatbotMatchingService
     {
         // 1. نرمال‌سازی سؤال کاربر
         string normalizedQuestion = _textNormalizer.Normalize(question);
+
         // 2. اگر خالی بود، نتیجه ناموفق برگردان
-        if (string.IsNullOrWhiteSpace(normalizedQuestion))
+        if (string.IsNullOrEmpty(normalizedQuestion))
         {
             return new ChatbotMatchResult
             {
                 IsMatch = false,
             };
         }
+
         // 3. دریافت FAQها
         var faqs = _knowledgeService.GetAll();
+
         foreach (ChatbotKnowledgeItem item in faqs)
         {
-            // 4. نرمال‌سازی سؤال هر FAQ
-            string normalizedFaqQuestion = _textNormalizer.Normalize(item.Question);
-            // 5. مقایسه با سؤال کاربر
-            bool isMatch = string.Equals(
-                    normalizedFaqQuestion,
+            IEnumerable<string> candidateQuestions =
+                new[] { item.Question }
+                    .Concat(item.AlternativeQuestions);
+
+            foreach (string candidateQuestion in candidateQuestions)
+            {
+                string normalizedCandidate =
+                    _textNormalizer.Normalize(candidateQuestion);
+
+                // 5. مقایسه با سؤال کاربر
+                bool isMatch = string.Equals(
+                    normalizedCandidate,
                     normalizedQuestion,
                     StringComparison.Ordinal);
 
-            if (isMatch)
-            {
-                return new ChatbotMatchResult
+                // در صورت Match، return
+
+                if (isMatch)
                 {
-                    IsMatch = true,
-                    Answer = item.Answer,
-                    KnowledgeItemId = item.Id
-                };
+                    return new ChatbotMatchResult
+                    {
+                        IsMatch = true,
+                        Answer = item.Answer,
+                        KnowledgeItemId = item.Id
+                    };
+                }
             }
         }
 
