@@ -109,4 +109,29 @@ public sealed class ChatbotController : ControllerBase
             tokenTypeIdsLength = result.TokenTypeIds.Length
         });
     }
+
+    [HttpPost("embedding-raw")]
+    public ActionResult GetRawEmbedding(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        EmbeddingModelInput input =
+            _embeddingTokenizer.Encode(request.Message);
+
+        EmbeddingModelRawOutput output =
+            _embeddingModel.Run(input);
+
+        return Ok(new
+        {
+            shape = output.Shape,
+            valueCount = output.Values.Length,
+
+            // فقط چند عدد اول برای debug
+            firstValues = output.Values.Take(5)
+        });
+    }
 }
