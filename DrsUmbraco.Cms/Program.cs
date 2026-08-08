@@ -27,6 +27,8 @@ builder.Services.AddScoped<
 
 builder.Services.AddSingleton<LocalEmbeddingModel>();
 
+builder.Services.AddSingleton<ILocalEmbeddingTokenizer, XlmRobertaEmbeddingTokenizer>();
+
 builder.Services.AddApplicationCompression();
 
 builder.Services.AddCrmIntegration(

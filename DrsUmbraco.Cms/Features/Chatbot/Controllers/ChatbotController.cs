@@ -15,17 +15,19 @@ public sealed class ChatbotController : ControllerBase
     private readonly IPersianTextNormalizer _textNormalizer;
     private readonly IChatbotMatchingService _matchingService;
     private readonly LocalEmbeddingModel _embeddingModel;
+    private readonly ILocalEmbeddingTokenizer _embeddingTokenizer;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
         IChatbotMatchingService matchingService,
-        LocalEmbeddingModel embeddingModel)
+        LocalEmbeddingModel embeddingModel,
+        ILocalEmbeddingTokenizer embeddingTokenizer)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
         _matchingService = matchingService;
         _embeddingModel = embeddingModel;
-
+        _embeddingTokenizer = embeddingTokenizer;
     }
 
     [HttpPost("messages")]
@@ -78,6 +80,33 @@ public sealed class ChatbotController : ControllerBase
         {
             inputs = _embeddingModel.GetInputNames(),
             outputs = _embeddingModel.GetOutputNames()
+        });
+    }
+
+    [HttpPost("tokenize")]
+    public ActionResult Tokenize(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest(new
+            {
+                error = "Message is required."
+            });
+        }
+
+        EmbeddingModelInput result =
+            _embeddingTokenizer.Encode(request.Message);
+
+        return Ok(new
+        {
+            inputIds = result.InputIds,
+            attentionMask = result.AttentionMask,
+            tokenTypeIds = result.TokenTypeIds,
+
+            inputIdsLength = result.InputIds.Length,
+            attentionMaskLength = result.AttentionMask.Length,
+            tokenTypeIdsLength = result.TokenTypeIds.Length
         });
     }
 }
