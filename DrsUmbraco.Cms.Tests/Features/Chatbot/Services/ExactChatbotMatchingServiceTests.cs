@@ -4,24 +4,85 @@ using DrsUmbraco.Cms.Features.Chatbot.Text;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Services;
 
-private sealed class FakeChatbotKnowledgeService
-    : IChatbotKnowledgeService
+public sealed class ExactChatbotMatchingServiceTests
 {
-    private readonly IReadOnlyList<ChatbotKnowledgeItem> _items;
-
-    public FakeChatbotKnowledgeService(
-        IReadOnlyList<ChatbotKnowledgeItem> items)
+    [Fact]
+    public void FindMatch_WhenPrimaryQuestionMatches_ShouldReturnAnswer()
     {
-        _items = items;
-    }
+        // Arrange
+        Guid knowledgeItemId = Guid.NewGuid();
 
-    public IReadOnlyList<ChatbotKnowledgeItem> GetAll()
-    {
-        return _items;
+        var knowledgeItems = new List<ChatbotKnowledgeItem>
+        {
+            new()
+            {
+                Id = knowledgeItemId,
+                Question = "چطور رمز عبورم را تغییر بدهم؟",
+                Answer = "پاسخ تغییر رمز",
+                AlternativeQuestions = []
+            }
+        };
+
+        IChatbotKnowledgeService knowledgeService =
+            new FakeChatbotKnowledgeService(knowledgeItems);
+
+        PersianTextNormalizer normalizer = new();
+
+        ExactChatbotMatchingService matchingService =
+            new(knowledgeService, normalizer);
+
+        // Act
+        ChatbotMatchResult result =
+            matchingService.FindMatch(
+                "  چطور رمز عبورم را تغيير بدهم؟ ");
+
+        // Assert
+        Assert.True(result.IsMatch);
+        Assert.Equal("پاسخ تغییر رمز", result.Answer);
+        Assert.Equal(knowledgeItemId, result.KnowledgeItemId);
     }
 
     [Fact]
-    public void FindMatch_WhenPrimaryQuestionMatches_ShouldReturnAnswer()
+    public void FindMatch_WhenAlternativeQuestionMatches_ShouldReturnAnswer()
+    {
+        // Arrange
+        Guid knowledgeItemId = Guid.NewGuid();
+
+        var knowledgeItems = new List<ChatbotKnowledgeItem>
+        {
+            new()
+            {
+                Id = knowledgeItemId,
+                Question = "چطور رمز عبورم را تغییر بدهم؟",
+                Answer = "پاسخ تغییر رمز",
+                AlternativeQuestions =
+                [
+                    "چگونه پسوردم را عوض کنم؟"
+                ]
+            }
+        };
+
+        IChatbotKnowledgeService knowledgeService =
+            new FakeChatbotKnowledgeService(knowledgeItems);
+
+        PersianTextNormalizer normalizer = new();
+
+        ExactChatbotMatchingService matchingService =
+            new(knowledgeService, normalizer);
+
+        // Act
+        ChatbotMatchResult result =
+            matchingService.FindMatch(
+                "چگونه پسوردم را عوض كنم؟");
+
+        // Assert
+        Assert.True(result.IsMatch);
+        Assert.Equal("پاسخ تغییر رمز", result.Answer);
+        Assert.Equal(knowledgeItemId, result.KnowledgeItemId);
+    }
+
+    [Fact]
+    public void FindMatch_WhenQuestionDoesNotMatch_ShouldReturnUnmatchedResult()
     {
         // Arrange
         var knowledgeItems = new List<ChatbotKnowledgeItem>
@@ -31,22 +92,78 @@ private sealed class FakeChatbotKnowledgeService
                 Id = Guid.NewGuid(),
                 Question = "چطور رمز عبورم را تغییر بدهم؟",
                 Answer = "پاسخ تغییر رمز",
-                AlternativeQuestions = []
+                AlternativeQuestions =
+                [
+                    "چگونه پسوردم را عوض کنم؟"
+                ]
             }
         };
 
-        IChatbotKnowledgeService knowledgeService = new FakeChatbotKnowledgeService(knowledgeItems);
+        IChatbotKnowledgeService knowledgeService =
+            new FakeChatbotKnowledgeService(knowledgeItems);
 
         PersianTextNormalizer normalizer = new();
 
-        ExactChatbotMatchingService matchingService = new(knowledgeService, normalizer);
+        ExactChatbotMatchingService matchingService =
+            new(knowledgeService, normalizer);
 
         // Act
-        ChatbotMatchResult result = matchingService.FindMatch("  چطور رمز عبورم را تغيير بدهم؟ ");
+        ChatbotMatchResult result =
+            matchingService.FindMatch(
+                "ساعت کاری شرکت چیست؟");
 
         // Assert
-        Assert.True(result.IsMatch, true);
-        Assert.Equal(result.answer, knowledgeItems[0].Answer);
-        Assert.Equal(result.KnowledgeItemId, knowledgeItems[0].Id);
+        Assert.False(result.IsMatch);
+        Assert.Null(result.Answer);
+        Assert.Null(result.KnowledgeItemId);
+    }
+
+    [Fact]
+    public void FindMatch_WhenQuestionIsWhitespace_ShouldReturnUnmatchedResult()
+    {
+        // Arrange
+        var knowledgeItems = new List<ChatbotKnowledgeItem>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Question = "چطور رمز عبورم را تغییر بدهم؟",
+                Answer = "پاسخ تغییر رمز"
+            }
+        };
+
+        IChatbotKnowledgeService knowledgeService =
+            new FakeChatbotKnowledgeService(knowledgeItems);
+
+        PersianTextNormalizer normalizer = new();
+
+        ExactChatbotMatchingService matchingService =
+            new(knowledgeService, normalizer);
+
+        // Act
+        ChatbotMatchResult result =
+            matchingService.FindMatch("   ");
+
+        // Assert
+        Assert.False(result.IsMatch);
+        Assert.Null(result.Answer);
+        Assert.Null(result.KnowledgeItemId);
+    }
+
+    private sealed class FakeChatbotKnowledgeService
+        : IChatbotKnowledgeService
+    {
+        private readonly IReadOnlyList<ChatbotKnowledgeItem> _items;
+
+        public FakeChatbotKnowledgeService(
+            IReadOnlyList<ChatbotKnowledgeItem> items)
+        {
+            _items = items;
+        }
+
+        public IReadOnlyList<ChatbotKnowledgeItem> GetAll()
+        {
+            return _items;
+        }
     }
 }

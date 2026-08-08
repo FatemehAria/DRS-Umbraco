@@ -1,4 +1,5 @@
 using DrsUmbraco.Cms.Features.Chatbot.Contracts;
+using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Text;
@@ -13,14 +14,18 @@ public sealed class ChatbotController : ControllerBase
     private readonly IChatbotKnowledgeService _knowledgeService;
     private readonly IPersianTextNormalizer _textNormalizer;
     private readonly IChatbotMatchingService _matchingService;
+    private readonly LocalEmbeddingModel _embeddingModel;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
-        IChatbotMatchingService matchingService)
+        IChatbotMatchingService matchingService,
+        LocalEmbeddingModel embeddingModel)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
         _matchingService = matchingService;
+        _embeddingModel = embeddingModel;
+
     }
 
     [HttpPost("messages")]
@@ -35,7 +40,7 @@ public sealed class ChatbotController : ControllerBase
 
         var result = _matchingService.FindMatch(request.Message);
 
-        if (result.IsMatch &&                                    result.Answer is string answer)
+        if (result.IsMatch && result.Answer is string answer)
         {
             return Ok(new SendMessageResponse { Reply = answer });
         }
@@ -64,5 +69,15 @@ public sealed class ChatbotController : ControllerBase
         string normalized = _textNormalizer.Normalize(request.Message);
         // original و normalized را برگردان
         return Ok(new { original = request.Message, normalized = normalized });
+    }
+
+    [HttpGet("model-info")]
+    public ActionResult GetModelInfo()
+    {
+        return Ok(new
+        {
+            inputs = _embeddingModel.GetInputNames(),
+            outputs = _embeddingModel.GetOutputNames()
+        });
     }
 }

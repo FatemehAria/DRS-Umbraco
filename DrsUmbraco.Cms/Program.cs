@@ -1,4 +1,5 @@
 using DrsUmbraco.Cms.Extensions;
+using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Text;
 using DrsUmbraco.Cms.Services;
@@ -23,6 +24,8 @@ builder.Services.AddSingleton<
 builder.Services.AddScoped<
     IChatbotMatchingService,
     ExactChatbotMatchingService>();
+
+builder.Services.AddSingleton<LocalEmbeddingModel>();
 
 builder.Services.AddApplicationCompression();
 
