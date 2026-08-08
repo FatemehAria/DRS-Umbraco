@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DrsUmbraco.Cms.Tests/DrsUmbraco.Cms.Tests.csproj" />
+  <Project Path="DrsUmbraco.Cms/DrsUmbraco.Cms.csproj" />
+</Solution>
