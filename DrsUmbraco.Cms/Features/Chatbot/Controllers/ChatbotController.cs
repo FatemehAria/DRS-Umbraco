@@ -16,18 +16,21 @@ public sealed class ChatbotController : ControllerBase
     private readonly IChatbotMatchingService _matchingService;
     private readonly LocalEmbeddingModel _embeddingModel;
     private readonly ILocalEmbeddingTokenizer _embeddingTokenizer;
+    private readonly IEmbeddingService _embeddingService;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
         IChatbotMatchingService matchingService,
         LocalEmbeddingModel embeddingModel,
-        ILocalEmbeddingTokenizer embeddingTokenizer)
+        ILocalEmbeddingTokenizer embeddingTokenizer,
+        IEmbeddingService embeddingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
         _matchingService = matchingService;
         _embeddingModel = embeddingModel;
         _embeddingTokenizer = embeddingTokenizer;
+        _embeddingService = embeddingService;
     }
 
     [HttpPost("messages")]
@@ -134,4 +137,63 @@ public sealed class ChatbotController : ControllerBase
             firstValues = output.Values.Take(5)
         });
     }
+
+    [HttpPost("embedding")]
+    public ActionResult GetEmbedding(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest(new
+            {
+                error = "Message is required."
+            });
+        }
+
+        float[] embedding =
+            _embeddingService.Generate(request.Message);
+
+        double l2Norm = Math.Sqrt(
+            embedding.Sum(value =>
+                (double)value * value));
+
+        return Ok(new
+        {
+            dimension = embedding.Length,
+            l2Norm,
+            firstValues = embedding.Take(5)
+        });
+    }
+
+    [HttpPost("similarity")]
+public ActionResult GetSimilarity(
+    [FromBody] SimilarityRequest request)
+{
+    if (string.IsNullOrWhiteSpace(request.FirstText) ||
+        string.IsNullOrWhiteSpace(request.SecondText))
+    {
+        return BadRequest(new
+        {
+            error = "Both texts are required."
+        });
+    }
+
+    float[] firstEmbedding =
+        _embeddingService.Generate(request.FirstText);
+
+    float[] secondEmbedding =
+        _embeddingService.Generate(request.SecondText);
+
+    float similarity =
+        CosineSimilarityCalculator.Calculate(
+            firstEmbedding,
+            secondEmbedding);
+
+    return Ok(new
+    {
+        firstText = request.FirstText,
+        secondText = request.SecondText,
+        similarity
+    });
+}
 }
