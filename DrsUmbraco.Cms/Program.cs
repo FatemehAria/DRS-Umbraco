@@ -3,6 +3,8 @@ using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Text;
 using DrsUmbraco.Cms.Services;
+using DrsUmbraco.Cms.Features.Chatbot.Notifications;
+using Umbraco.Cms.Core.Notifications;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
@@ -52,6 +54,7 @@ builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddComposers()
+    .AddNotificationHandler<ContentCacheRefresherNotification, ChatbotSemanticIndexCacheHandler>()
     .Build();
 
 WebApplication app =

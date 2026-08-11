@@ -345,6 +345,7 @@ public sealed class ChatbotController : ControllerBase
         });
     }
 
+    // For Test
     [HttpPost("semantic-index/refresh/{knowledgeItemId:guid}")]
     public ActionResult RefreshSemanticIndexItem(
     Guid knowledgeItemId)
