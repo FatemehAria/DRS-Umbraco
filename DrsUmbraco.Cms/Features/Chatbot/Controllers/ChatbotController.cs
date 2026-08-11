@@ -17,13 +17,21 @@ public sealed class ChatbotController : ControllerBase
     private readonly LocalEmbeddingModel _embeddingModel;
     private readonly ILocalEmbeddingTokenizer _embeddingTokenizer;
     private readonly IEmbeddingService _embeddingService;
+    private readonly IChatbotSemanticIndexBuilder _semanticIndexBuilder;
+    private readonly IChatbotSemanticIndex _semanticIndex;
+    private readonly IChatbotSemanticSearchService _semanticSearchService;
+    private readonly IChatbotSemanticDecisionService _semanticDecisionService;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
         IChatbotMatchingService matchingService,
         LocalEmbeddingModel embeddingModel,
         ILocalEmbeddingTokenizer embeddingTokenizer,
-        IEmbeddingService embeddingService)
+        IEmbeddingService embeddingService,
+        IChatbotSemanticIndexBuilder semanticIndexBuilder,
+        IChatbotSemanticIndex semanticIndex,
+        IChatbotSemanticSearchService semanticSearchService,
+        IChatbotSemanticDecisionService semanticDecisionService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -31,28 +39,93 @@ public sealed class ChatbotController : ControllerBase
         _embeddingModel = embeddingModel;
         _embeddingTokenizer = embeddingTokenizer;
         _embeddingService = embeddingService;
+        _semanticIndexBuilder = semanticIndexBuilder;
+        _semanticIndex = semanticIndex;
+        _semanticSearchService = semanticSearchService;
+        _semanticDecisionService = semanticDecisionService;
     }
+
+    // [HttpPost("messages")]
+    // public ActionResult<SendMessageResponse> Send(
+    //     SendMessageRequest request)
+    // {
+    //     // اعتبارسنجی پیام
+    //     if (string.IsNullOrWhiteSpace(request.Message))
+    //     {
+    //         return BadRequest(new { error = "Message is required." });
+    //     }
+
+    //     var result = _matchingService.FindMatch(request.Message);
+
+    //     if (result.IsMatch && result.Answer is string answer)
+    //     {
+    //         return Ok(new SendMessageResponse { Reply = answer });
+    //     }
+
+    //     return Ok(new SendMessageResponse { Reply = "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید." });
+    // }
 
     [HttpPost("messages")]
     public ActionResult<SendMessageResponse> Send(
-        SendMessageRequest request)
+        [FromBody] SendMessageRequest request)
     {
-        // اعتبارسنجی پیام
         if (string.IsNullOrWhiteSpace(request.Message))
         {
-            return BadRequest(new { error = "Message is required." });
+            return BadRequest(new
+            {
+                error = "Message is required."
+            });
         }
 
-        var result = _matchingService.FindMatch(request.Message);
+        // 1. Exact Match
+        ChatbotMatchResult exactResult =
+            _matchingService.FindMatch(request.Message);
 
-        if (result.IsMatch && result.Answer is string answer)
+        if (exactResult.IsMatch &&
+            exactResult.Answer is string exactAnswer)
         {
-            return Ok(new SendMessageResponse { Reply = answer });
+            return Ok(new SendMessageResponse
+            {
+                Reply = exactAnswer
+            });
         }
 
-        return Ok(new SendMessageResponse { Reply = "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید." });
-    }
+        // 2. Semantic Search
+        ChatbotSemanticSearchResult? semanticResult =
+            _semanticSearchService.FindBest(request.Message);
 
+        // 3. Decide whether semantic result is trustworthy
+        ChatbotSemanticDecision decision =
+            _semanticDecisionService.Decide(semanticResult);
+
+        // 4. Return appropriate response
+        if (decision.Type ==
+                ChatbotSemanticDecisionType.Confident &&
+            decision.SearchResult?.Answer is string semanticAnswer)
+        {
+            return Ok(new SendMessageResponse
+            {
+                Reply = semanticAnswer
+            });
+        }
+
+        if (decision.Type ==
+            ChatbotSemanticDecisionType.Ambiguous)
+        {
+            return Ok(new SendMessageResponse
+            {
+                Reply =
+                    "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید."
+            });
+        }
+
+        return Ok(new SendMessageResponse
+        {
+            Reply =
+                "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید."
+        });
+    }
+    
     [HttpGet("knowledge")]
     public ActionResult<IReadOnlyList<ChatbotKnowledgeItem>> GetKnowledge()
     {
@@ -166,34 +239,106 @@ public sealed class ChatbotController : ControllerBase
     }
 
     [HttpPost("similarity")]
-public ActionResult GetSimilarity(
+    public ActionResult GetSimilarity(
     [FromBody] SimilarityRequest request)
-{
-    if (string.IsNullOrWhiteSpace(request.FirstText) ||
-        string.IsNullOrWhiteSpace(request.SecondText))
     {
-        return BadRequest(new
+        if (string.IsNullOrWhiteSpace(request.FirstText) ||
+            string.IsNullOrWhiteSpace(request.SecondText))
         {
-            error = "Both texts are required."
+            return BadRequest(new
+            {
+                error = "Both texts are required."
+            });
+        }
+
+        float[] firstEmbedding =
+            _embeddingService.Generate(request.FirstText);
+
+        float[] secondEmbedding =
+            _embeddingService.Generate(request.SecondText);
+
+        float similarity =
+            CosineSimilarityCalculator.Calculate(
+                firstEmbedding,
+                secondEmbedding);
+
+        return Ok(new
+        {
+            firstText = request.FirstText,
+            secondText = request.SecondText,
+            similarity
         });
     }
 
-    float[] firstEmbedding =
-        _embeddingService.Generate(request.FirstText);
-
-    float[] secondEmbedding =
-        _embeddingService.Generate(request.SecondText);
-
-    float similarity =
-        CosineSimilarityCalculator.Calculate(
-            firstEmbedding,
-            secondEmbedding);
-
-    return Ok(new
+    [HttpPost("semantic-index/rebuild")]
+    public ActionResult RebuildSemanticIndex()
     {
-        firstText = request.FirstText,
-        secondText = request.SecondText,
-        similarity
-    });
-}
+        int candidateCount =
+            _semanticIndexBuilder.Rebuild();
+
+        return Ok(new
+        {
+            candidateCount
+        });
+    }
+
+    [HttpGet("semantic-index")]
+    public ActionResult GetSemanticIndex()
+    {
+        IReadOnlyList<ChatbotSemanticCandidate> candidates =
+            _semanticIndex.GetAll();
+
+        return Ok(new
+        {
+            candidateCount = candidates.Count,
+
+            candidates = candidates.Select(candidate => new
+            {
+                candidate.KnowledgeItemId,
+                candidate.Text,
+                embeddingDimension =
+                    candidate.Embedding.Length
+            })
+        });
+    }
+
+    [HttpPost("semantic-search")]
+    public ActionResult SemanticSearch(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest(new
+            {
+                error = "Message is required."
+            });
+        }
+
+        ChatbotSemanticSearchResult? result =
+            _semanticSearchService.FindBest(request.Message);
+
+        if (result is null)
+        {
+            return Ok(new
+            {
+                found = false,
+                reason = "Semantic index is empty."
+            });
+        }
+
+        return Ok(new
+        {
+            found = true,
+
+            result.KnowledgeItemId,
+            result.MatchedText,
+            result.Score,
+
+            result.SecondBestKnowledgeItemId,
+            result.SecondBestScore,
+            result.Margin,
+
+            result.Answer
+        });
+    }
 }

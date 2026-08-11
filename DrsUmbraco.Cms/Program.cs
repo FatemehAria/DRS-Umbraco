@@ -29,7 +29,17 @@ builder.Services.AddSingleton<LocalEmbeddingModel>();
 
 builder.Services.AddSingleton<ILocalEmbeddingTokenizer, XlmRobertaEmbeddingTokenizer>();
 
-builder.Services.AddSingleton< IEmbeddingService, LocalE5EmbeddingService>();
+builder.Services.AddSingleton<IEmbeddingService, LocalE5EmbeddingService>();
+
+builder.Services.AddSingleton<IChatbotSemanticIndex, ChatbotSemanticIndex>();
+
+builder.Services.AddScoped<IChatbotSemanticIndexBuilder, ChatbotSemanticIndexBuilder>();
+
+builder.Services.AddSingleton<IChatbotSemanticSearchService, ChatbotSemanticSearchService>();
+
+builder.Services.AddSingleton<IChatbotSemanticDecisionService, ChatbotSemanticDecisionService>();
+
+builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticCandidateFactory>();
 
 builder.Services.AddApplicationCompression();
 
