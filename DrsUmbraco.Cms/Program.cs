@@ -54,7 +54,12 @@ builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddComposers()
-    .AddNotificationHandler<ContentCacheRefresherNotification, ChatbotSemanticIndexCacheHandler>()
+    .AddNotificationHandler<
+        ContentCacheRefresherNotification,
+        ChatbotSemanticIndexCacheHandler>()
+    .AddNotificationHandler<
+        UmbracoApplicationStartedNotification,
+        ChatbotSemanticIndexStartupHandler>()
     .Build();
 
 WebApplication app =

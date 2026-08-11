@@ -273,6 +273,7 @@ public sealed class ChatbotController : ControllerBase
         });
     }
 
+    //For Test
     [HttpPost("semantic-index/rebuild")]
     public ActionResult RebuildSemanticIndex()
     {
