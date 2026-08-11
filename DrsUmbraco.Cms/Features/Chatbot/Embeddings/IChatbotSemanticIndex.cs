@@ -6,4 +6,11 @@ public interface IChatbotSemanticIndex
 
     void Replace(
         IReadOnlyList<ChatbotSemanticCandidate> candidates);
+
+    void ReplaceForKnowledgeItem(
+        Guid knowledgeItemId,
+        IReadOnlyList<ChatbotSemanticCandidate> candidates);
+
+    void RemoveForKnowledgeItem(
+        Guid knowledgeItemId);
 }

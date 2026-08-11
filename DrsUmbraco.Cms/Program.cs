@@ -41,6 +41,8 @@ builder.Services.AddSingleton<IChatbotSemanticDecisionService, ChatbotSemanticDe
 
 builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticCandidateFactory>();
 
+builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpdater>();
+
 builder.Services.AddApplicationCompression();
 
 builder.Services.AddCrmIntegration(

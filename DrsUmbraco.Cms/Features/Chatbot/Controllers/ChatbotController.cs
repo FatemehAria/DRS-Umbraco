@@ -21,6 +21,7 @@ public sealed class ChatbotController : ControllerBase
     private readonly IChatbotSemanticIndex _semanticIndex;
     private readonly IChatbotSemanticSearchService _semanticSearchService;
     private readonly IChatbotSemanticDecisionService _semanticDecisionService;
+    private readonly IChatbotSemanticIndexUpdater _semanticIndexUpdater;
     public ChatbotController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -31,7 +32,8 @@ public sealed class ChatbotController : ControllerBase
         IChatbotSemanticIndexBuilder semanticIndexBuilder,
         IChatbotSemanticIndex semanticIndex,
         IChatbotSemanticSearchService semanticSearchService,
-        IChatbotSemanticDecisionService semanticDecisionService)
+        IChatbotSemanticDecisionService semanticDecisionService,
+        IChatbotSemanticIndexUpdater semanticIndexUpdater)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -43,6 +45,7 @@ public sealed class ChatbotController : ControllerBase
         _semanticIndex = semanticIndex;
         _semanticSearchService = semanticSearchService;
         _semanticDecisionService = semanticDecisionService;
+        _semanticIndexUpdater = semanticIndexUpdater;
     }
 
     // [HttpPost("messages")]
@@ -125,7 +128,7 @@ public sealed class ChatbotController : ControllerBase
                 "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید."
         });
     }
-    
+
     [HttpGet("knowledge")]
     public ActionResult<IReadOnlyList<ChatbotKnowledgeItem>> GetKnowledge()
     {
@@ -339,6 +342,22 @@ public sealed class ChatbotController : ControllerBase
             result.Margin,
 
             result.Answer
+        });
+    }
+
+    [HttpPost("semantic-index/refresh/{knowledgeItemId:guid}")]
+    public ActionResult RefreshSemanticIndexItem(
+    Guid knowledgeItemId)
+    {
+        bool indexed =
+            _semanticIndexUpdater.Refresh(knowledgeItemId);
+
+        return Ok(new
+        {
+            knowledgeItemId,
+            indexed,
+            candidateCount =
+                _semanticIndex.GetAll().Count
         });
     }
 }
