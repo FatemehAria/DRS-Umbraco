@@ -5,6 +5,7 @@ using DrsUmbraco.Cms.Features.Chatbot.Text;
 using DrsUmbraco.Cms.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Notifications;
 using Umbraco.Cms.Core.Notifications;
+using DrsUmbraco.Cms.Features.Chatbot.Configuration;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
@@ -45,6 +46,23 @@ builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticC
 
 builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpdater>();
 
+builder.Services
+    .AddOptions<ChatbotSemanticDecisionOptions>()
+    .Bind(
+        builder.Configuration.GetSection(
+            ChatbotSemanticDecisionOptions.SectionName))
+    .Validate(
+        options =>
+            options.MinimumScore >= 0f &&
+            options.MinimumScore <= 1f,
+        "Chatbot MinimumScore must be between 0 and 1.")
+    .Validate(
+        options =>
+            options.MinimumMargin >= 0f &&
+            options.MinimumMargin <= 1f,
+        "Chatbot MinimumMargin must be between 0 and 1.")
+    .ValidateOnStart();
+
 builder.Services.AddApplicationCompression();
 
 builder.Services.AddCrmIntegration(
@@ -61,6 +79,7 @@ builder.CreateUmbracoBuilder()
         UmbracoApplicationStartedNotification,
         ChatbotSemanticIndexStartupHandler>()
     .Build();
+
 
 WebApplication app =
     builder.Build();

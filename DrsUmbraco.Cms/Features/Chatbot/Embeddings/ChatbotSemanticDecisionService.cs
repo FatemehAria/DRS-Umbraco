@@ -1,10 +1,19 @@
+using DrsUmbraco.Cms.Features.Chatbot.Configuration;
+using Microsoft.Extensions.Options;
+
 namespace DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 
 public sealed class ChatbotSemanticDecisionService
     : IChatbotSemanticDecisionService
 {
-    private const float MinimumScore = 0.88f;
-    private const float MinimumMargin = 0.05f;
+    private readonly ChatbotSemanticDecisionOptions _options;
+
+    public ChatbotSemanticDecisionService(
+        IOptions<ChatbotSemanticDecisionOptions> options)
+    {
+        _options = options.Value;
+    }
+
 
     public ChatbotSemanticDecision Decide(
         ChatbotSemanticSearchResult? result)
@@ -17,7 +26,7 @@ public sealed class ChatbotSemanticDecisionService
             };
         }
 
-        if (result.Score < MinimumScore)
+        if (result.Score < _options.MinimumScore)
         {
             return new ChatbotSemanticDecision
             {
@@ -27,7 +36,7 @@ public sealed class ChatbotSemanticDecisionService
         }
 
         if (result.Margin is not null &&
-            result.Margin < MinimumMargin)
+            result.Margin < _options.MinimumMargin)
         {
             return new ChatbotSemanticDecision
             {

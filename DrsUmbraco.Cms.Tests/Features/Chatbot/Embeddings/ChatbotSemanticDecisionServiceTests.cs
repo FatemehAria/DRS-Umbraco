@@ -1,17 +1,19 @@
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
+using DrsUmbraco.Cms.Features.Chatbot.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Embeddings;
 
 public sealed class ChatbotSemanticDecisionServiceTests
 {
-    private readonly ChatbotSemanticDecisionService _service =
-        new();
 
     [Fact]
     public void Decide_WhenResultIsNull_ShouldReturnNoMatch()
     {
+        ChatbotSemanticDecisionService service = CreateService();
+
         ChatbotSemanticDecision decision =
-            _service.Decide(null);
+            service.Decide(null);
 
         Assert.Equal(
             ChatbotSemanticDecisionType.NoMatch,
@@ -26,8 +28,10 @@ public sealed class ChatbotSemanticDecisionServiceTests
                 score: 0.80f,
                 margin: 0.10f);
 
+        ChatbotSemanticDecisionService service = CreateService();
+
         ChatbotSemanticDecision decision =
-            _service.Decide(result);
+            service.Decide(result);
 
         Assert.Equal(
             ChatbotSemanticDecisionType.NoMatch,
@@ -42,8 +46,10 @@ public sealed class ChatbotSemanticDecisionServiceTests
                 score: 0.92f,
                 margin: 0.02f);
 
+        ChatbotSemanticDecisionService service = CreateService();
+
         ChatbotSemanticDecision decision =
-            _service.Decide(result);
+            service.Decide(result);
 
         Assert.Equal(
             ChatbotSemanticDecisionType.Ambiguous,
@@ -58,12 +64,32 @@ public sealed class ChatbotSemanticDecisionServiceTests
                 score: 0.95f,
                 margin: 0.10f);
 
+        ChatbotSemanticDecisionService service = CreateService();
+
         ChatbotSemanticDecision decision =
-            _service.Decide(result);
+            service.Decide(result);
 
         Assert.Equal(
             ChatbotSemanticDecisionType.Confident,
             decision.Type);
+    }
+
+    private static ChatbotSemanticDecisionService CreateService(
+    float minimumScore = 0.88f,
+    float minimumMargin = 0.05f)
+    {
+        ChatbotSemanticDecisionOptions options =
+            new()
+            {
+                MinimumScore = minimumScore,
+                MinimumMargin = minimumMargin
+            };
+
+        IOptions<ChatbotSemanticDecisionOptions> wrappedOptions =
+            new OptionsWrapper<ChatbotSemanticDecisionOptions>(options);
+
+        return new ChatbotSemanticDecisionService(
+            wrappedOptions);
     }
 
     private static ChatbotSemanticSearchResult CreateResult(
