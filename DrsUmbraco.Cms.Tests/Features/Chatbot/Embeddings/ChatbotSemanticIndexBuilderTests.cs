@@ -106,7 +106,7 @@ public sealed class ChatbotSemanticIndexBuilderTests
     }
 
     private sealed class FakeKnowledgeService
-        : IChatbotKnowledgeService
+    : IChatbotKnowledgeService
     {
         private readonly IReadOnlyList<ChatbotKnowledgeItem> _items;
 
@@ -119,6 +119,12 @@ public sealed class ChatbotSemanticIndexBuilderTests
         public IReadOnlyList<ChatbotKnowledgeItem> GetAll()
         {
             return _items;
+        }
+
+        public ChatbotKnowledgeItem? GetById(Guid id)
+        {
+            return _items.FirstOrDefault(
+                item => item.Id == id);
         }
     }
 

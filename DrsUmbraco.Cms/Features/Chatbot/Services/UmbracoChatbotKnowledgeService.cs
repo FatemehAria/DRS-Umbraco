@@ -1,5 +1,6 @@
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Extensions;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
@@ -40,43 +41,73 @@ public sealed class UmbracoChatbotKnowledgeService
 
         List<ChatbotKnowledgeItem> result = [];
 
-        // 5. خواندن question و answer
-        foreach (var item in faqNodes)
+        foreach (var faqNode in faqNodes)
         {
-            string? question = item.Value<string>("question")?.Trim();
+            ChatbotKnowledgeItem? knowledgeItem =
+                Map(faqNode);
 
-            string? answer = item.Value<string>("answer")?.Trim();
-
-            // 6. حذف آیتم‌های ناقص
-            if (string.IsNullOrWhiteSpace(question) ||
-                string.IsNullOrWhiteSpace(answer))
+            if (knowledgeItem is not null)
             {
-                continue;
+                result.Add(knowledgeItem);
             }
+        }
 
-            string[] alternativeQuestions =
-                item.Value<string[]>("alternativeQuestions")
-                ?? [];
+        return result;
+    }
 
-            var cleanedAlternativeQuestions = alternativeQuestions
+    public ChatbotKnowledgeItem? GetById(Guid id)
+    {
+        IPublishedContent? content =
+            _publishedContentQuery.Content(id);
+
+        if (content is null)
+        {
+            return null;
+        }
+
+        if (content.ContentType.Alias != "chatbotFaqItem")
+        {
+            return null;
+        }
+
+        return Map(content);
+    }
+
+    private static ChatbotKnowledgeItem? Map(
+       IPublishedContent item)
+    {
+        string? question =
+            item.Value<string>("question")?.Trim();
+
+        string? answer =
+            item.Value<string>("answer")?.Trim();
+
+        if (string.IsNullOrWhiteSpace(question) ||
+            string.IsNullOrWhiteSpace(answer))
+        {
+            return null;
+        }
+
+        string[] alternativeQuestions =
+            item.Value<string[]>("alternativeQuestions")
+            ?? [];
+
+        string[] cleanedAlternativeQuestions =
+            alternativeQuestions
                 .Where(question =>
                     !string.IsNullOrWhiteSpace(question))
                 .Select(question => question.Trim())
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
 
-            // 7. تبدیل به ChatbotKnowledgeItem
-            var knowledgeItem = new ChatbotKnowledgeItem
-            {
-                Id = item.Key,
-                Question = question,
-                Answer = answer,
-                AlternativeQuestions = cleanedAlternativeQuestions
-            };
-
-            result.Add(knowledgeItem);
-        }
-
-        return result;
+        return new ChatbotKnowledgeItem
+        {
+            Id = item.Key,
+            Question = question,
+            Answer = answer,
+            AlternativeQuestions =
+                cleanedAlternativeQuestions
+        };
     }
+
 }

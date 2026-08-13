@@ -161,6 +161,12 @@ public sealed class ExactChatbotMatchingServiceTests
             _items = items;
         }
 
+        public ChatbotKnowledgeItem? GetById(Guid id)
+        {
+            return _items.FirstOrDefault(
+                item => item.Id == id);
+        }
+
         public IReadOnlyList<ChatbotKnowledgeItem> GetAll()
         {
             return _items;

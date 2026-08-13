@@ -5,4 +5,6 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Services;
 public interface IChatbotKnowledgeService
 {
     IReadOnlyList<ChatbotKnowledgeItem> GetAll();
+
+    ChatbotKnowledgeItem? GetById(Guid id);
 }

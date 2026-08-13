@@ -22,11 +22,7 @@ public sealed class ChatbotSemanticIndexUpdater
 
     public bool Refresh(Guid knowledgeItemId)
     {
-        ChatbotKnowledgeItem? item =
-            _knowledgeService
-                .GetAll()
-                .FirstOrDefault(item =>
-                    item.Id == knowledgeItemId);
+        ChatbotKnowledgeItem? item = _knowledgeService.GetById(knowledgeItemId);
 
         if (item is null)
         {
