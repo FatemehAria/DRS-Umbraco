@@ -74,6 +74,27 @@ public sealed class ChatbotSemanticDecisionServiceTests
             decision.Type);
     }
 
+    [Fact]
+    public void Decide_ShouldUseConfiguredMinimumScore()
+    {
+        ChatbotSemanticDecisionService service =
+            CreateService(
+                minimumScore: 0.95f,
+                minimumMargin: 0.05f);
+
+        ChatbotSemanticSearchResult result =
+            CreateResult(
+                score: 0.92f,
+                margin: 0.10f);
+
+        ChatbotSemanticDecision decision =
+            service.Decide(result);
+
+        Assert.Equal(
+            ChatbotSemanticDecisionType.NoMatch,
+            decision.Type);
+    }
+    
     private static ChatbotSemanticDecisionService CreateService(
     float minimumScore = 0.88f,
     float minimumMargin = 0.05f)
