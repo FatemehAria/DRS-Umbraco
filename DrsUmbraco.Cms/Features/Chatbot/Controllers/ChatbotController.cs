@@ -11,17 +11,11 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Controllers;
 [Route("api/chatbot")]
 public sealed class ChatbotController : ControllerBase
 {
-    private readonly IChatbotMatchingService _matchingService;
-    private readonly IChatbotSemanticSearchService _semanticSearchService;
-    private readonly IChatbotSemanticDecisionService _semanticDecisionService;
+    private readonly IChatbotMessageService _chatbotMessageService;
     public ChatbotController(
-        IChatbotMatchingService matchingService,
-        IChatbotSemanticSearchService semanticSearchService,
-        IChatbotSemanticDecisionService semanticDecisionService)
+        IChatbotMessageService chatbotMsgService)
     {
-        _matchingService = matchingService;
-        _semanticSearchService = semanticSearchService;
-        _semanticDecisionService = semanticDecisionService;
+        _chatbotMessageService = chatbotMsgService;
     }
 
     [HttpPost("messages")]
@@ -36,53 +30,13 @@ public sealed class ChatbotController : ControllerBase
             });
         }
 
-        // 1. Exact Match
-        ChatbotMatchResult exactResult =
-            _matchingService.FindMatch(request.Message);
-
-        if (exactResult.IsMatch &&
-            exactResult.Answer is string exactAnswer)
-        {
-            return Ok(new SendMessageResponse
-            {
-                Reply = exactAnswer
-            });
-        }
-
-        // 2. Semantic Search
-        ChatbotSemanticSearchResult? semanticResult =
-            _semanticSearchService.FindBest(request.Message);
-
-        // 3. Decide whether semantic result is trustworthy
-        ChatbotSemanticDecision decision =
-            _semanticDecisionService.Decide(semanticResult);
-
-        // 4. Return appropriate response
-        if (decision.Type ==
-                ChatbotSemanticDecisionType.Confident &&
-            decision.SearchResult?.Answer is string semanticAnswer)
-        {
-            return Ok(new SendMessageResponse
-            {
-                Reply = semanticAnswer
-            });
-        }
-
-        if (decision.Type ==
-            ChatbotSemanticDecisionType.Ambiguous)
-        {
-            return Ok(new SendMessageResponse
-            {
-                Reply =
-                    "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید."
-            });
-        }
+        ChatbotMessageResult chatbotMessageResult = _chatbotMessageService.Process(request.Message);
 
         return Ok(new SendMessageResponse
         {
-            Reply =
-                "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید."
+            Reply = chatbotMessageResult.Reply
         });
+
     }
 
 }

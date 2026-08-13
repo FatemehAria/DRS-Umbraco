@@ -46,6 +46,8 @@ builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticC
 
 builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpdater>();
 
+builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
+
 builder.Services
     .AddOptions<ChatbotSemanticDecisionOptions>()
     .Bind(
