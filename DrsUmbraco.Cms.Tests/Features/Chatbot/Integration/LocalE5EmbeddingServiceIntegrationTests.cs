@@ -34,6 +34,44 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             embedding.Length);
     }
 
+    [Fact]
+    [Trait("Category", "Integration")]
+    public void Generate_WithRealModel_ShouldReturnL2NormalizedVector()
+    {
+        IWebHostEnvironment environment =
+            CreateEnvironment();
+
+        XlmRobertaEmbeddingTokenizer tokenizer =
+            new(environment);
+
+        using LocalEmbeddingModel model =
+            new(environment);
+
+        LocalE5EmbeddingService service =
+            new(
+                tokenizer,
+                model);
+
+        float[] embedding =
+            service.Generate(
+                "چطور رمز عبورم را تغییر بدهم؟");
+
+        double sumOfSquares = 0;
+
+        foreach (float value in embedding)
+        {
+            sumOfSquares += value * value;
+        }
+
+        double magnitude =
+            Math.Sqrt(sumOfSquares);
+
+        Assert.InRange(
+            magnitude,
+            0.9999,
+            1.0001);
+    }
+
     private static IWebHostEnvironment CreateEnvironment()
     {
         string cmsProjectPath =
