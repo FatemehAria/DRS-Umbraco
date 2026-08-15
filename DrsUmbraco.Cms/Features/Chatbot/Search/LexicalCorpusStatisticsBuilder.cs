@@ -60,7 +60,9 @@ public sealed class LexicalCorpusStatisticsBuilder
 
         return new LexicalCorpusStatistics
         {
-            IdfWeights = idfWeights
+            IdfWeights = idfWeights,
+
+            UnseenIdfWeight = CalculateIdf(documentCount, documentFrequency: 0)
         };
     }
 

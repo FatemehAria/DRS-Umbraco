@@ -13,21 +13,13 @@ WebApplicationBuilder builder =
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<
-    IElementorSubmissionService,
-    ElementorSubmissionService>();
+builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
 
-builder.Services.AddScoped<
-    IChatbotKnowledgeService,
-    UmbracoChatbotKnowledgeService>();
+builder.Services.AddScoped<IChatbotKnowledgeService, UmbracoChatbotKnowledgeService>();
 
-builder.Services.AddSingleton<
-    IPersianTextNormalizer,
-    PersianTextNormalizer>();
+builder.Services.AddSingleton<IPersianTextNormalizer, PersianTextNormalizer>();
 
-builder.Services.AddScoped<
-    IChatbotMatchingService,
-    ExactChatbotMatchingService>();
+builder.Services.AddScoped<IChatbotMatchingService, ExactChatbotMatchingService>();
 
 builder.Services.AddSingleton<LocalEmbeddingModel>();
 
@@ -56,6 +48,8 @@ builder.Services.AddSingleton<ICharacterNGramExtractor, PersianCharacterNGramExt
 builder.Services.AddSingleton<ILexicalSimilarityCalculator, PersianLexicalSimilarityCalculator>();
 
 builder.Services.AddSingleton<ILexicalCorpusStatisticsBuilder, LexicalCorpusStatisticsBuilder>();
+
+builder.Services.AddSingleton<IWeightedLexicalSimilarityCalculator, WeightedLexicalSimilarityCalculator>();
 
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 

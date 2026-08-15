@@ -7,4 +7,10 @@ public sealed class LexicalCorpusStatistics
         get;
         init;
     }
+
+    public required float UnseenIdfWeight
+    {
+        get;
+        init;
+    }
 }
