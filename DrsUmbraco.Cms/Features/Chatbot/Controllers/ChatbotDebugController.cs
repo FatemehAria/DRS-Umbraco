@@ -26,6 +26,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotSemanticIndexUpdater _semanticIndexUpdater;
     private readonly IChatbotHybridSearchService _hybridSearchService;
     private readonly IChatbotWeightedHybridSearchService _weightedHybridSearchService;
+    private readonly IChatbotSemanticRankingService _semanticRankingService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -39,7 +40,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotSemanticDecisionService semanticDecisionService,
         IChatbotSemanticIndexUpdater semanticIndexUpdater,
         IChatbotHybridSearchService chatbotHybridSearchService,
-        IChatbotWeightedHybridSearchService chatbotWeightedHybridSearchService)
+        IChatbotWeightedHybridSearchService chatbotWeightedHybridSearchService,
+        IChatbotSemanticRankingService chatbotSemanticRankingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -54,6 +56,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _semanticIndexUpdater = semanticIndexUpdater;
         _hybridSearchService = chatbotHybridSearchService;
         _weightedHybridSearchService = chatbotWeightedHybridSearchService;
+        _semanticRankingService = chatbotSemanticRankingService;
     }
 
 
@@ -380,6 +383,38 @@ public sealed class ChatbotDebugController : ControllerBase
             result.SecondBestScore,
             result.Margin,
             result.Answer
+        });
+    }
+
+    [HttpPost("semantic-top")]
+    public ActionResult SemanticTop(
+    [FromBody] SendMessageRequest request,
+    [FromQuery] int limit = 5)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        if (limit < 1 || limit > 10)
+        {
+            return BadRequest(
+                new
+                {
+                    error =
+                        "Limit must be between 1 and 10."
+                });
+        }
+
+        IReadOnlyList<ChatbotSemanticRankedResult> results =
+            _semanticRankingService.FindTop(
+                request.Message,
+                limit);
+
+        return Ok(new
+        {
+            count = results.Count,
+            results
         });
     }
 }

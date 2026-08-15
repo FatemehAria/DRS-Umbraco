@@ -53,6 +53,8 @@ builder.Services.AddSingleton<IWeightedLexicalSimilarityCalculator, WeightedLexi
 
 builder.Services.AddSingleton<IChatbotWeightedHybridSearchService, ChatbotWeightedHybridSearchService>();
 
+builder.Services.AddSingleton<IChatbotSemanticRankingService, ChatbotSemanticRankingService>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
