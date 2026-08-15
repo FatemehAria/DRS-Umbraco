@@ -51,6 +51,8 @@ builder.Services.AddSingleton<ILexicalCorpusStatisticsBuilder, LexicalCorpusStat
 
 builder.Services.AddSingleton<IWeightedLexicalSimilarityCalculator, WeightedLexicalSimilarityCalculator>();
 
+builder.Services.AddSingleton<IChatbotWeightedHybridSearchService, ChatbotWeightedHybridSearchService>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
