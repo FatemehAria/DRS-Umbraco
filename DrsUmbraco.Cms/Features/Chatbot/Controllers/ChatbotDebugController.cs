@@ -24,6 +24,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotSemanticSearchService _semanticSearchService;
     private readonly IChatbotSemanticDecisionService _semanticDecisionService;
     private readonly IChatbotSemanticIndexUpdater _semanticIndexUpdater;
+    private readonly IChatbotHybridSearchService _hybridSearchService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -35,7 +36,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotSemanticIndex semanticIndex,
         IChatbotSemanticSearchService semanticSearchService,
         IChatbotSemanticDecisionService semanticDecisionService,
-        IChatbotSemanticIndexUpdater semanticIndexUpdater)
+        IChatbotSemanticIndexUpdater semanticIndexUpdater,
+        IChatbotHybridSearchService chatbotHybridSearchService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -48,6 +50,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _semanticSearchService = semanticSearchService;
         _semanticDecisionService = semanticDecisionService;
         _semanticIndexUpdater = semanticIndexUpdater;
+        _hybridSearchService = chatbotHybridSearchService;
     }
 
 
@@ -302,6 +305,42 @@ public sealed class ChatbotDebugController : ControllerBase
             indexed,
             candidateCount =
                 _semanticIndex.GetAll().Count
+        });
+    }
+
+    [HttpPost("hybrid-search")]
+    public ActionResult HybridSearch(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotHybridSearchResult? result =
+            _hybridSearchService.FindBest(
+                request.Message);
+
+        if (result is null)
+        {
+            return Ok(new
+            {
+                found = false
+            });
+        }
+
+        return Ok(new
+        {
+            found = true,
+            result.KnowledgeItemId,
+            result.MatchedText,
+            result.SemanticScore,
+            result.LexicalScore,
+            result.Score,
+            result.SecondBestKnowledgeItemId,
+            result.SecondBestScore,
+            result.Margin,
+            result.Answer
         });
     }
 }
