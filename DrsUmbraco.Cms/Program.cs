@@ -51,6 +51,12 @@ builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpd
 
 builder.Services.AddSingleton<IChatbotHybridSearchService, ChatbotHybridSearchService>();
 
+builder.Services.AddSingleton<ICharacterNGramExtractor, PersianCharacterNGramExtractor>();
+
+builder.Services.AddSingleton<ILexicalSimilarityCalculator, PersianLexicalSimilarityCalculator>();
+
+builder.Services.AddSingleton<ILexicalCorpusStatisticsBuilder, LexicalCorpusStatisticsBuilder>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services

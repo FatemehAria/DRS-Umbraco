@@ -6,7 +6,9 @@ namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Search;
 public sealed class PersianLexicalSimilarityCalculatorTests
 {
     private readonly PersianLexicalSimilarityCalculator _calculator =
-        new(new PersianTextNormalizer());
+    new(
+        new PersianCharacterNGramExtractor(
+            new PersianTextNormalizer()));
 
     [Fact]
     public void Calculate_WhenTextsAreIdentical_ShouldReturnOne()
