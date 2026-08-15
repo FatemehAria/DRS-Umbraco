@@ -6,6 +6,7 @@ using DrsUmbraco.Cms.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Notifications;
 using Umbraco.Cms.Core.Notifications;
 using DrsUmbraco.Cms.Features.Chatbot.Configuration;
+using DrsUmbraco.Cms.Features.Chatbot.Search;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
@@ -43,6 +44,8 @@ builder.Services.AddSingleton<IChatbotSemanticSearchService, ChatbotSemanticSear
 builder.Services.AddSingleton<IChatbotSemanticDecisionService, ChatbotSemanticDecisionService>();
 
 builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticCandidateFactory>();
+
+builder.Services.AddSingleton<ILexicalSimilarityCalculator, PersianLexicalSimilarityCalculator>();
 
 builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpdater>();
 
