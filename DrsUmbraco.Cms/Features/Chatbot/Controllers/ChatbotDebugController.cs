@@ -5,6 +5,7 @@ using DrsUmbraco.Cms.Features.Chatbot.Services;
 using DrsUmbraco.Cms.Features.Chatbot.Text;
 using Microsoft.AspNetCore.Mvc;
 using DrsUmbraco.Cms.Features.Chatbot.Filters;
+using DrsUmbraco.Cms.Features.Chatbot.Search;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Controllers;
 
@@ -27,6 +28,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotHybridSearchService _hybridSearchService;
     private readonly IChatbotWeightedHybridSearchService _weightedHybridSearchService;
     private readonly IChatbotSemanticRankingService _semanticRankingService;
+    private readonly IChatbotWeightedLexicalRankingService _weightedLexicalRankingService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -41,7 +43,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotSemanticIndexUpdater semanticIndexUpdater,
         IChatbotHybridSearchService chatbotHybridSearchService,
         IChatbotWeightedHybridSearchService chatbotWeightedHybridSearchService,
-        IChatbotSemanticRankingService chatbotSemanticRankingService)
+        IChatbotSemanticRankingService chatbotSemanticRankingService,
+        IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -57,6 +60,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _hybridSearchService = chatbotHybridSearchService;
         _weightedHybridSearchService = chatbotWeightedHybridSearchService;
         _semanticRankingService = chatbotSemanticRankingService;
+        _weightedLexicalRankingService = chatbotWeightedLexicalRankingService;
     }
 
 
@@ -408,6 +412,33 @@ public sealed class ChatbotDebugController : ControllerBase
 
         IReadOnlyList<ChatbotSemanticRankedResult> results =
             _semanticRankingService.FindTop(
+                request.Message,
+                limit);
+
+        return Ok(new
+        {
+            count = results.Count,
+            results
+        });
+    }
+
+    [HttpPost("weighted-lexical-top")]
+    public ActionResult WeightedLexicalTop(
+    [FromBody] SendMessageRequest request,
+    [FromQuery] int limit = 10)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        if (limit < 1 || limit > 10)
+        {
+            return BadRequest();
+        }
+
+        IReadOnlyList<ChatbotLexicalRankedResult> results =
+            _weightedLexicalRankingService.FindTop(
                 request.Message,
                 limit);
 

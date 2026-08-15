@@ -55,6 +55,8 @@ builder.Services.AddSingleton<IChatbotWeightedHybridSearchService, ChatbotWeight
 
 builder.Services.AddSingleton<IChatbotSemanticRankingService, ChatbotSemanticRankingService>();
 
+builder.Services.AddSingleton<IChatbotWeightedLexicalRankingService, ChatbotWeightedLexicalRankingService>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
