@@ -30,6 +30,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotSemanticRankingService _semanticRankingService;
     private readonly IChatbotWeightedLexicalRankingService _weightedLexicalRankingService;
     private readonly IChatbotSemanticCentroidRankingService _semanticCentroidRankingService;
+    private readonly IChatbotRerankingService _rerankingService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -46,7 +47,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotWeightedHybridSearchService chatbotWeightedHybridSearchService,
         IChatbotSemanticRankingService chatbotSemanticRankingService,
         IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService,
-        IChatbotSemanticCentroidRankingService chatbotSemanticCentroidRankingService)
+        IChatbotSemanticCentroidRankingService chatbotSemanticCentroidRankingService,
+        IChatbotRerankingService chatbotRerankingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -64,6 +66,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _semanticRankingService = chatbotSemanticRankingService;
         _weightedLexicalRankingService = chatbotWeightedLexicalRankingService;
         _semanticCentroidRankingService = chatbotSemanticCentroidRankingService;
+        _rerankingService = chatbotRerankingService;
     }
 
 
@@ -482,5 +485,26 @@ public sealed class ChatbotDebugController : ControllerBase
             count = results.Count,
             results
         });
+    }
+
+    [HttpPost("rerank")]
+    public ActionResult Rerank(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotRerankResult? result =
+            _rerankingService.FindBest(
+                request.Message);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
 }

@@ -61,6 +61,8 @@ builder.Services.AddSingleton<IEmbeddingCentroidCalculator, EmbeddingCentroidCal
 
 builder.Services.AddSingleton<IChatbotSemanticCentroidRankingService, ChatbotSemanticCentroidRankingService>();
 
+builder.Services.AddSingleton<IChatbotRerankingService, ChatbotRerankingService>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
