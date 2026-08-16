@@ -474,6 +474,185 @@ public sealed class ChatbotMessageServiceTests
             result.Suggestions);
     }
 
+    [Fact]
+    public void SelectSuggestion_WhenKnowledgeItemDoesNotExist_ShouldReturnNull()
+    {
+        // Arrange
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService clarificationService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeRerankingService rerankingService =
+            new(null);
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService candidateEvidenceService =
+            new();
+
+        FakeKnowledgeService knowledgeService =
+            new([]);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                rerankingService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService);
+
+        // Act
+        ChatbotMessageResult? result =
+            service.SelectSuggestion(
+                Guid.NewGuid());
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void SelectSuggestion_WhenItemIsClarification_ShouldReturnNull()
+    {
+        // Arrange
+        Guid clarificationId = Guid.NewGuid();
+
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService clarificationService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeRerankingService rerankingService =
+            new(null);
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService candidateEvidenceService =
+            new();
+
+        FakeKnowledgeService knowledgeService =
+            new(
+                [
+                    new ChatbotKnowledgeItem
+                {
+                    Id = clarificationId,
+                    Question = "Clarification question",
+                    Answer = "Clarification answer",
+                    Kind =
+                        ChatbotKnowledgeItemKind.Clarification
+                }
+                ]);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                rerankingService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService);
+
+        // Act
+        ChatbotMessageResult? result =
+            service.SelectSuggestion(
+                clarificationId);
+
+        // Assert
+        Assert.Null(result);
+    }
+    
+    [Fact]
+    public void SelectSuggestion_WhenAnswerExists_ShouldReturnAnswer()
+    {
+        // Arrange
+        Guid answerId = Guid.NewGuid();
+
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService clarificationService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeRerankingService rerankingService =
+            new(null);
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService candidateEvidenceService =
+            new();
+
+        FakeKnowledgeService knowledgeService =
+            new(
+                [
+                    new ChatbotKnowledgeItem
+                {
+                    Id = answerId,
+                    Question =
+                        "چطور شماره موبایل حسابم را تغییر بدهم؟",
+                    Answer =
+                        "برای تغییر شماره موبایل وارد تنظیمات حساب کاربری شوید.",
+                    Kind =
+                        ChatbotKnowledgeItemKind.Answer
+                }
+                ]);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                rerankingService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService);
+
+        // Act
+        ChatbotMessageResult? result =
+            service.SelectSuggestion(answerId);
+
+        // Assert
+        Assert.NotNull(result);
+
+        Assert.Equal(
+            ChatbotResponseType.Answer,
+            result.ResponseType);
+
+        Assert.Equal(
+            "برای تغییر شماره موبایل وارد تنظیمات حساب کاربری شوید.",
+            result.Reply);
+
+        Assert.Empty(
+            result.Suggestions);
+    }
     private sealed class FakeCandidateEvidenceService
     : IChatbotCandidateEvidenceService
     {

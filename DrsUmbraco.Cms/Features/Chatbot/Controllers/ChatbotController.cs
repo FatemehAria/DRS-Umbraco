@@ -41,4 +41,32 @@ public sealed class ChatbotController : ControllerBase
 
     }
 
+    [HttpPost("suggestions/select")]
+    public ActionResult<SendMessageResponse>
+    SelectSuggestion(
+        [FromBody] SelectSuggestionRequest request)
+    {
+        ChatbotMessageResult? result =
+            _chatbotMessageService.SelectSuggestion(
+                request.KnowledgeItemId);
+
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(
+            new SendMessageResponse
+            {
+                ResponseType =
+                    result.ResponseType,
+
+                Reply =
+                    result.Reply,
+
+                Suggestions =
+                    result.Suggestions
+            });
+    }
+
 }

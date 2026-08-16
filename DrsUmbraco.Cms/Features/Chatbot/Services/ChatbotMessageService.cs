@@ -148,6 +148,25 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         };
     }
 
+    public ChatbotMessageResult? SelectSuggestion(
+        Guid knowledgeItemId)
+    {
+        ChatbotKnowledgeItem? item =
+            _knowledgeService.GetById(
+                knowledgeItemId);
+
+        if (item is null ||
+            item.Kind != ChatbotKnowledgeItemKind.Answer)
+        {
+            return null;
+        }
+
+        return new ChatbotMessageResult
+        {
+            ResponseType = ChatbotResponseType.Answer,
+            Reply = item.Answer
+        };
+    }
     private static ChatbotMessageResult
     CreateNoMatchResult()
     {
