@@ -807,4 +807,26 @@ public sealed class ChatbotDebugController : ControllerBase
                 UserTerms = evidence.UserTerms
             });
     }
+
+    [HttpPost("answer-top3")]
+    public ActionResult<IReadOnlyList<ChatbotCandidateEvidence>>
+    AnswerTop3(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        IReadOnlyList<ChatbotCandidateEvidence> candidates =
+            _candidateEvidenceService.Find(
+                request.Message,
+                3,
+                ChatbotKnowledgeItemKind.Answer);
+
+        return Ok(
+            candidates
+                .Take(3)
+                .ToArray());
+    }
 }
