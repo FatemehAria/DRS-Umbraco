@@ -43,4 +43,5 @@ public sealed class EmbeddingCentroidCalculatorTests
                     [1f, 0f, 0f]
                 ]));
     }
+
 }

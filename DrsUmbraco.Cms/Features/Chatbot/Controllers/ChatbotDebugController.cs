@@ -29,6 +29,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotWeightedHybridSearchService _weightedHybridSearchService;
     private readonly IChatbotSemanticRankingService _semanticRankingService;
     private readonly IChatbotWeightedLexicalRankingService _weightedLexicalRankingService;
+    private readonly IChatbotSemanticCentroidRankingService _semanticCentroidRankingService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -44,7 +45,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotHybridSearchService chatbotHybridSearchService,
         IChatbotWeightedHybridSearchService chatbotWeightedHybridSearchService,
         IChatbotSemanticRankingService chatbotSemanticRankingService,
-        IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService)
+        IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService,
+        IChatbotSemanticCentroidRankingService chatbotSemanticCentroidRankingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -61,6 +63,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _weightedHybridSearchService = chatbotWeightedHybridSearchService;
         _semanticRankingService = chatbotSemanticRankingService;
         _weightedLexicalRankingService = chatbotWeightedLexicalRankingService;
+        _semanticCentroidRankingService = chatbotSemanticCentroidRankingService;
     }
 
 
@@ -439,6 +442,38 @@ public sealed class ChatbotDebugController : ControllerBase
 
         IReadOnlyList<ChatbotLexicalRankedResult> results =
             _weightedLexicalRankingService.FindTop(
+                request.Message,
+                limit);
+
+        return Ok(new
+        {
+            count = results.Count,
+            results
+        });
+    }
+
+    [HttpPost("semantic-centroid-top")]
+    public ActionResult SemanticCentroidTop(
+    [FromBody] SendMessageRequest request,
+    [FromQuery] int limit = 10)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        if (limit < 1 || limit > 10)
+        {
+            return BadRequest(
+                new
+                {
+                    error =
+                        "Limit must be between 1 and 10."
+                });
+        }
+
+        IReadOnlyList<ChatbotSemanticRankedResult> results =
+            _semanticCentroidRankingService.FindTop(
                 request.Message,
                 limit);
 
