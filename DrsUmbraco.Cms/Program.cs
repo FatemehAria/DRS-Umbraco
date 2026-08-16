@@ -63,6 +63,8 @@ builder.Services.AddSingleton<IChatbotSemanticCentroidRankingService, ChatbotSem
 
 builder.Services.AddSingleton<IChatbotRerankingService, ChatbotRerankingService>();
 
+builder.Services.AddSingleton<IPersianWordTokenizer, PersianWordTokenizer>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
