@@ -166,7 +166,8 @@ public sealed class ChatbotHybridSearchServiceTests
             KnowledgeItemId = knowledgeItemId,
             Text = text,
             Answer = $"Answer for {text}",
-            Embedding = embedding
+            Embedding = embedding,
+            Kind = ChatbotKnowledgeItemKind.Clarification
         };
     }
 

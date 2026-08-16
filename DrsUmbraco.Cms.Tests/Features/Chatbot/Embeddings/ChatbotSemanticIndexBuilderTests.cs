@@ -60,7 +60,8 @@ public sealed class ChatbotSemanticIndexBuilderTests
                 KnowledgeItemId = Guid.NewGuid(),
                 Text = "Old question",
                 Answer = "Old answer",
-                Embedding = [1f, 0f]
+                Embedding = [1f, 0f],
+                Kind = ChatbotKnowledgeItemKind.Clarification
             }
         ]);
 
@@ -145,7 +146,8 @@ public sealed class ChatbotSemanticIndexBuilderTests
                     KnowledgeItemId = item.Id,
                     Text = item.Question,
                     Answer = item.Answer,
-                    Embedding = [1f, 0f]
+                    Embedding = [1f, 0f],
+                    Kind = ChatbotKnowledgeItemKind.Clarification
                 }
             ];
         }

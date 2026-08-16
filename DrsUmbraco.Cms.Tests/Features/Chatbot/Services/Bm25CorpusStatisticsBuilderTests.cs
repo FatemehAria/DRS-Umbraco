@@ -11,8 +11,13 @@ public sealed class Bm25CorpusStatisticsBuilderTests
         PersianWordTokenizer tokenizer =
             new(new PersianTextNormalizer());
 
+
+        PersianBm25TermFilter termFilter = new();
+
         Bm25CorpusStatisticsBuilder builder =
-            new(tokenizer);
+            new(
+                tokenizer,
+                termFilter);
 
         Bm25CorpusStatistics statistics =
             builder.Build(
@@ -20,6 +25,7 @@ public sealed class Bm25CorpusStatisticsBuilderTests
                     "حساب قفل قفل",
                     "حساب ورود"
                 ]);
+
 
         Assert.Equal(
             2,

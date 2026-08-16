@@ -150,6 +150,52 @@ public sealed class ExactChatbotMatchingServiceTests
         Assert.Null(result.KnowledgeItemId);
     }
 
+    [Fact]
+    public void FindMatch_WhenClarificationMatchesExactly_ShouldIgnoreIt()
+    {
+        // Arrange
+        ChatbotKnowledgeItem clarification =
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Question =
+                    "میخوام یکی از اطلاعات حسابم رو عوض کنم",
+                Answer =
+                    "لطفاً مشخص کنید کدام اطلاعات را می‌خواهید تغییر دهید.",
+                AlternativeQuestions = [],
+                Kind =
+                    ChatbotKnowledgeItemKind.Clarification
+            };
+
+        var knowledgeItems =
+            new List<ChatbotKnowledgeItem>
+            {
+            clarification
+            };
+
+        IChatbotKnowledgeService knowledgeService =
+            new FakeChatbotKnowledgeService(
+                knowledgeItems);
+
+        PersianTextNormalizer normalizer =
+            new();
+
+        ExactChatbotMatchingService matchingService =
+            new(
+                knowledgeService,
+                normalizer);
+
+        // Act
+        ChatbotMatchResult result =
+            matchingService.FindMatch(
+                "میخوام یکی از اطلاعات حسابم رو عوض کنم");
+
+        // Assert
+        Assert.False(result.IsMatch);
+        Assert.Null(result.KnowledgeItemId);
+        Assert.Null(result.Answer);
+    }
+    
     private sealed class FakeChatbotKnowledgeService
         : IChatbotKnowledgeService
     {

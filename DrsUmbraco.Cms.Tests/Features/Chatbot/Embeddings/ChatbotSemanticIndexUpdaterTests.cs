@@ -203,7 +203,8 @@ public sealed class ChatbotSemanticIndexUpdaterTests
             KnowledgeItemId = knowledgeItemId,
             Text = text,
             Answer = $"Answer for {text}",
-            Embedding = [1f, 0f]
+            Embedding = [1f, 0f],
+            Kind = ChatbotKnowledgeItemKind.Clarification
         };
     }
 
@@ -247,7 +248,8 @@ public sealed class ChatbotSemanticIndexUpdaterTests
                     KnowledgeItemId = item.Id,
                     Text = item.Question,
                     Answer = item.Answer,
-                    Embedding = [1f, 0f]
+                    Embedding = [1f, 0f],
+                    Kind = ChatbotKnowledgeItemKind.Clarification
                 }
             ];
         }

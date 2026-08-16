@@ -222,7 +222,8 @@ public sealed class ChatbotRerankingServiceTests
         public IReadOnlyList<
             ChatbotSemanticRankedResult> FindTop(
                 string question,
-                int limit)
+                int limit,
+                ChatbotKnowledgeItemKind? kind = null)
         {
             return _results
                 .Take(limit)
@@ -246,7 +247,8 @@ public sealed class ChatbotRerankingServiceTests
         public IReadOnlyList<
             ChatbotSemanticRankedResult> FindTop(
                 string question,
-                int limit)
+                int limit,
+                ChatbotKnowledgeItemKind? kind = null)
         {
             return _results
                 .Take(limit)

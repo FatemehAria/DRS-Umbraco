@@ -7,11 +7,14 @@ public sealed class Bm25SimilarityCalculator
     private const float B = 0.75f;
 
     private readonly IPersianWordTokenizer _tokenizer;
+    private readonly IBm25TermFilter _termFilter;
 
     public Bm25SimilarityCalculator(
-        IPersianWordTokenizer tokenizer)
+        IPersianWordTokenizer tokenizer,
+        IBm25TermFilter termFilter)
     {
         _tokenizer = tokenizer;
+        _termFilter = termFilter;
     }
 
     public float Calculate(
@@ -28,10 +31,12 @@ public sealed class Bm25SimilarityCalculator
         }
 
         IReadOnlyList<string> queryTokens =
-            _tokenizer.Tokenize(query);
+            _termFilter.Filter(
+                _tokenizer.Tokenize(query));
 
         IReadOnlyList<string> documentTokens =
-            _tokenizer.Tokenize(document);
+            _termFilter.Filter(
+                _tokenizer.Tokenize(document));
 
         if (queryTokens.Count == 0 ||
             documentTokens.Count == 0)

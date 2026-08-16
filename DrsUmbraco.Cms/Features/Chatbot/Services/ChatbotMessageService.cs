@@ -8,14 +8,17 @@ public sealed class ChatbotMessageService : IChatbotMessageService
     private readonly IChatbotMatchingService _matchingService;
     private readonly IChatbotSemanticSearchService _semanticSearchService;
     private readonly IChatbotSemanticDecisionService _semanticDecisionService;
+    private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
         IChatbotSemanticSearchService semanticSearchService,
-        IChatbotSemanticDecisionService semanticDecisionService)
+        IChatbotSemanticDecisionService semanticDecisionService,
+        IChatbotClarificationExactMatchingService clarificationExactMatchingService)
     {
         _matchingService = matchingService;
         _semanticSearchService = semanticSearchService;
         _semanticDecisionService = semanticDecisionService;
+        _clarificationExactMatchingService = clarificationExactMatchingService;
     }
 
     public ChatbotMessageResult Process(string message)
@@ -24,18 +27,28 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         ChatbotMatchResult exactResult =
             _matchingService.FindMatch(message);
 
-        if (exactResult.IsMatch &&
-            exactResult.Answer is string exactAnswer)
+        if (exactResult.IsMatch)
         {
             return new ChatbotMessageResult
             {
-                Reply = exactAnswer
+                Reply = exactResult.Answer!
+            };
+        }
+
+        ChatbotMatchResult clarificationMatch = _clarificationExactMatchingService.Find(message);
+
+        if (clarificationMatch.IsMatch)
+        {
+            return new ChatbotMessageResult
+            {
+                Reply = clarificationMatch.Answer!
             };
         }
 
         // 2. Semantic Search
-        ChatbotSemanticSearchResult? semanticResult =
-            _semanticSearchService.FindBest(message);
+        ChatbotSemanticSearchResult? semanticResult = _semanticSearchService.FindBest(
+            message,
+            ChatbotKnowledgeItemKind.Answer);
 
         // 3. Decide whether semantic result is trustworthy
         ChatbotSemanticDecision decision =

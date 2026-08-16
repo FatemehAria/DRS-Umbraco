@@ -32,6 +32,12 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotSemanticCentroidRankingService _semanticCentroidRankingService;
     private readonly IChatbotRerankingService _rerankingService;
     private readonly IChatbotBm25RankingService _bm25RankingService;
+    private readonly IChatbotCandidateEvidenceService _candidateEvidenceService;
+    private readonly IChatbotAmbiguityEvidenceService _ambiguityEvidenceService;
+    private readonly IChatbotCandidateIntentSetBuilder _candidateIntentSetBuilder;
+    private readonly IChatbotCandidateIntentSetEvidenceService _candidateIntentSetEvidenceService;
+    private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
+    private readonly IChatbotDiscriminativeEvidenceService _discriminativeEvidenceService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -50,7 +56,13 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService,
         IChatbotSemanticCentroidRankingService chatbotSemanticCentroidRankingService,
         IChatbotRerankingService chatbotRerankingService,
-        IChatbotBm25RankingService bm25RankingService)
+        IChatbotBm25RankingService bm25RankingService,
+        IChatbotCandidateEvidenceService candidateEvidenceService,
+        IChatbotAmbiguityEvidenceService ambiguityEvidenceService,
+        IChatbotCandidateIntentSetBuilder candidateIntentSetBuilder,
+        IChatbotCandidateIntentSetEvidenceService candidateIntentSetEvidenceService,
+        IChatbotClarificationExactMatchingService clarificationExactMatchingService,
+        IChatbotDiscriminativeEvidenceService discriminativeEvidenceService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -70,6 +82,12 @@ public sealed class ChatbotDebugController : ControllerBase
         _semanticCentroidRankingService = chatbotSemanticCentroidRankingService;
         _rerankingService = chatbotRerankingService;
         _bm25RankingService = bm25RankingService;
+        _candidateEvidenceService = candidateEvidenceService;
+        _ambiguityEvidenceService = ambiguityEvidenceService;
+        _candidateIntentSetBuilder = candidateIntentSetBuilder;
+        _candidateIntentSetEvidenceService = candidateIntentSetEvidenceService;
+        _clarificationExactMatchingService = clarificationExactMatchingService;
+        _discriminativeEvidenceService = discriminativeEvidenceService;
     }
 
 
@@ -541,6 +559,252 @@ public sealed class ChatbotDebugController : ControllerBase
             {
                 count = results.Count,
                 results
+            });
+    }
+
+    [HttpPost("candidate-evidence")]
+    public ActionResult CandidateEvidence(
+    [FromBody] SendMessageRequest request,
+    [FromQuery] int limit = 4)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        if (limit < 1 || limit > 10)
+        {
+            return BadRequest(
+                new
+                {
+                    error =
+                        "Limit must be between 1 and 10."
+                });
+        }
+
+        IReadOnlyList<ChatbotCandidateEvidence> results =
+            _candidateEvidenceService.Find(
+                request.Message,
+                limit);
+
+        return Ok(
+            new
+            {
+                count = results.Count,
+                results
+            });
+    }
+
+    [HttpPost("ambiguity-evidence")]
+    public ActionResult<ChatbotAmbiguityEvidence>
+    GetAmbiguityEvidence(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotAmbiguityEvidence? evidence =
+            _ambiguityEvidenceService.Analyze(
+                request.Message);
+
+        if (evidence is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(evidence);
+    }
+
+    [HttpPost("candidate-intents")]
+    public ActionResult<IReadOnlyList<ChatbotCandidateIntent>>
+    GetCandidateIntents(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        IReadOnlyList<ChatbotCandidateEvidence> evidence =
+            _candidateEvidenceService.Find(
+                request.Message,
+                2);
+
+        IReadOnlyList<ChatbotCandidateIntent> candidates =
+            _candidateIntentSetBuilder.Build(
+                evidence);
+
+        return Ok(candidates);
+    }
+
+    [HttpPost("candidate-intent-evidence")]
+    public ActionResult<ChatbotCandidateIntentSetEvidence>
+    GetCandidateIntentEvidence(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotCandidateIntentSetEvidence? evidence =
+            _candidateIntentSetEvidenceService.Analyze(
+                request.Message);
+
+        if (evidence is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(evidence);
+    }
+
+    [HttpPost("retrieval-pools")]
+    public ActionResult<ChatbotRetrievalPoolsEvidence>
+    GetRetrievalPools(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        IReadOnlyList<ChatbotCandidateEvidence> answers =
+            _candidateEvidenceService.Find(
+                request.Message,
+                4,
+                ChatbotKnowledgeItemKind.Answer);
+
+        IReadOnlyList<ChatbotCandidateEvidence> clarifications =
+            _candidateEvidenceService.Find(
+                request.Message,
+                4,
+                ChatbotKnowledgeItemKind.Clarification);
+
+        return Ok(
+            new ChatbotRetrievalPoolsEvidence
+            {
+                Answers = answers,
+                Clarifications = clarifications
+            });
+    }
+
+    [HttpPost("clarification-exact")]
+    public ActionResult<ChatbotMatchResult> ClarificationExact(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotMatchResult result =
+            _clarificationExactMatchingService.Find(
+                request.Message);
+
+        return Ok(result);
+    }
+
+    [HttpPost("answer-rerank")]
+    public ActionResult<ChatbotRerankResult?> AnswerRerank(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotRerankResult? result =
+            _rerankingService.FindBest(
+                request.Message,
+                ChatbotKnowledgeItemKind.Answer);
+
+        return Ok(result);
+    }
+
+    [HttpPost("answer-vs-clarification")]
+    public ActionResult<ChatbotAnswerClarificationEvidence>
+    AnswerVsClarification(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotRerankResult? answer =
+            _rerankingService.FindBest(
+                request.Message,
+                ChatbotKnowledgeItemKind.Answer);
+
+        ChatbotRerankResult? clarification =
+            _rerankingService.FindBest(
+                request.Message,
+                ChatbotKnowledgeItemKind.Clarification);
+
+        return Ok(
+            new ChatbotAnswerClarificationEvidence
+            {
+                Answer = answer,
+                Clarification = clarification
+            });
+    }
+
+    [HttpPost("discriminative-evidence")]
+    public ActionResult<ChatbotDiscriminativeEvidence>
+    DiscriminativeEvidence(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotDiscriminativeEvidence result =
+            _discriminativeEvidenceService.Analyze(
+                request.Message,
+                4);
+
+        return Ok(result);
+    }
+
+    [HttpPost("winner-discriminative-evidence")]
+    public ActionResult<ChatbotWinnerDiscriminativeEvidence>
+    WinnerDiscriminativeEvidence(
+        [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        ChatbotRerankResult? winner =
+            _rerankingService.FindBest(
+                request.Message,
+                ChatbotKnowledgeItemKind.Answer);
+
+        ChatbotDiscriminativeEvidence evidence =
+            _discriminativeEvidenceService.Analyze(
+                request.Message,
+                4);
+
+        ChatbotDiscriminativeCandidateEvidence?
+            winnerEvidence =
+                winner is null
+                    ? null
+                    : evidence.Candidates.FirstOrDefault(
+                        candidate =>
+                            candidate.KnowledgeItemId ==
+                            winner.KnowledgeItemId);
+
+        return Ok(
+            new ChatbotWinnerDiscriminativeEvidence
+            {
+                Winner = winner,
+                WinnerEvidence = winnerEvidence,
+                UserTerms = evidence.UserTerms
             });
     }
 }

@@ -10,4 +10,10 @@ public sealed class ChatbotKnowledgeItem
 
     public IReadOnlyList<string> AlternativeQuestions { get; init; }
     = [];
+
+    public ChatbotKnowledgeItemKind Kind
+    {
+        get;
+        init;
+    } = ChatbotKnowledgeItemKind.Answer;
 }

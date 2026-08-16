@@ -69,7 +69,37 @@ builder.Services.AddSingleton<IBm25CorpusStatisticsBuilder, Bm25CorpusStatistics
 
 builder.Services.AddSingleton<IBm25SimilarityCalculator, Bm25SimilarityCalculator>();
 
+builder.Services.AddSingleton<IBm25TermFilter, PersianBm25TermFilter>();
+
 builder.Services.AddSingleton<IChatbotBm25RankingService, ChatbotBm25RankingService>();
+
+builder.Services.AddSingleton<IChatbotCandidateEvidenceService, ChatbotCandidateEvidenceService>();
+
+builder.Services.AddSingleton<IChatbotAmbiguityEvidenceService, ChatbotAmbiguityEvidenceService>();
+
+builder.Services.AddSingleton<IChatbotCandidateIntentSetBuilder, ChatbotCandidateIntentSetBuilder>();
+
+builder.Services.AddSingleton<IChatbotCandidateIntentSetEvidenceService, ChatbotCandidateIntentSetEvidenceService>();
+
+builder.Services.AddScoped<IChatbotClarificationExactMatchingService, ChatbotClarificationExactMatchingService>();
+
+builder.Services.AddScoped<IChatbotDiscriminativeEvidenceService, ChatbotDiscriminativeEvidenceService>();
+
+builder.Services
+    .AddOptions<ChatbotNoMatchDecisionOptions>()
+    .Bind(
+        builder.Configuration.GetSection(
+            ChatbotNoMatchDecisionOptions.SectionName))
+    .Validate(
+        options =>
+            options.MinimumSemanticScore >= 0f &&
+            options.MinimumSemanticScore <= 1f,
+        "Chatbot MinimumSemanticScore must be between 0 and 1.")
+    .ValidateOnStart();
+
+builder.Services.AddSingleton<
+    IChatbotNoMatchDecisionService,
+    ChatbotNoMatchDecisionService>();
 
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 

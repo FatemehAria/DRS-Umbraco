@@ -38,7 +38,8 @@ public sealed class ChatbotSemanticCandidateFactory
                     KnowledgeItemId = item.Id,
                     Text = text,
                     Answer = item.Answer,
-                    Embedding = embedding
+                    Embedding = embedding,
+                    Kind = item.Kind
                 };
 
             candidates.Add(candidate);

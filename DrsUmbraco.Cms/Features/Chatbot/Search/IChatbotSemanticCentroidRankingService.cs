@@ -4,5 +4,6 @@ public interface IChatbotSemanticCentroidRankingService
 {
     IReadOnlyList<ChatbotSemanticRankedResult> FindTop(
         string question,
-        int limit);
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null);
 }

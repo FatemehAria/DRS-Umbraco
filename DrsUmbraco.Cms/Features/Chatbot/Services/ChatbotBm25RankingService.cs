@@ -24,7 +24,8 @@ public sealed class ChatbotBm25RankingService
 
     public IReadOnlyList<ChatbotLexicalRankedResult> FindTop(
         string question,
-        int limit)
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null)
     {
         if (string.IsNullOrWhiteSpace(question) ||
             limit <= 0)
@@ -38,6 +39,15 @@ public sealed class ChatbotBm25RankingService
         if (candidates.Count == 0)
         {
             return [];
+        }
+
+        if (kind.HasValue)
+        {
+            candidates =
+                candidates
+                    .Where(candidate =>
+                        candidate.Kind == kind.Value)
+                    .ToArray();
         }
 
         string[] documents =
@@ -60,15 +70,13 @@ public sealed class ChatbotBm25RankingService
                         statistics)
                 })
                 .GroupBy(
-                    item =>
-                        item.Candidate.KnowledgeItemId)
+                    item => item.Candidate.KnowledgeItemId)
                 .Select(group =>
                     group
-                        .OrderByDescending(
-                            item => item.Score)
+                        .OrderByDescending(item => item.Score)
                         .First())
-                .OrderByDescending(
-                    item => item.Score)
+                .Where(item => item.Score > 0f)
+                .OrderByDescending(item => item.Score)
                 .Take(limit)
                 .Select(
                     (item, index) =>

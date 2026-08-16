@@ -9,4 +9,9 @@ public sealed class ChatbotSemanticCandidate
     public required string Answer { get; init; }
 
     public required float[] Embedding { get; init; }
+    public required ChatbotKnowledgeItemKind Kind
+    {
+        get;
+        init;
+    }
 }

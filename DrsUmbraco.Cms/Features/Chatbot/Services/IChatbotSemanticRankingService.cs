@@ -6,5 +6,6 @@ public interface IChatbotSemanticRankingService
 {
     IReadOnlyList<ChatbotSemanticRankedResult> FindTop(
         string question,
-        int limit);
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null);
 }

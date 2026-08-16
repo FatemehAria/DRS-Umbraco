@@ -2,6 +2,7 @@ using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Search;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
+
 public sealed class ChatbotWeightedLexicalRankingService
     : IChatbotWeightedLexicalRankingService
 {
@@ -21,7 +22,8 @@ public sealed class ChatbotWeightedLexicalRankingService
 
     public IReadOnlyList<ChatbotLexicalRankedResult> FindTop(
         string question,
-        int limit)
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null)
     {
         if (string.IsNullOrWhiteSpace(question) ||
             limit <= 0)
@@ -35,6 +37,15 @@ public sealed class ChatbotWeightedLexicalRankingService
         if (candidates.Count == 0)
         {
             return [];
+        }
+
+        if (kind.HasValue)
+        {
+            candidates =
+                candidates
+                    .Where(candidate =>
+                        candidate.Kind == kind.Value)
+                    .ToArray();
         }
 
         LexicalCorpusStatistics statistics =
@@ -68,24 +79,25 @@ public sealed class ChatbotWeightedLexicalRankingService
         }
 
         return bestByKnowledgeItem
-            .Values
-            .OrderByDescending(item => item.Score)
-            .Take(limit)
-            .Select(
-                (item, index) =>
-                    new ChatbotLexicalRankedResult
-                    {
-                        Rank = index + 1,
-                        KnowledgeItemId =
-                            item.Candidate.KnowledgeItemId,
-                        MatchedText =
-                            item.Candidate.Text,
-                        Answer =
-                            item.Candidate.Answer,
-                        Score =
-                            item.Score
-                    })
-            .ToArray();
+                .Values
+                .Where(item => item.Score > 0f)
+                .OrderByDescending(item => item.Score)
+                .Take(limit)
+                .Select(
+                    (item, index) =>
+                        new ChatbotLexicalRankedResult
+                        {
+                            Rank = index + 1,
+                            KnowledgeItemId =
+                                item.Candidate.KnowledgeItemId,
+                            MatchedText =
+                                item.Candidate.Text,
+                            Answer =
+                                item.Candidate.Answer,
+                            Score =
+                                item.Score
+                        })
+                .ToArray();
     }
 
     private sealed class ScoredCandidate

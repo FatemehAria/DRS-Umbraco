@@ -213,7 +213,8 @@ public sealed class ChatbotSemanticSearchServiceTests
             KnowledgeItemId = knowledgeItemId,
             Text = text,
             Answer = $"Answer for {text}",
-            Embedding = embedding
+            Embedding = embedding,
+            Kind = ChatbotKnowledgeItemKind.Clarification
         };
     }
 

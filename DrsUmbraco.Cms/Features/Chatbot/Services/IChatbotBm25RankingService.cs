@@ -6,5 +6,6 @@ public interface IChatbotBm25RankingService
 {
     IReadOnlyList<ChatbotLexicalRankedResult> FindTop(
         string question,
-        int limit);
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null);
 }

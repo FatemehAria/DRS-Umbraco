@@ -195,7 +195,8 @@ public sealed class ChatbotSemanticIndexTests
             KnowledgeItemId = knowledgeItemId,
             Text = text,
             Answer = "Test answer",
-            Embedding = [1f, 0f]
+            Embedding = [1f, 0f],
+            Kind = ChatbotKnowledgeItemKind.Clarification
         };
     }
 }

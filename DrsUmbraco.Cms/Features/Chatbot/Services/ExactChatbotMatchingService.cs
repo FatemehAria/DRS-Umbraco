@@ -36,6 +36,11 @@ public sealed class ExactChatbotMatchingService
 
         foreach (ChatbotKnowledgeItem item in faqs)
         {
+            if (item.Kind != ChatbotKnowledgeItemKind.Answer)
+            {
+                continue;
+            }
+            
             IEnumerable<string> candidateQuestions =
                 new[] { item.Question }
                     .Concat(item.AlternativeQuestions);

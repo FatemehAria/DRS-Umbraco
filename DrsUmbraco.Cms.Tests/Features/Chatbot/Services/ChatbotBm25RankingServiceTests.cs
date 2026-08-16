@@ -39,11 +39,17 @@ public sealed class ChatbotBm25RankingServiceTests
         PersianWordTokenizer tokenizer =
             new(new PersianTextNormalizer());
 
+        PersianBm25TermFilter termFilter = new();
+
         Bm25CorpusStatisticsBuilder statisticsBuilder =
-            new(tokenizer);
+            new(
+                tokenizer,
+                termFilter);
 
         Bm25SimilarityCalculator calculator =
-            new(tokenizer);
+            new(
+                tokenizer,
+                termFilter);
 
         ChatbotBm25RankingService service =
             new(
@@ -79,7 +85,9 @@ public sealed class ChatbotBm25RankingServiceTests
                 $"Answer {knowledgeItemId}",
 
             Embedding =
-                [1f]
+                [1f],
+            
+            Kind = ChatbotKnowledgeItemKind.Clarification
         };
     }
 

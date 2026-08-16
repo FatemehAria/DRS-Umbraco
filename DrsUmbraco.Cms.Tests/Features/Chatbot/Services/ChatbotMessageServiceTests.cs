@@ -28,11 +28,20 @@ public sealed class ChatbotMessageServiceTests
                     Type = ChatbotSemanticDecisionType.NoMatch
                 });
 
+        FakeClarificationExactMatchingService
+            clarificationExactMatchingService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
         ChatbotMessageService service =
-            new(
-                matchingService,
-                semanticSearchService,
-                semanticDecisionService);
+        new(
+            matchingService,
+            semanticSearchService,
+            semanticDecisionService,
+            clarificationExactMatchingService);
 
         ChatbotMessageResult result =
             service.Process("Question");
@@ -76,11 +85,20 @@ public sealed class ChatbotMessageServiceTests
                     SearchResult = searchResult
                 });
 
+        FakeClarificationExactMatchingService
+            clarificationExactMatchingService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
         ChatbotMessageService service =
             new(
                 matchingService,
                 semanticSearchService,
-                semanticDecisionService);
+                semanticDecisionService,
+                clarificationExactMatchingService);
 
         ChatbotMessageResult result =
             service.Process("Question");
@@ -124,11 +142,20 @@ public sealed class ChatbotMessageServiceTests
                     SearchResult = searchResult
                 });
 
+        FakeClarificationExactMatchingService
+            clarificationExactMatchingService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
         ChatbotMessageService service =
             new(
                 matchingService,
                 semanticSearchService,
-                semanticDecisionService);
+                semanticDecisionService,
+                clarificationExactMatchingService);
 
         ChatbotMessageResult result =
             service.Process("Question");
@@ -159,11 +186,20 @@ public sealed class ChatbotMessageServiceTests
                         ChatbotSemanticDecisionType.NoMatch
                 });
 
+        FakeClarificationExactMatchingService
+            clarificationExactMatchingService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
         ChatbotMessageService service =
             new(
                 matchingService,
                 semanticSearchService,
-                semanticDecisionService);
+                semanticDecisionService,
+                clarificationExactMatchingService);
 
         ChatbotMessageResult result =
             service.Process("Unknown question");
@@ -171,6 +207,89 @@ public sealed class ChatbotMessageServiceTests
         Assert.Equal(
             "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
             result.Reply);
+    }
+
+    [Fact]
+    public void Process_WhenExactClarificationExists_ShouldReturnClarificationAnswer()
+    {
+        // Arrange
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService
+            clarificationExactMatchingService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = true,
+                        KnowledgeItemId = Guid.NewGuid(),
+                        Answer = "Clarification answer"
+                    });
+
+        FakeSemanticSearchService semanticSearchService =
+            new(null);
+
+        FakeSemanticDecisionService semanticDecisionService =
+            new(
+                new ChatbotSemanticDecision
+                {
+                    Type =
+                        ChatbotSemanticDecisionType.NoMatch
+                });
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                semanticSearchService,
+                semanticDecisionService,
+                clarificationExactMatchingService);
+
+        // Act
+        ChatbotMessageResult result =
+            service.Process("Question");
+
+        // Assert
+        Assert.Equal(
+            "Clarification answer",
+            result.Reply);
+
+        Assert.Equal(
+            1,
+            clarificationExactMatchingService.CallCount);
+
+        Assert.Equal(
+            0,
+            semanticSearchService.CallCount);
+
+        Assert.Equal(
+            0,
+            semanticDecisionService.CallCount);
+    }
+
+    private sealed class FakeClarificationExactMatchingService
+        : IChatbotClarificationExactMatchingService
+    {
+        private readonly ChatbotMatchResult _result;
+
+        public FakeClarificationExactMatchingService(
+            ChatbotMatchResult result)
+        {
+            _result = result;
+        }
+
+        public int CallCount { get; private set; }
+
+        public ChatbotMatchResult Find(
+            string question)
+        {
+            CallCount++;
+
+            return _result;
+        }
     }
 
     private static ChatbotSemanticSearchResult CreateSearchResult(
@@ -218,7 +337,8 @@ public sealed class ChatbotMessageServiceTests
         public int CallCount { get; private set; }
 
         public ChatbotSemanticSearchResult? FindBest(
-            string question)
+            string question,
+            ChatbotKnowledgeItemKind? kind = null)
         {
             CallCount++;
 

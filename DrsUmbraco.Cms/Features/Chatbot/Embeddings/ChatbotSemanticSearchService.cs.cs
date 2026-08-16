@@ -15,7 +15,8 @@ public sealed class ChatbotSemanticSearchService
     }
 
     public ChatbotSemanticSearchResult? FindBest(
-        string question)
+        string question,
+        ChatbotKnowledgeItemKind? kind = null)
     {
         if (string.IsNullOrWhiteSpace(question))
         {
@@ -32,6 +33,14 @@ public sealed class ChatbotSemanticSearchService
             return null;
         }
 
+        if (kind.HasValue)
+        {
+            candidates = candidates
+                .Where(candidate =>
+                    candidate.Kind == kind.Value)
+                .ToArray();
+        }
+        
         float[] questionEmbedding =
             _embeddingService.Generate(question);
 

@@ -16,7 +16,9 @@ public sealed class ChatbotRerankingService
         _centroidRankingService = centroidRankingService;
     }
 
-    public ChatbotRerankResult? FindBest(string question)
+    public ChatbotRerankResult? FindBest(
+        string question,
+        ChatbotKnowledgeItemKind? kind = null)
     {
         if (string.IsNullOrWhiteSpace(question))
         {
@@ -26,12 +28,14 @@ public sealed class ChatbotRerankingService
         IReadOnlyList<ChatbotSemanticRankedResult> semantic =
             _semanticRankingService.FindTop(
                 question,
-                limit: 2);
+                limit: 2,
+                kind);
 
         IReadOnlyList<ChatbotSemanticRankedResult> centroid =
             _centroidRankingService.FindTop(
                 question,
-                limit: 2);
+                limit: 2,
+                kind);
 
         if (semantic.Count == 0 ||
             centroid.Count == 0)

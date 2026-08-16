@@ -82,6 +82,7 @@ public sealed class UmbracoChatbotKnowledgeService
         string? answer =
             item.Value<string>("answer")?.Trim();
 
+
         if (string.IsNullOrWhiteSpace(question) ||
             string.IsNullOrWhiteSpace(answer))
         {
@@ -91,6 +92,8 @@ public sealed class UmbracoChatbotKnowledgeService
         string[] alternativeQuestions =
             item.Value<string[]>("alternativeQuestions")
             ?? [];
+
+        string? responseType = item.Value<string>("responseType");
 
         string[] cleanedAlternativeQuestions =
             alternativeQuestions
@@ -105,9 +108,22 @@ public sealed class UmbracoChatbotKnowledgeService
             Id = item.Key,
             Question = question,
             Answer = answer,
-            AlternativeQuestions =
-                cleanedAlternativeQuestions
+            AlternativeQuestions = cleanedAlternativeQuestions,
+            Kind = ParseKind(responseType)
         };
     }
 
+    private static ChatbotKnowledgeItemKind ParseKind(
+        string? responseType)
+    {
+        if (string.Equals(
+            responseType?.Trim(),
+            "Clarification",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return ChatbotKnowledgeItemKind.Clarification;
+        }
+
+        return ChatbotKnowledgeItemKind.Answer;
+    }
 }

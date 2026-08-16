@@ -20,7 +20,8 @@ public sealed class ChatbotSemanticCentroidRankingService
 
     public IReadOnlyList<ChatbotSemanticRankedResult> FindTop(
         string question,
-        int limit)
+        int limit,
+        ChatbotKnowledgeItemKind? kind = null)
     {
         if (string.IsNullOrWhiteSpace(question) ||
             limit <= 0)
@@ -34,6 +35,15 @@ public sealed class ChatbotSemanticCentroidRankingService
         if (candidates.Count == 0)
         {
             return [];
+        }
+
+        if (kind.HasValue)
+        {
+            candidates =
+                candidates
+                    .Where(candidate =>
+                        candidate.Kind == kind.Value)
+                    .ToArray();
         }
 
         float[] questionEmbedding =
