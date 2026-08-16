@@ -6,32 +6,30 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 {
     private readonly IChatbotMatchingService _matchingService;
 
-    private readonly IChatbotClarificationExactMatchingService
-        _clarificationExactMatchingService;
+    private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
 
     private readonly IChatbotRerankingService _rerankingService;
 
-    private readonly IChatbotNoMatchDecisionService
-        _noMatchDecisionService;
+    private readonly IChatbotNoMatchDecisionService _noMatchDecisionService;
 
+    private readonly IChatbotCandidateEvidenceService _candidateEvidenceService;
+
+    private readonly IChatbotKnowledgeService _knowledgeService;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
         IChatbotClarificationExactMatchingService
             clarificationExactMatchingService,
         IChatbotRerankingService rerankingService,
-        IChatbotNoMatchDecisionService noMatchDecisionService)
+        IChatbotNoMatchDecisionService noMatchDecisionService,
+        IChatbotCandidateEvidenceService candidateEvidenceService,
+        IChatbotKnowledgeService knowledgeService)
     {
-        _matchingService =
-            matchingService;
-
-        _clarificationExactMatchingService =
-            clarificationExactMatchingService;
-
-        _rerankingService =
-            rerankingService;
-
-        _noMatchDecisionService =
-            noMatchDecisionService;
+        _matchingService = matchingService;
+        _clarificationExactMatchingService = clarificationExactMatchingService;
+        _rerankingService = rerankingService;
+        _noMatchDecisionService = noMatchDecisionService;
+        _candidateEvidenceService = candidateEvidenceService;
+        _knowledgeService = knowledgeService;
     }
 
     public ChatbotMessageResult Process(string message)
@@ -44,8 +42,10 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         {
             return new ChatbotMessageResult
             {
+                ResponseType = ChatbotResponseType.Answer,
                 Reply = exactResult.Answer!
             };
+
         }
 
         // 2. Exact Clarification
@@ -57,7 +57,8 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         {
             return new ChatbotMessageResult
             {
-                Reply = clarificationResult.Answer!
+                Reply = clarificationResult.Answer!,
+                ResponseType = ChatbotResponseType.Clarification
             };
         }
 
@@ -83,40 +84,78 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             return CreateNoMatchResult();
         }
 
-        // 5. Conservative MVP decision
-        if (IsAgreement(rerankingResult))
+        // 5. Non-exact in-domain question:
+        // return top Answer suggestions.
+        IReadOnlyList<ChatbotCandidateEvidence> candidates =
+            _candidateEvidenceService.Find(
+                message,
+                3,
+                ChatbotKnowledgeItemKind.Answer);
+
+        List<ChatbotSuggestion> suggestions = [];
+
+        HashSet<Guid> addedIds = [];
+
+        foreach (ChatbotCandidateEvidence candidate in candidates)
         {
-            return new ChatbotMessageResult
+            if (!addedIds.Add(candidate.KnowledgeItemId))
             {
-                Reply = rerankingResult.Answer
-            };
+                continue;
+            }
+
+            ChatbotKnowledgeItem? knowledgeItem =
+                _knowledgeService.GetById(
+                    candidate.KnowledgeItemId);
+
+            if (knowledgeItem is null ||
+                knowledgeItem.Kind !=
+                    ChatbotKnowledgeItemKind.Answer)
+            {
+                continue;
+            }
+
+            suggestions.Add(
+                new ChatbotSuggestion
+                {
+                    KnowledgeItemId =
+                        knowledgeItem.Id,
+
+                    Label =
+                        knowledgeItem.Question
+                });
+
+            if (suggestions.Count == 3)
+            {
+                break;
+            }
         }
 
-        // 6. Semantic and Centroid disagree:
-        // ask the user to be more specific.
+        if (suggestions.Count == 0)
+        {
+            return CreateNoMatchResult();
+        }
+
         return new ChatbotMessageResult
         {
+            ResponseType =
+                ChatbotResponseType.Suggestions,
+
             Reply =
-                "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید."
+                "منظورتان کدام مورد است؟",
+
+            Suggestions =
+                suggestions
         };
     }
 
-    private static bool IsAgreement(
-        ChatbotRerankResult result)
-    {
-        return string.Equals(
-            result.SelectedStrategy.ToString(),
-            "Agreement",
-            StringComparison.OrdinalIgnoreCase);
-    }
-
     private static ChatbotMessageResult
-        CreateNoMatchResult()
+    CreateNoMatchResult()
     {
         return new ChatbotMessageResult
         {
             Reply =
-                "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید."
+                "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
+            ResponseType = ChatbotResponseType.Fallback
         };
     }
 }

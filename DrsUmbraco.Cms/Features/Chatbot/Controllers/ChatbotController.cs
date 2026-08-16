@@ -34,7 +34,9 @@ public sealed class ChatbotController : ControllerBase
 
         return Ok(new SendMessageResponse
         {
-            Reply = chatbotMessageResult.Reply
+            ResponseType = chatbotMessageResult.ResponseType,
+            Reply = chatbotMessageResult.Reply,
+            Suggestions = chatbotMessageResult.Suggestions
         });
 
     }
