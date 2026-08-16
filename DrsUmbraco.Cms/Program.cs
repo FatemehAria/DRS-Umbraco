@@ -65,6 +65,12 @@ builder.Services.AddSingleton<IChatbotRerankingService, ChatbotRerankingService>
 
 builder.Services.AddSingleton<IPersianWordTokenizer, PersianWordTokenizer>();
 
+builder.Services.AddSingleton<IBm25CorpusStatisticsBuilder, Bm25CorpusStatisticsBuilder>();
+
+builder.Services.AddSingleton<IBm25SimilarityCalculator, Bm25SimilarityCalculator>();
+
+builder.Services.AddSingleton<IChatbotBm25RankingService, ChatbotBm25RankingService>();
+
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services

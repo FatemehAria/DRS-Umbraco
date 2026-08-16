@@ -31,6 +31,7 @@ public sealed class ChatbotDebugController : ControllerBase
     private readonly IChatbotWeightedLexicalRankingService _weightedLexicalRankingService;
     private readonly IChatbotSemanticCentroidRankingService _semanticCentroidRankingService;
     private readonly IChatbotRerankingService _rerankingService;
+    private readonly IChatbotBm25RankingService _bm25RankingService;
     public ChatbotDebugController(
         IChatbotKnowledgeService knowledgeService,
         IPersianTextNormalizer textNormalizer,
@@ -48,7 +49,8 @@ public sealed class ChatbotDebugController : ControllerBase
         IChatbotSemanticRankingService chatbotSemanticRankingService,
         IChatbotWeightedLexicalRankingService chatbotWeightedLexicalRankingService,
         IChatbotSemanticCentroidRankingService chatbotSemanticCentroidRankingService,
-        IChatbotRerankingService chatbotRerankingService)
+        IChatbotRerankingService chatbotRerankingService,
+        IChatbotBm25RankingService bm25RankingService)
     {
         _knowledgeService = knowledgeService;
         _textNormalizer = textNormalizer;
@@ -67,6 +69,7 @@ public sealed class ChatbotDebugController : ControllerBase
         _weightedLexicalRankingService = chatbotWeightedLexicalRankingService;
         _semanticCentroidRankingService = chatbotSemanticCentroidRankingService;
         _rerankingService = chatbotRerankingService;
+        _bm25RankingService = bm25RankingService;
     }
 
 
@@ -506,5 +509,38 @@ public sealed class ChatbotDebugController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    [HttpPost("bm25-top")]
+    public ActionResult Bm25Top(
+    [FromBody] SendMessageRequest request,
+    [FromQuery] int limit = 10)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        if (limit < 1 || limit > 10)
+        {
+            return BadRequest(
+                new
+                {
+                    error =
+                        "Limit must be between 1 and 10."
+                });
+        }
+
+        IReadOnlyList<ChatbotLexicalRankedResult> results =
+            _bm25RankingService.FindTop(
+                request.Message,
+                limit);
+
+        return Ok(
+            new
+            {
+                count = results.Count,
+                results
+            });
     }
 }
