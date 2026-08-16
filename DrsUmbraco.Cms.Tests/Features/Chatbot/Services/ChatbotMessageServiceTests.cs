@@ -9,6 +9,7 @@ public sealed class ChatbotMessageServiceTests
     [Fact]
     public void Process_WhenExactMatchExists_ShouldReturnExactAnswer()
     {
+        // Arrange
         FakeMatchingService matchingService =
             new(
                 new ChatbotMatchResult
@@ -18,50 +19,53 @@ public sealed class ChatbotMessageServiceTests
                     Answer = "Exact answer"
                 });
 
-        FakeSemanticSearchService semanticSearchService =
-            new(null);
-
-        FakeSemanticDecisionService semanticDecisionService =
-            new(
-                new ChatbotSemanticDecision
-                {
-                    Type = ChatbotSemanticDecisionType.NoMatch
-                });
-
         FakeClarificationExactMatchingService
-            clarificationExactMatchingService =
+            clarificationService =
                 new(
                     new ChatbotMatchResult
                     {
                         IsMatch = false
                     });
 
-        ChatbotMessageService service =
-        new(
-            matchingService,
-            semanticSearchService,
-            semanticDecisionService,
-            clarificationExactMatchingService);
+        FakeRerankingService rerankingService =
+            new(null);
 
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                rerankingService,
+                noMatchService);
+
+        // Act
         ChatbotMessageResult result =
             service.Process("Question");
 
+        // Assert
         Assert.Equal(
             "Exact answer",
             result.Reply);
 
         Assert.Equal(
             0,
-            semanticSearchService.CallCount);
+            clarificationService.CallCount);
 
         Assert.Equal(
             0,
-            semanticDecisionService.CallCount);
+            rerankingService.CallCount);
+
+        Assert.Equal(
+            0,
+            noMatchService.CallCount);
     }
 
     [Fact]
-    public void Process_WhenSemanticResultIsConfident_ShouldReturnSemanticAnswer()
+    public void Process_WhenRerankerAgrees_ShouldReturnRerankedAnswer()
     {
+        // Arrange
         FakeMatchingService matchingService =
             new(
                 new ChatbotMatchResult
@@ -69,56 +73,51 @@ public sealed class ChatbotMessageServiceTests
                     IsMatch = false
                 });
 
-        ChatbotSemanticSearchResult searchResult =
-            CreateSearchResult(
-                answer: "Semantic answer");
-
-        FakeSemanticSearchService semanticSearchService =
-            new(searchResult);
-
-        FakeSemanticDecisionService semanticDecisionService =
+        FakeClarificationExactMatchingService clarificationService =
             new(
-                new ChatbotSemanticDecision
+                new ChatbotMatchResult
                 {
-                    Type =
-                        ChatbotSemanticDecisionType.Confident,
-                    SearchResult = searchResult
+                    IsMatch = false
                 });
 
-        FakeClarificationExactMatchingService
-            clarificationExactMatchingService =
-                new(
-                    new ChatbotMatchResult
-                    {
-                        IsMatch = false
-                    });
+        FakeRerankingService rerankingService =
+            new(
+                CreateRerankingResult(
+                    answer: "Reranked answer",
+                    selectedStrategy: "Agreement"));
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
 
         ChatbotMessageService service =
             new(
                 matchingService,
-                semanticSearchService,
-                semanticDecisionService,
-                clarificationExactMatchingService);
+                clarificationService,
+                rerankingService,
+                noMatchService);
 
+        // Act
         ChatbotMessageResult result =
             service.Process("Question");
 
+        // Assert
         Assert.Equal(
-            "Semantic answer",
+            "Reranked answer",
             result.Reply);
 
         Assert.Equal(
             1,
-            semanticSearchService.CallCount);
+            rerankingService.CallCount);
 
         Assert.Equal(
             1,
-            semanticDecisionService.CallCount);
+            noMatchService.CallCount);
     }
 
     [Fact]
-    public void Process_WhenSemanticResultIsAmbiguous_ShouldReturnClarificationMessage()
+    public void Process_WhenRerankerDoesNotAgree_ShouldReturnClarificationMessage()
     {
+        // Arrange
         FakeMatchingService matchingService =
             new(
                 new ChatbotMatchResult
@@ -126,48 +125,43 @@ public sealed class ChatbotMessageServiceTests
                     IsMatch = false
                 });
 
-        ChatbotSemanticSearchResult searchResult =
-            CreateSearchResult(
-                answer: "Some answer");
-
-        FakeSemanticSearchService semanticSearchService =
-            new(searchResult);
-
-        FakeSemanticDecisionService semanticDecisionService =
+        FakeClarificationExactMatchingService clarificationService =
             new(
-                new ChatbotSemanticDecision
+                new ChatbotMatchResult
                 {
-                    Type =
-                        ChatbotSemanticDecisionType.Ambiguous,
-                    SearchResult = searchResult
+                    IsMatch = false
                 });
 
-        FakeClarificationExactMatchingService
-            clarificationExactMatchingService =
-                new(
-                    new ChatbotMatchResult
-                    {
-                        IsMatch = false
-                    });
+        FakeRerankingService rerankingService =
+            new(
+                CreateRerankingResult(
+                    answer: "Some answer",
+                    selectedStrategy: "Centroid"));
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
 
         ChatbotMessageService service =
             new(
                 matchingService,
-                semanticSearchService,
-                semanticDecisionService,
-                clarificationExactMatchingService);
+                clarificationService,
+                rerankingService,
+                noMatchService);
 
+        // Act
         ChatbotMessageResult result =
             service.Process("Question");
 
+        // Assert
         Assert.Equal(
             "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید.",
             result.Reply);
     }
 
     [Fact]
-    public void Process_WhenNoMatchExists_ShouldReturnFallbackMessage()
+    public void Process_WhenRerankerReturnsNull_ShouldReturnFallbackMessage()
     {
+        // Arrange
         FakeMatchingService matchingService =
             new(
                 new ChatbotMatchResult
@@ -175,38 +169,90 @@ public sealed class ChatbotMessageServiceTests
                     IsMatch = false
                 });
 
-        FakeSemanticSearchService semanticSearchService =
-            new(null);
-
-        FakeSemanticDecisionService semanticDecisionService =
+        FakeClarificationExactMatchingService clarificationService =
             new(
-                new ChatbotSemanticDecision
+                new ChatbotMatchResult
                 {
-                    Type =
-                        ChatbotSemanticDecisionType.NoMatch
+                    IsMatch = false
                 });
 
-        FakeClarificationExactMatchingService
-            clarificationExactMatchingService =
-                new(
-                    new ChatbotMatchResult
-                    {
-                        IsMatch = false
-                    });
+        FakeRerankingService rerankingService =
+            new(null);
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
 
         ChatbotMessageService service =
             new(
                 matchingService,
-                semanticSearchService,
-                semanticDecisionService,
-                clarificationExactMatchingService);
+                clarificationService,
+                rerankingService,
+                noMatchService);
 
+        // Act
         ChatbotMessageResult result =
             service.Process("Unknown question");
 
+        // Assert
         Assert.Equal(
             "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
             result.Reply);
+
+        Assert.Equal(
+            1,
+            rerankingService.CallCount);
+
+        Assert.Equal(
+            0,
+            noMatchService.CallCount);
+    }
+
+    [Fact]
+    public void Process_WhenNoMatchDecisionIsNoMatch_ShouldReturnFallbackMessage()
+    {
+        // Arrange
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService clarificationService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeRerankingService rerankingService =
+            new(
+                CreateRerankingResult(
+                    answer: "Some answer",
+                    selectedStrategy: "Agreement"));
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.NoMatch);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                rerankingService,
+                noMatchService);
+
+        // Act
+        ChatbotMessageResult result =
+            service.Process("Out of domain question");
+
+        // Assert
+        Assert.Equal(
+            "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
+            result.Reply);
+
+        Assert.Equal(
+            1,
+            noMatchService.CallCount);
     }
 
     [Fact]
@@ -221,7 +267,7 @@ public sealed class ChatbotMessageServiceTests
                 });
 
         FakeClarificationExactMatchingService
-            clarificationExactMatchingService =
+            clarificationService =
                 new(
                     new ChatbotMatchResult
                     {
@@ -230,23 +276,18 @@ public sealed class ChatbotMessageServiceTests
                         Answer = "Clarification answer"
                     });
 
-        FakeSemanticSearchService semanticSearchService =
+        FakeRerankingService rerankingService =
             new(null);
 
-        FakeSemanticDecisionService semanticDecisionService =
-            new(
-                new ChatbotSemanticDecision
-                {
-                    Type =
-                        ChatbotSemanticDecisionType.NoMatch
-                });
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
 
         ChatbotMessageService service =
             new(
                 matchingService,
-                semanticSearchService,
-                semanticDecisionService,
-                clarificationExactMatchingService);
+                clarificationService,
+                rerankingService,
+                noMatchService);
 
         // Act
         ChatbotMessageResult result =
@@ -259,15 +300,15 @@ public sealed class ChatbotMessageServiceTests
 
         Assert.Equal(
             1,
-            clarificationExactMatchingService.CallCount);
+            clarificationService.CallCount);
 
         Assert.Equal(
             0,
-            semanticSearchService.CallCount);
+            rerankingService.CallCount);
 
         Assert.Equal(
             0,
-            semanticDecisionService.CallCount);
+            noMatchService.CallCount);
     }
 
     private sealed class FakeClarificationExactMatchingService
@@ -292,17 +333,49 @@ public sealed class ChatbotMessageServiceTests
         }
     }
 
-    private static ChatbotSemanticSearchResult CreateSearchResult(
-        string answer)
+    private sealed class FakeRerankingService
+        : IChatbotRerankingService
     {
-        return new ChatbotSemanticSearchResult
+        private readonly ChatbotRerankResult? _result;
+
+        public FakeRerankingService(
+            ChatbotRerankResult? result)
         {
-            KnowledgeItemId = Guid.NewGuid(),
-            Answer = answer,
-            MatchedText = "Matched question",
-            Score = 0.95f,
-            Margin = 0.10f
-        };
+            _result = result;
+        }
+
+        public int CallCount { get; private set; }
+
+        public ChatbotRerankResult? FindBest(
+            string question,
+            ChatbotKnowledgeItemKind? kind = null)
+        {
+            CallCount++;
+
+            return _result;
+        }
+    }
+
+    private sealed class FakeNoMatchDecisionService
+        : IChatbotNoMatchDecisionService
+    {
+        private readonly ChatbotNoMatchDecision _decision;
+
+        public FakeNoMatchDecisionService(
+            ChatbotNoMatchDecision decision)
+        {
+            _decision = decision;
+        }
+
+        public int CallCount { get; private set; }
+
+        public ChatbotNoMatchDecision Decide(
+            float semanticTopScore)
+        {
+            CallCount++;
+
+            return _decision;
+        }
     }
 
     private sealed class FakeMatchingService
@@ -323,48 +396,19 @@ public sealed class ChatbotMessageServiceTests
         }
     }
 
-    private sealed class FakeSemanticSearchService
-        : IChatbotSemanticSearchService
+    private static ChatbotRerankResult CreateRerankingResult(
+        string answer,
+        string selectedStrategy)
     {
-        private readonly ChatbotSemanticSearchResult? _result;
-
-        public FakeSemanticSearchService(
-            ChatbotSemanticSearchResult? result)
+        return new ChatbotRerankResult
         {
-            _result = result;
-        }
-
-        public int CallCount { get; private set; }
-
-        public ChatbotSemanticSearchResult? FindBest(
-            string question,
-            ChatbotKnowledgeItemKind? kind = null)
-        {
-            CallCount++;
-
-            return _result;
-        }
-    }
-
-    private sealed class FakeSemanticDecisionService
-        : IChatbotSemanticDecisionService
-    {
-        private readonly ChatbotSemanticDecision _decision;
-
-        public FakeSemanticDecisionService(
-            ChatbotSemanticDecision decision)
-        {
-            _decision = decision;
-        }
-
-        public int CallCount { get; private set; }
-
-        public ChatbotSemanticDecision Decide(
-            ChatbotSemanticSearchResult? result)
-        {
-            CallCount++;
-
-            return _decision;
-        }
+            KnowledgeItemId = Guid.NewGuid(),
+            Answer = answer,
+            SelectedStrategy = selectedStrategy,
+            SemanticTopScore = 0.95f,
+            SemanticMargin = 0.02f,
+            CentroidTopScore = 0.94f,
+            CentroidMargin = 0.02f
+        };
     }
 }

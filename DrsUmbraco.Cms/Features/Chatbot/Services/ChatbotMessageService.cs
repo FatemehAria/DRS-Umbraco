@@ -1,4 +1,3 @@
-using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
@@ -6,24 +5,38 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Services;
 public sealed class ChatbotMessageService : IChatbotMessageService
 {
     private readonly IChatbotMatchingService _matchingService;
-    private readonly IChatbotSemanticSearchService _semanticSearchService;
-    private readonly IChatbotSemanticDecisionService _semanticDecisionService;
-    private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
+
+    private readonly IChatbotClarificationExactMatchingService
+        _clarificationExactMatchingService;
+
+    private readonly IChatbotRerankingService _rerankingService;
+
+    private readonly IChatbotNoMatchDecisionService
+        _noMatchDecisionService;
+
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
-        IChatbotSemanticSearchService semanticSearchService,
-        IChatbotSemanticDecisionService semanticDecisionService,
-        IChatbotClarificationExactMatchingService clarificationExactMatchingService)
+        IChatbotClarificationExactMatchingService
+            clarificationExactMatchingService,
+        IChatbotRerankingService rerankingService,
+        IChatbotNoMatchDecisionService noMatchDecisionService)
     {
-        _matchingService = matchingService;
-        _semanticSearchService = semanticSearchService;
-        _semanticDecisionService = semanticDecisionService;
-        _clarificationExactMatchingService = clarificationExactMatchingService;
+        _matchingService =
+            matchingService;
+
+        _clarificationExactMatchingService =
+            clarificationExactMatchingService;
+
+        _rerankingService =
+            rerankingService;
+
+        _noMatchDecisionService =
+            noMatchDecisionService;
     }
 
     public ChatbotMessageResult Process(string message)
     {
-        // 1. Exact Match
+        // 1. Exact Answer
         ChatbotMatchResult exactResult =
             _matchingService.FindMatch(message);
 
@@ -35,46 +48,71 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             };
         }
 
-        ChatbotMatchResult clarificationMatch = _clarificationExactMatchingService.Find(message);
+        // 2. Exact Clarification
+        ChatbotMatchResult clarificationResult =
+            _clarificationExactMatchingService.Find(
+                message);
 
-        if (clarificationMatch.IsMatch)
+        if (clarificationResult.IsMatch)
         {
             return new ChatbotMessageResult
             {
-                Reply = clarificationMatch.Answer!
+                Reply = clarificationResult.Answer!
             };
         }
 
-        // 2. Semantic Search
-        ChatbotSemanticSearchResult? semanticResult = _semanticSearchService.FindBest(
-            message,
-            ChatbotKnowledgeItemKind.Answer);
+        // 3. Find best Answer candidate
+        ChatbotRerankResult? rerankingResult =
+            _rerankingService.FindBest(
+                message,
+                ChatbotKnowledgeItemKind.Answer);
 
-        // 3. Decide whether semantic result is trustworthy
-        ChatbotSemanticDecision decision =
-            _semanticDecisionService.Decide(semanticResult);
+        if (rerankingResult is null)
+        {
+            return CreateNoMatchResult();
+        }
 
-        // 4. Return appropriate response
-        if (decision.Type ==
-                ChatbotSemanticDecisionType.Confident &&
-            decision.SearchResult?.Answer is string semanticAnswer)
+        // 4. NoMatch check
+        ChatbotNoMatchDecision noMatchDecision =
+            _noMatchDecisionService.Decide(
+                rerankingResult.SemanticTopScore);
+
+        if (noMatchDecision ==
+            ChatbotNoMatchDecision.NoMatch)
+        {
+            return CreateNoMatchResult();
+        }
+
+        // 5. Conservative MVP decision
+        if (IsAgreement(rerankingResult))
         {
             return new ChatbotMessageResult
             {
-                Reply = semanticAnswer
+                Reply = rerankingResult.Answer
             };
         }
 
-        if (decision.Type ==
-            ChatbotSemanticDecisionType.Ambiguous)
+        // 6. Semantic and Centroid disagree:
+        // ask the user to be more specific.
+        return new ChatbotMessageResult
         {
-            return new ChatbotMessageResult
-            {
-                Reply =
-                    "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید."
-            };
-        }
+            Reply =
+                "سؤال شما به چند موضوع نزدیک است. لطفاً کمی دقیق‌تر توضیح دهید."
+        };
+    }
 
+    private static bool IsAgreement(
+        ChatbotRerankResult result)
+    {
+        return string.Equals(
+            result.SelectedStrategy.ToString(),
+            "Agreement",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static ChatbotMessageResult
+        CreateNoMatchResult()
+    {
         return new ChatbotMessageResult
         {
             Reply =
