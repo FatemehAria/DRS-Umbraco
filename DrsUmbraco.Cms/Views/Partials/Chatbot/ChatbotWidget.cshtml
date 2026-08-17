@@ -1,0 +1,45 @@
+<div class="chatbot-widget">
+    <button id="chatbot-toggle" class="chatbot-toggle" type="button" aria-label="باز کردن گفت‌وگو"
+        aria-controls="chatbot-panel" aria-expanded="false">
+
+        <svg class="chatbot-toggle-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 15a4 4 0 0 1-4 4H8l-4 3v-7a4 4 0 0 1-1-2.7V8a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4v7Z" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </button>
+
+    <section id="chatbot-panel" class="chatbot-panel" aria-label="دستیار سایت" hidden>
+
+        <header class="chatbot-header">
+            <div>
+                <strong>دستیار سایت</strong>
+                <span class="chatbot-status">
+                    پاسخ‌گویی آنلاین
+                </span>
+            </div>
+
+            <button id="chatbot-close" class="chatbot-close" type="button" aria-label="بستن گفت‌وگو">
+                ×
+            </button>
+        </header>
+
+        <div id="chatbot-messages" class="chatbot-messages" aria-live="polite">
+
+            <div class="chatbot-message chatbot-message--bot">
+                سلام 👋
+                <br />
+                چطور می‌تونم کمکتون کنم؟
+            </div>
+        </div>
+
+        <form id="chatbot-form" class="chatbot-form">
+
+            <input id="chatbot-input" class="chatbot-input" type="text" autocomplete="off"
+                placeholder="سؤال خود را بنویسید..." aria-label="سؤال شما" />
+
+            <button class="chatbot-send" type="submit">
+                ارسال
+            </button>
+        </form>
+    </section>
+</div>
