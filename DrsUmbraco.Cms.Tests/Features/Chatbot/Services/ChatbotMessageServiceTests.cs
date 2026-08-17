@@ -43,7 +43,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -71,7 +70,7 @@ public sealed class ChatbotMessageServiceTests
     }
 
     [Fact]
-    public void Process_WhenRerankerReturnsNull_ShouldReturnFallbackMessage()
+    public void Process_WhenNoCandidatesExist_ShouldReturnFallbackMessage()
     {
         // Arrange
         FakeMatchingService matchingService =
@@ -88,14 +87,11 @@ public sealed class ChatbotMessageServiceTests
                     IsMatch = false
                 });
 
-        FakeRerankingService rerankingService =
-            new(null);
-
         FakeNoMatchDecisionService noMatchService =
             new(ChatbotNoMatchDecision.InDomain);
 
         FakeCandidateEvidenceService candidateEvidenceService =
-            new();
+            new([]);
 
         FakeKnowledgeService knowledgeService =
             new();
@@ -104,7 +100,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -115,13 +110,18 @@ public sealed class ChatbotMessageServiceTests
 
         // Assert
         Assert.Equal(
+            ChatbotResponseType.Fallback,
+            result.ResponseType);
+
+        Assert.Equal(
             "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
             result.Reply);
 
         Assert.Equal(
             1,
-            rerankingService.CallCount);
+            candidateEvidenceService.CallCount);
 
+        // چون candidate نداریم، اصلاً نباید به NoMatchDecision برسیم.
         Assert.Equal(
             0,
             noMatchService.CallCount);
@@ -131,6 +131,9 @@ public sealed class ChatbotMessageServiceTests
     public void Process_WhenNoMatchDecisionIsNoMatch_ShouldReturnFallbackMessage()
     {
         // Arrange
+        Guid candidateId =
+            Guid.NewGuid();
+
         FakeMatchingService matchingService =
             new(
                 new ChatbotMatchResult
@@ -145,17 +148,20 @@ public sealed class ChatbotMessageServiceTests
                     IsMatch = false
                 });
 
-        FakeRerankingService rerankingService =
-            new(
-                CreateRerankingResult(
-                    answer: "Some answer",
-                    selectedStrategy: "Agreement"));
-
         FakeNoMatchDecisionService noMatchService =
             new(ChatbotNoMatchDecision.NoMatch);
 
         FakeCandidateEvidenceService candidateEvidenceService =
-            new();
+            new(
+                [
+                    new ChatbotCandidateEvidence
+                {
+                    KnowledgeItemId = candidateId,
+                    Answer = "Some answer",
+                    SemanticRank = 1,
+                    SemanticScore = 0.80f
+                }
+                ]);
 
         FakeKnowledgeService knowledgeService =
             new();
@@ -164,23 +170,36 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
 
         // Act
         ChatbotMessageResult result =
-            service.Process("Out of domain question");
+            service.Process(
+                "Out of domain question");
 
         // Assert
+        Assert.Equal(
+            ChatbotResponseType.Fallback,
+            result.ResponseType);
+
         Assert.Equal(
             "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
             result.Reply);
 
         Assert.Equal(
             1,
+            candidateEvidenceService.CallCount);
+
+        Assert.Equal(
+            1,
             noMatchService.CallCount);
+
+        // چون NoMatch شد، نباید اصلاً وارد ساخت Suggestions شویم.
+        Assert.Equal(
+            0,
+            knowledgeService.GetByIdCallCount);
     }
 
     [Fact]
@@ -220,7 +239,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -350,7 +368,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -452,7 +469,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -508,7 +524,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -568,7 +583,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);
@@ -581,7 +595,7 @@ public sealed class ChatbotMessageServiceTests
         // Assert
         Assert.Null(result);
     }
-    
+
     [Fact]
     public void SelectSuggestion_WhenAnswerExists_ShouldReturnAnswer()
     {
@@ -630,7 +644,6 @@ public sealed class ChatbotMessageServiceTests
             new(
                 matchingService,
                 clarificationService,
-                rerankingService,
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService);

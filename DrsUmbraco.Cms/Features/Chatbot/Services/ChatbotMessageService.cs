@@ -8,7 +8,6 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
     private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
 
-    private readonly IChatbotRerankingService _rerankingService;
 
     private readonly IChatbotNoMatchDecisionService _noMatchDecisionService;
 
@@ -19,14 +18,12 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         IChatbotMatchingService matchingService,
         IChatbotClarificationExactMatchingService
             clarificationExactMatchingService,
-        IChatbotRerankingService rerankingService,
         IChatbotNoMatchDecisionService noMatchDecisionService,
         IChatbotCandidateEvidenceService candidateEvidenceService,
         IChatbotKnowledgeService knowledgeService)
     {
         _matchingService = matchingService;
         _clarificationExactMatchingService = clarificationExactMatchingService;
-        _rerankingService = rerankingService;
         _noMatchDecisionService = noMatchDecisionService;
         _candidateEvidenceService = candidateEvidenceService;
         _knowledgeService = knowledgeService;
@@ -61,36 +58,34 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 ResponseType = ChatbotResponseType.Clarification
             };
         }
-
-        // 3. Find best Answer candidate
-        ChatbotRerankResult? rerankingResult =
-            _rerankingService.FindBest(
+        // 3. Retrieve Answer candidates once.
+        IReadOnlyList<ChatbotCandidateEvidence> candidates =
+            _candidateEvidenceService.Find(
                 message,
+                3,
                 ChatbotKnowledgeItemKind.Answer);
 
-        if (rerankingResult is null)
+        if (candidates.Count == 0)
         {
             return CreateNoMatchResult();
         }
 
-        // 4. NoMatch check
-        ChatbotNoMatchDecision noMatchDecision =
-            _noMatchDecisionService.Decide(
-                rerankingResult.SemanticTopScore);
+        float semanticTopScore =
+            candidates
+                .Where(candidate =>
+                    candidate.SemanticScore.HasValue)
+                .Select(candidate =>
+                    candidate.SemanticScore!.Value)
+                .DefaultIfEmpty(0f)
+                .Max();
+
+        ChatbotNoMatchDecision noMatchDecision = _noMatchDecisionService.Decide(semanticTopScore);
 
         if (noMatchDecision ==
             ChatbotNoMatchDecision.NoMatch)
         {
             return CreateNoMatchResult();
         }
-
-        // 5. Non-exact in-domain question:
-        // return top Answer suggestions.
-        IReadOnlyList<ChatbotCandidateEvidence> candidates =
-            _candidateEvidenceService.Find(
-                message,
-                3,
-                ChatbotKnowledgeItemKind.Answer);
 
         List<ChatbotSuggestion> suggestions = [];
 
