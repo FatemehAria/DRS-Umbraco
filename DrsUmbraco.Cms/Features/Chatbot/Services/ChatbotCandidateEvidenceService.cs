@@ -48,28 +48,49 @@ public sealed class ChatbotCandidateEvidenceService
             return [];
         }
 
+        // IReadOnlyList<ChatbotSemanticRankedResult> semantic =
+        // _semanticRankingService.FindTop(
+        //     question,
+        //     limit,
+        //     kind);
+
+        int retrievalDepth = Math.Max(limit, 10);
+
         IReadOnlyList<ChatbotSemanticRankedResult> semantic =
         _semanticRankingService.FindTop(
             question,
-            limit,
+            retrievalDepth,
             kind);
-
+        // IReadOnlyList<ChatbotSemanticRankedResult> centroid =
+        //     _centroidRankingService.FindTop(
+        //         question,
+        //         limit,
+        //         kind);
         IReadOnlyList<ChatbotSemanticRankedResult> centroid =
             _centroidRankingService.FindTop(
                 question,
-                limit,
+                retrievalDepth,
                 kind);
-
+        // IReadOnlyList<ChatbotLexicalRankedResult> weightedLexical =
+        //     _weightedLexicalRankingService.FindTop(
+        //         question,
+        //         limit,
+        //         kind);
         IReadOnlyList<ChatbotLexicalRankedResult> weightedLexical =
             _weightedLexicalRankingService.FindTop(
                 question,
-                limit,
+                retrievalDepth,
                 kind);
 
+        // IReadOnlyList<ChatbotLexicalRankedResult> bm25 =
+        //     _bm25RankingService.FindTop(
+        //         question,
+        //         limit,
+        //         kind);
         IReadOnlyList<ChatbotLexicalRankedResult> bm25 =
             _bm25RankingService.FindTop(
                 question,
-                limit,
+                retrievalDepth,
                 kind);
 
         HashSet<Guid> knowledgeItemIds =
