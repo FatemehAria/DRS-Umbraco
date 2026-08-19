@@ -829,4 +829,40 @@ public sealed class ChatbotDebugController : ControllerBase
                 .Take(3)
                 .ToArray());
     }
+
+    [HttpPost("answer-no-match-evidence")]
+    public IActionResult GetAnswerNoMatchEvidence(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        IReadOnlyList<ChatbotCandidateEvidence> candidates =
+            _candidateEvidenceService.Find(
+                request.Message,
+                3,
+                ChatbotKnowledgeItemKind.Answer);
+
+        float semanticTopScore =
+            candidates
+                .Where(candidate => candidate.SemanticScore.HasValue)
+                .Select(candidate => candidate.SemanticScore!.Value)
+                .DefaultIfEmpty(0f)
+                .Max();
+
+        return Ok(new
+        {
+            SemanticTopScore = semanticTopScore,
+
+            Candidates = candidates.Select(candidate => new
+            {
+                candidate.KnowledgeItemId,
+                candidate.SemanticRank,
+                candidate.SemanticScore,
+                candidate.SemanticMatchedText
+            })
+        });
+    }
 }
