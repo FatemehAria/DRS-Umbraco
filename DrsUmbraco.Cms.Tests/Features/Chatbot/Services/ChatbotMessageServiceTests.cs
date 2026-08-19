@@ -45,7 +45,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -102,7 +103,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -172,7 +174,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -241,7 +244,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -370,7 +374,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -471,7 +476,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult result =
@@ -526,7 +532,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult? result =
@@ -585,7 +592,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult? result =
@@ -646,7 +654,8 @@ public sealed class ChatbotMessageServiceTests
                 clarificationService,
                 noMatchService,
                 candidateEvidenceService,
-                knowledgeService);
+                knowledgeService,
+                new FakeRelevanceVerifier(true));
 
         // Act
         ChatbotMessageResult? result =
@@ -666,6 +675,112 @@ public sealed class ChatbotMessageServiceTests
         Assert.Empty(
             result.Suggestions);
     }
+
+    [Fact]
+    public void Process_WhenVerifierRejectsAllCandidates_ShouldReturnFallback()
+    {
+        // Arrange
+        Guid candidateId =
+            Guid.NewGuid();
+
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService
+            clarificationService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService
+            candidateEvidenceService =
+                new(
+                    [
+                        new ChatbotCandidateEvidence
+                    {
+                        KnowledgeItemId = candidateId,
+                        Answer = "Support answer",
+                        SemanticRank = 1,
+                        SemanticScore = 0.90f
+                    }
+                    ]);
+
+        FakeKnowledgeService knowledgeService =
+            new(
+                [
+                    new ChatbotKnowledgeItem
+                {
+                    Id = candidateId,
+                    Question =
+                        "چطور با پشتیبانی تماس بگیرم؟",
+                    Answer =
+                        "Support answer",
+                    Kind =
+                        ChatbotKnowledgeItemKind.Answer
+                }
+                ]);
+
+        FakeRelevanceVerifier relevanceVerifier =
+            new(false);
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService,
+                relevanceVerifier);
+
+        // Act
+        ChatbotMessageResult result =
+            service.Process(
+                "چه مرورگرهایی برای استفاده از سایت پشتیبانی می‌شوند؟");
+
+        // Assert
+        Assert.Equal(
+            ChatbotResponseType.Fallback,
+            result.ResponseType);
+
+        Assert.Empty(result.Suggestions);
+
+        Assert.Equal(
+            1,
+            relevanceVerifier.CallCount);
+    }
+    
+    private sealed class FakeRelevanceVerifier
+    : IChatbotRelevanceVerifier
+    {
+        private readonly bool _isRelevant;
+
+        public FakeRelevanceVerifier(
+            bool isRelevant)
+        {
+            _isRelevant = isRelevant;
+        }
+
+        public int CallCount { get; private set; }
+
+        public bool IsRelevant(
+            string question,
+            ChatbotKnowledgeItem candidate)
+        {
+            CallCount++;
+
+            return _isRelevant;
+        }
+    }
+
     private sealed class FakeCandidateEvidenceService
     : IChatbotCandidateEvidenceService
     {

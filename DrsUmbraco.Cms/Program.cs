@@ -85,6 +85,8 @@ builder.Services.AddScoped<IChatbotClarificationExactMatchingService, ChatbotCla
 
 builder.Services.AddScoped<IChatbotDiscriminativeEvidenceService, ChatbotDiscriminativeEvidenceService>();
 
+builder.Services.AddSingleton<IChatbotRelevanceVerifier, AllowAllChatbotRelevanceVerifier>();
+
 builder.Services
     .AddOptions<ChatbotNoMatchDecisionOptions>()
     .Bind(

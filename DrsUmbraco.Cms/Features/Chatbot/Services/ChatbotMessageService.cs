@@ -5,28 +5,26 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Services;
 public sealed class ChatbotMessageService : IChatbotMessageService
 {
     private readonly IChatbotMatchingService _matchingService;
-
     private readonly IChatbotClarificationExactMatchingService _clarificationExactMatchingService;
-
-
     private readonly IChatbotNoMatchDecisionService _noMatchDecisionService;
-
     private readonly IChatbotCandidateEvidenceService _candidateEvidenceService;
-
     private readonly IChatbotKnowledgeService _knowledgeService;
+    private readonly IChatbotRelevanceVerifier _relevanceVerifier;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
         IChatbotClarificationExactMatchingService
             clarificationExactMatchingService,
         IChatbotNoMatchDecisionService noMatchDecisionService,
         IChatbotCandidateEvidenceService candidateEvidenceService,
-        IChatbotKnowledgeService knowledgeService)
+        IChatbotKnowledgeService knowledgeService,
+        IChatbotRelevanceVerifier relevanceVerifier)
     {
         _matchingService = matchingService;
         _clarificationExactMatchingService = clarificationExactMatchingService;
         _noMatchDecisionService = noMatchDecisionService;
         _candidateEvidenceService = candidateEvidenceService;
         _knowledgeService = knowledgeService;
+        _relevanceVerifier = relevanceVerifier;
     }
 
     public ChatbotMessageResult Process(string message)
@@ -109,6 +107,13 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 continue;
             }
 
+            if (!_relevanceVerifier.IsRelevant(
+                    message,
+                    knowledgeItem))
+            {
+                continue;
+            }
+            
             suggestions.Add(
                 new ChatbotSuggestion
                 {
