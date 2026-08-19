@@ -170,9 +170,11 @@ public sealed class ChatbotCandidateEvidenceService
         }
 
         return results
-            .OrderBy(GetBestRank)
-            .ThenByDescending(GetStrategyCount)
-            .ToArray();
+        .OrderByDescending(GetFusionScore)
+        .ThenByDescending(GetStrategyCount)
+        .ThenBy(GetBestRank)
+        .ThenBy(x => x.KnowledgeItemId)
+        .ToArray();
     }
 
     private static int GetBestRank(
@@ -222,5 +224,43 @@ public sealed class ChatbotCandidateEvidenceService
         }
 
         return count;
+    }
+
+    private static double GetFusionScore(
+    ChatbotCandidateEvidence evidence)
+    {
+        const double k = 60.0;
+
+        double score = 0;
+
+        if (evidence.SemanticRank.HasValue)
+        {
+            score +=
+                1.0 /
+                (k + evidence.SemanticRank.Value);
+        }
+
+        if (evidence.CentroidRank.HasValue)
+        {
+            score +=
+                1.0 /
+                (k + evidence.CentroidRank.Value);
+        }
+
+        if (evidence.WeightedLexicalRank.HasValue)
+        {
+            score +=
+                1.0 /
+                (k + evidence.WeightedLexicalRank.Value);
+        }
+
+        if (evidence.Bm25Rank.HasValue)
+        {
+            score +=
+                1.0 /
+                (k + evidence.Bm25Rank.Value);
+        }
+
+        return score;
     }
 }

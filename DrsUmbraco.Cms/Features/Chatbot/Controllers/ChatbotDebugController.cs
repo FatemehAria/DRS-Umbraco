@@ -865,4 +865,77 @@ public sealed class ChatbotDebugController : ControllerBase
             })
         });
     }
+
+    [HttpPost("answer-ranking-evidence")]
+    public IActionResult GetAnswerRankingEvidence(
+    [FromBody] SendMessageRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return BadRequest();
+        }
+
+        // دقیقاً مشابه Production
+        IReadOnlyList<ChatbotCandidateEvidence> productionCandidates =
+            _candidateEvidenceService.Find(
+                request.Message,
+                3,
+                ChatbotKnowledgeItemKind.Answer);
+
+        // فقط برای diagnosis، کمی عمیق‌تر نگاه می‌کنیم
+        IReadOnlyList<ChatbotCandidateEvidence> expandedCandidates =
+            _candidateEvidenceService.Find(
+                request.Message,
+                10,
+                ChatbotKnowledgeItemKind.Answer);
+
+        return Ok(new
+        {
+            Production = productionCandidates
+                .Select((candidate, index) => new
+                {
+                    Position = index + 1,
+
+                    candidate.KnowledgeItemId,
+
+                    candidate.SemanticRank,
+                    candidate.SemanticScore,
+                    candidate.SemanticMatchedText,
+
+                    candidate.CentroidRank,
+                    candidate.CentroidScore,
+
+                    candidate.WeightedLexicalRank,
+                    candidate.WeightedLexicalScore,
+                    candidate.WeightedLexicalMatchedText,
+
+                    candidate.Bm25Rank,
+                    candidate.Bm25Score,
+                    candidate.Bm25MatchedText
+                }),
+
+            Expanded = expandedCandidates
+                .Select((candidate, index) => new
+                {
+                    Position = index + 1,
+
+                    candidate.KnowledgeItemId,
+
+                    candidate.SemanticRank,
+                    candidate.SemanticScore,
+                    candidate.SemanticMatchedText,
+
+                    candidate.CentroidRank,
+                    candidate.CentroidScore,
+
+                    candidate.WeightedLexicalRank,
+                    candidate.WeightedLexicalScore,
+                    candidate.WeightedLexicalMatchedText,
+
+                    candidate.Bm25Rank,
+                    candidate.Bm25Score,
+                    candidate.Bm25MatchedText
+                })
+        });
+    }
 }
