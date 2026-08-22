@@ -1,0 +1,41 @@
+﻿Id,Label,UserQuestion,CandidateFaq,CandidateIntent,Difficulty,Reason
+V-P01,Positive,می‌خوام رمز ورود حسابم رو به یه رمز دیگه عوض کنم.,چطور رمز عبورم را تغییر بدهم؟,ChangePassword,Medium,User explicitly wants to replace the current login password.
+V-P02,Positive,از داخل حساب چطور رمز فعلی‌ام را به رمز تازه تغییر بدهم؟,چطور رمز عبورم را تغییر بدهم؟,ChangePassword,Medium,Password-change intent expressed without copying existing FAQ wording.
+V-P03,Positive,اگر نیاز به کمک داشته باشم از چه طریقی به پشتیبانی پیام بدهم؟,چطور با پشتیبانی تماس بگیرم؟,Support,Medium,User asks for a channel to contact support.
+V-P04,Positive,برای صحبت با واحد پشتیبانی باید کجا بروم؟,چطور با پشتیبانی تماس بگیرم؟,Support,Medium,User wants to reach the support team.
+V-P05,Positive,رمز ورودم یادم نیست؛ چطور دوباره به حساب دسترسی بگیرم؟,رمز عبورم را فراموش کرده‌ام، چه کار کنم؟,ForgotPassword,Medium,Forgotten-password recovery intent.
+V-P06,Positive,پسوردم رو به خاطر نمی‌آرم، راه بازیابیش چیه؟,رمز عبورم را فراموش کرده‌ام، چه کار کنم؟,ForgotPassword,Medium,Password is forgotten and recovery is requested.
+V-P07,Positive,اطلاعات ورود را می‌زنم ولی وارد اکانت نمی‌شوم؛ چه کنم؟,چرا نمی‌توانم وارد حساب کاربری شوم؟,LoginProblem,Medium,User cannot log in despite attempting to sign in.
+V-P08,Positive,صفحه ورود قبولم نمی‌کند و نمی‌توانم وارد حسابم شوم.,چرا نمی‌توانم وارد حساب کاربری شوم؟,LoginProblem,Medium,Generic login failure.
+V-P09,Positive,اکانتم به خاطر تلاش‌های ناموفق بسته شده؛ چطور دوباره فعالش کنم؟,حساب کاربری من قفل شده است، چه کار کنم؟,LockedAccount,Hard,User describes an account lock without using the exact FAQ phrase.
+V-P10,Positive,پیغام قفل بودن حساب می‌گیرم؛ راه باز کردنش چیست؟,حساب کاربری من قفل شده است، چه کار کنم؟,LockedAccount,Medium,Explicit locked-account recovery.
+V-P11,Positive,می‌خوام آدرس ایمیل متصل به حسابم رو عوض کنم.,چطور ایمیل حساب کاربری را تغییر بدهم؟,ChangeEmail,Medium,Change the email associated with the account.
+V-P12,Positive,ایمیل ثبت‌شده روی اکانتم اشتباهه؛ از کجا اصلاحش کنم؟,چطور ایمیل حساب کاربری را تغییر بدهم؟,ChangeEmail,Hard,Correction of stored account email.
+V-P13,Positive,شماره تلفن وصل‌شده به حسابم قدیمیه؛ چطور شماره جدید بذارم؟,چطور شماره موبایل حسابم را تغییر بدهم؟,ChangeMobile,Hard,Replace the stored mobile number.
+V-P14,Positive,می‌خوام شماره تماس حسابم رو با شماره دیگری جایگزین کنم.,چطور شماره موبایل حسابم را تغییر بدهم؟,ChangeMobile,Medium,Change account mobile/contact number.
+V-P15,Positive,نام و مشخصات شخصی پروفایلم را از کجا اصلاح کنم؟,چطور اطلاعات پروفایلم را ویرایش کنم؟,EditProfile,Medium,Edit personal profile information.
+V-P16,Positive,می‌خوام جزئیات پروفایل مثل نامم را ویرایش کنم.,چطور اطلاعات پروفایلم را ویرایش کنم؟,EditProfile,Medium,Edit profile details.
+V-P17,Positive,اولین باره میام سایت؛ از کجا برای خودم حساب بسازم؟,چطور یک حساب کاربری ایجاد کنم؟,CreateAccount,Hard,New user wants to create an account.
+V-P18,Positive,برای شروع استفاده از سایت چطور عضو بشم و اکانت ایجاد کنم؟,چطور یک حساب کاربری ایجاد کنم؟,CreateAccount,Medium,Registration/account creation intent.
+V-P19,Positive,دیگه این حساب رو نمی‌خوام؛ چطور برای همیشه حذفش کنم؟,چطور حساب کاربری‌ام را حذف کنم؟,DeleteAccount,Medium,Permanent deletion request.
+V-P20,Positive,می‌خوام اکانتم به طور دائمی بسته و پاک بشه.,چطور حساب کاربری‌ام را حذف کنم؟,DeleteAccount,Hard,Permanent account closure/deletion.
+V-N01,Negative,می‌خوام احراز هویت دو مرحله‌ای رو برای حسابم فعال کنم.,چطور رمز عبورم را تغییر بدهم؟,ChangePassword,Hard,"Security-related request, but it is about 2FA rather than changing password."
+V-N02,Negative,رمز یکبارمصرف برای ورود برام ارسال نمی‌شه.,چطور رمز عبورم را تغییر بدهم؟,ChangePassword,Hard,OTP delivery problem is not a password-change request.
+V-N03,Negative,رمزم رو بلدم، فقط می‌خوام عوضش کنم.,رمز عبورم را فراموش کرده‌ام، چه کار کنم؟,ForgotPassword,Hard,"Correct intent is ChangePassword, not ForgotPassword."
+V-N04,Negative,می‌خوام از حسابم خارج بشم و جلسه ورودم تموم بشه.,چرا نمی‌توانم وارد حساب کاربری شوم؟,LoginProblem,Hard,Logout is not a login failure.
+V-N05,Negative,سایت باز می‌شه ولی موقع کار خطای سرور می‌بینم.,حساب کاربری من قفل شده است، چه کار کنم؟,LockedAccount,Medium,General server error does not indicate an account lock.
+V-N06,Negative,چه مرورگرهایی با این سایت سازگار هستند؟,چطور با پشتیبانی تماس بگیرم؟,Support,Hard,Browser compatibility is not a request to contact support.
+V-N07,Negative,وضعیت درخواست قبلی‌ام را از کجا پیگیری کنم؟,چطور با پشتیبانی تماس بگیرم؟,Support,Hard,Tracking a request is not asking how to contact support.
+V-N08,Negative,می‌خوام اعلان‌هایی که با ایمیل میاد خاموش بشه.,چطور ایمیل حساب کاربری را تغییر بدهم؟,ChangeEmail,Hard,Email notification settings are not changing the account email address.
+V-N09,Negative,ایمیل تأیید حساب هنوز به دستم نرسیده.,چطور ایمیل حساب کاربری را تغییر بدهم؟,ChangeEmail,Hard,Verification-email delivery is not an email-address change.
+V-N10,Negative,پیامک‌های اطلاع‌رسانی حساب رو نمی‌خوام دریافت کنم.,چطور شماره موبایل حسابم را تغییر بدهم؟,ChangeMobile,Hard,SMS notification preference is not changing the mobile number.
+V-N11,Negative,کد تأیید پیامکی برای شماره‌ام ارسال نمی‌شود.,چطور شماره موبایل حسابم را تغییر بدهم؟,ChangeMobile,Hard,SMS verification-code delivery is not a mobile-number change.
+V-N12,Negative,می‌خوام سابقه فعالیت‌های حسابم رو به صورت فایل بگیرم.,چطور اطلاعات پروفایلم را ویرایش کنم؟,EditProfile,Hard,Exporting account activity is not profile editing.
+V-N13,Negative,زبان نمایش سایت رو از کجا عوض کنم؟,چطور اطلاعات پروفایلم را ویرایش کنم؟,EditProfile,Medium,Site-language setting is not necessarily profile-information editing.
+V-N14,Negative,اکانت دارم؛ فقط می‌خوام با همون حساب وارد سایت بشم.,چطور یک حساب کاربری ایجاد کنم؟,CreateAccount,Hard,User already has an account and wants to log in.
+V-N15,Negative,می‌خوام با حساب گوگل وارد بشم؛ ساخت حساب جدید نمی‌خوام.,چطور یک حساب کاربری ایجاد کنم؟,CreateAccount,Hard,External sign-in request explicitly excludes account creation.
+V-N16,Negative,فعلاً می‌خوام حسابم غیرفعال بشه ولی بعداً دوباره برگردم.,چطور حساب کاربری‌ام را حذف کنم؟,DeleteAccount,Hard,Temporary deactivation is not permanent deletion.
+V-N17,Negative,روی این دستگاه می‌خوام از اکانتم خارج بشم.,چطور حساب کاربری‌ام را حذف کنم؟,DeleteAccount,Hard,Logout must not be confused with account deletion.
+V-N18,Negative,اسم کاربری حسابم رو یادم رفته؛ چطور پیداش کنم؟,رمز عبورم را فراموش کرده‌ام، چه کار کنم؟,ForgotPassword,Hard,Username recovery is not password recovery.
+V-N19,Negative,پیغام می‌گه رمز حسابم منقضی شده و باید عوضش کنم.,حساب کاربری من قفل شده است، چه کار کنم؟,LockedAccount,Hard,Expired password is not the same as a locked account.
+V-N20,Negative,می‌خوام ایمیل حسابم رو عوض کنم ولی ورودم مشکلی نداره.,چرا نمی‌توانم وارد حساب کاربری شوم؟,LoginProblem,Hard,"Correct intent is ChangeEmail, not LoginProblem."
