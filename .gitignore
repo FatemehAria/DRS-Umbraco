@@ -504,3 +504,10 @@ Experiments/Relevance/Model-GTE/
 *.onnx
 *.pt
 *.pth
+
+# Local chatbot test payloads/results
+offline-test.json
+production-config-smoke.json
+production-smoke.json
+published-semantic-test.json
+request.json
