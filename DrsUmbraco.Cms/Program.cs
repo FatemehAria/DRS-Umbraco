@@ -7,6 +7,8 @@ using DrsUmbraco.Cms.Features.Chatbot.Notifications;
 using Umbraco.Cms.Core.Notifications;
 using DrsUmbraco.Cms.Features.Chatbot.Configuration;
 using DrsUmbraco.Cms.Features.Chatbot.Search;
+using DrsUmbraco.Cms.Features.Chatbot.Relevance;
+using Microsoft.Extensions.Options;
 
 WebApplicationBuilder builder =
     WebApplication.CreateBuilder(args);
@@ -85,7 +87,89 @@ builder.Services.AddScoped<IChatbotClarificationExactMatchingService, ChatbotCla
 
 builder.Services.AddScoped<IChatbotDiscriminativeEvidenceService, ChatbotDiscriminativeEvidenceService>();
 
-builder.Services.AddSingleton<IChatbotRelevanceVerifier, AllowAllChatbotRelevanceVerifier>();
+// builder.Services.AddSingleton<IChatbotRelevanceVerifier, AllowAllChatbotRelevanceVerifier>();
+
+builder.Services
+    .AddOptions<BgeRelevanceOptions>()
+    .Bind(
+        builder.Configuration.GetSection(
+            BgeRelevanceOptions.SectionName))
+    .Validate(
+        options =>
+            !string.IsNullOrWhiteSpace(
+                options.ModelPath),
+        "BGE relevance ModelPath is required.")
+    .Validate(
+        options =>
+            !string.IsNullOrWhiteSpace(
+                options.TokenizerPath),
+        "BGE relevance TokenizerPath is required.")
+    .Validate(
+        options =>
+            float.IsFinite(
+                options.Threshold),
+        "BGE relevance Threshold must be finite.")
+    .ValidateOnStart();
+
+builder.Services.AddSingleton<
+    BgeRelevanceTokenizer>(
+    serviceProvider =>
+    {
+        IWebHostEnvironment environment =
+            serviceProvider
+                .GetRequiredService<
+                    IWebHostEnvironment>();
+
+        BgeRelevanceOptions options =
+            serviceProvider
+                .GetRequiredService<
+                    IOptions<BgeRelevanceOptions>>()
+                .Value;
+
+        string tokenizerPath =
+            Path.IsPathRooted(
+                options.TokenizerPath)
+                ? options.TokenizerPath
+                : Path.Combine(
+                    environment.ContentRootPath,
+                    options.TokenizerPath);
+
+        return new BgeRelevanceTokenizer(
+            Path.GetFullPath(
+                tokenizerPath));
+    });
+
+builder.Services.AddSingleton<
+    BgeRelevanceModel>(
+    serviceProvider =>
+    {
+        IWebHostEnvironment environment =
+            serviceProvider
+                .GetRequiredService<
+                    IWebHostEnvironment>();
+
+        BgeRelevanceOptions options =
+            serviceProvider
+                .GetRequiredService<
+                    IOptions<BgeRelevanceOptions>>()
+                .Value;
+
+        string modelPath =
+            Path.IsPathRooted(
+                options.ModelPath)
+                ? options.ModelPath
+                : Path.Combine(
+                    environment.ContentRootPath,
+                    options.ModelPath);
+
+        return new BgeRelevanceModel(
+            Path.GetFullPath(
+                modelPath));
+    });
+
+builder.Services.AddSingleton<IBgeRelevanceScorer, BgeRelevanceScorer>();
+
+builder.Services.AddSingleton<IChatbotRelevanceVerifier, BgeChatbotRelevanceVerifier>();
 
 builder.Services
     .AddOptions<ChatbotNoMatchDecisionOptions>()

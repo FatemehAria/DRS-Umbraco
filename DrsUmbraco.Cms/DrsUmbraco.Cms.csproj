@@ -19,9 +19,16 @@
   <ItemGroup>
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" />
-    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3"
+      Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="AIModel\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- Razor files are needed for the backoffice to work correctly -->
@@ -34,7 +41,8 @@
     <RazorCompileOnPublish>false</RazorCompileOnPublish>
   </PropertyGroup>
 
-  <Target Name="InstallFrontendDependencies" BeforeTargets="BuildCssBundle" Condition="!Exists('$(ProjectDir)node_modules')">
+  <Target Name="InstallFrontendDependencies" BeforeTargets="BuildCssBundle"
+    Condition="!Exists('$(ProjectDir)node_modules')">
 
     <Message Text="Installing frontend dependencies..." Importance="high" />
 
@@ -48,7 +56,8 @@
 
     <Exec WorkingDirectory="$(ProjectDir)" Command="npm run css:build" />
 
-    <Error Condition="!Exists('$(ProjectDir)wwwroot/css/sama.bundle.min.css')" Text="CSS bundle was not generated at wwwroot/css/sama.bundle.min.css." />
+    <Error Condition="!Exists('$(ProjectDir)wwwroot/css/sama.bundle.min.css')"
+      Text="CSS bundle was not generated at wwwroot/css/sama.bundle.min.css." />
 
   </Target>
 </Project>

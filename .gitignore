@@ -489,3 +489,18 @@ DrsUmbraco.Cms/appsettings.*.json
 
 # Keep safe sample configs
 !DrsUmbraco.Cms/appsettings.example.json
+
+# AI models - local only
+AIModel/
+
+Experiments/Relevance/Model/
+Experiments/Relevance/Model-BGE/
+Experiments/Relevance/Model-BGE-FP32/
+Experiments/Relevance/Model-BGE-Static-INT8/
+Experiments/Relevance/Model-GTE/
+
+# Common model binaries
+*.gguf
+*.onnx
+*.pt
+*.pth
