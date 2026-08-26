@@ -511,3 +511,6 @@ production-config-smoke.json
 production-smoke.json
 published-semantic-test.json
 request.json
+
+# Chatbot benchmark generated results
+BenchmarkResults/

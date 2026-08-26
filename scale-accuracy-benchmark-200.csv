@@ -1,0 +1,201 @@
+﻿Id,Type,ExpectedKnowledgeItemId,UserQuestion,Category,Intent,Difficulty
+SP-276,Positive,db61323f-a187-52bd-9d37-74f8d1f95087,گزارش مالی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Reports,Reports_28_troubleshoot,Hard
+SP-371,Positive,6b57afb7-4ee0-5a3b-a5f6-049f2c74bf5e,برای قرارداد از کجا باید شروع کنم؟,Contracts,Contracts_38_guide,Medium
+SP-459,Positive,47463b36-6d10-56f9-9e57-e9968fbf7343,سابقه‌های قبلی حافظه کش مرورگر رو کجا نشون می‌ده؟,Technical,Technical_46_history,Hard
+N-HARD-34,Negative,,جلسه آنلاین رو از کجا ایجاد کنم؟,OutOfScope-Near,,Hard
+SP-450,Positive,8cee48ba-6141-5de0-9c33-f9b2ef362507,برای رسیدن به مرورگرهای پشتیبانی‌شده باید کدوم منو رو باز کنم؟,Technical,Technical_45_access,Hard
+N-EASY-22,Negative,,کتاب خوب برای یادگیری تاریخ معرفی کن.,OutOfScope-Far,,Easy
+N-EASY-24,Negative,,قیمت بلیط هواپیما به استانبول چقدره؟,OutOfScope-Far,,Easy
+SP-440,Positive,29b84872-c2e0-5d20-a572-d3788e119132,برای رسیدن به تاریخچه فعالیت باید کدوم منو رو باز کنم؟,Audit,Audit_44_access,Hard
+SP-160,Positive,ca6baec0-3e5f-5f39-aef1-a377557e95fb,برای رسیدن به فاکتور باید کدوم منو رو باز کنم؟,Billing,Billing_16_access,Hard
+N-HARD-06,Negative,,چطور یک کلید API جدید بسازم؟,OutOfScope-Near,,Hard
+N-HARD-21,Negative,,امضای دیجیتال سند رو از کجا انجام بدم؟,OutOfScope-Near,,Hard
+N-EASY-32,Negative,,کالری یک سیب چقدره؟,OutOfScope-Far,,Easy
+SP-438,Positive,955f0ee0-2a96-546e-851b-8e05f7c9cfaf,می‌خوام بدونم تاریخچه فعالیت الان در چه مرحله‌ایه.,Audit,Audit_44_status,Medium
+SP-329,Positive,d2ec0102-9a42-5870-b0a5-59947837bc57,سابقه‌های قبلی سطح دسترسی رو کجا نشون می‌ده؟,Access,Access_33_history,Hard
+N-EASY-31,Negative,,یک برنامه تمرینی بدنسازی بده.,OutOfScope-Far,,Easy
+SP-059,Positive,21579629-01af-578b-84d5-5e1b0f8d9157,سابقه‌های قبلی کد تأیید رو کجا نشون می‌ده؟,Security,Security_06_history,Hard
+SP-315,Positive,8beba534-27bf-5d39-9f2c-eee7bb7214e5,دیگه نقش کاربری رو نمی‌خوام؛ چطور خاموشش کنم؟,Access,Access_32_disable,Medium
+N-HARD-03,Negative,,آیا سایت از passkey برای ورود پشتیبانی می‌کنه؟,OutOfScope-Near,,Hard
+SP-397,Positive,e8d3c4dc-24c1-5631-b42f-7baa63784c4b,قبل از استفاده از زبان رابط چه چیزهایی باید بدونم؟,Preferences,Preferences_40_requirements,Hard
+SP-378,Positive,52662bac-d275-5477-ab99-5e81b56406a2,می‌خوام بدونم قرارداد الان در چه مرحله‌ایه.,Contracts,Contracts_38_status,Medium
+N-EASY-37,Negative,,چطور مالیات شخصی رو محاسبه کنم؟,OutOfScope-Far,,Easy
+N-EASY-28,Negative,,بهترین لپ‌تاپ برای برنامه‌نویسی چیه؟,OutOfScope-Far,,Easy
+SP-456,Positive,cc98b74e-77a7-527f-8874-f8435d175fc8,حافظه کش مرورگر به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Technical,Technical_46_troubleshoot,Hard
+SP-117,Positive,9ec9817e-539a-5465-8d2f-ac8be109b7e3,قبل از استفاده از تیکت پشتیبانی چه چیزهایی باید بدونم؟,Support,Support_12_requirements,Hard
+SP-237,Positive,161d845c-7773-5e35-b7ab-f175e06b7bc2,قبل از استفاده از درخواست خدمات چه چیزهایی باید بدونم؟,Services,Services_24_requirements,Hard
+SP-019,Positive,caeced89-d73b-5d7a-89ae-71db2b26a94f,سابقه‌های قبلی شماره تماس اضطراری رو کجا نشون می‌ده؟,Profile,Profile_02_history,Hard
+N-EASY-02,Negative,,قیمت دلار امروز چنده؟,OutOfScope-Far,,Easy
+N-HARD-40,Negative,,اتصال به Microsoft Teams رو از کجا انجام بدم؟,OutOfScope-Near,,Hard
+N-EASY-11,Negative,,چطور گیتار الکتریک یاد بگیرم؟,OutOfScope-Far,,Easy
+N-HARD-25,Negative,,چطور واحد پول حساب رو تغییر بدم؟,OutOfScope-Near,,Hard
+SP-436,Positive,e2d6023a-e76c-5936-a367-777bd8bf5678,تاریخچه فعالیت به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Audit,Audit_44_troubleshoot,Hard
+N-EASY-20,Negative,,پایتخت کانادا کجاست؟,OutOfScope-Far,,Easy
+SP-396,Positive,4af38ffb-4cbd-51f6-81fa-b03434ca5f05,زبان رابط به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Preferences,Preferences_40_troubleshoot,Hard
+SP-007,Positive,8bbb80b7-f2d6-56aa-9b18-b000c69da54a,قبل از استفاده از ایمیل اطلاع‌رسانی چه چیزهایی باید بدونم؟,Notifications,Notifications_01_requirements,Hard
+N-EASY-04,Negative,,طرز تهیه قورمه سبزی رو بگو.,OutOfScope-Far,,Easy
+SP-447,Positive,f9cd3b3b-5a23-574f-a2ea-a599b6eb33d4,قبل از استفاده از مرورگرهای پشتیبانی‌شده چه چیزهایی باید بدونم؟,Technical,Technical_45_requirements,Hard
+N-HARD-18,Negative,,مجوز دوربین سایت رو از کجا مدیریت کنم؟,OutOfScope-Near,,Hard
+SP-439,Positive,f470ccb0-8ea1-5bb9-9718-9dceaf0b51ce,سابقه‌های قبلی تاریخچه فعالیت رو کجا نشون می‌ده؟,Audit,Audit_44_history,Hard
+N-EASY-06,Negative,,بهترین گوشی میان‌رده امسال چیه؟,OutOfScope-Far,,Easy
+SP-027,Positive,9cf9d5d4-aeb1-5960-8d64-a89eef97fa4a,قبل از استفاده از آدرس پستی چه چیزهایی باید بدونم؟,Profile,Profile_03_requirements,Hard
+SP-131,Positive,f910a2ff-f37e-5f78-bc53-0e321be1abc5,برای فایل بارگذاری‌شده از کجا باید شروع کنم؟,Documents,Documents_14_guide,Medium
+SP-269,Positive,d92e51c6-8ab1-5cd3-859f-412d65024429,سابقه‌های قبلی گزارش فعالیت رو کجا نشون می‌ده؟,Reports,Reports_27_history,Hard
+N-HARD-14,Negative,,چطور زبان عربی رو به پنل اضافه کنم؟,OutOfScope-Near,,Hard
+SP-221,Positive,7a38a825-7462-518f-8a4d-276c570e76f0,برای سفارش از کجا باید شروع کنم؟,Orders,Orders_23_guide,Medium
+SP-247,Positive,2cc46055-258c-5bc7-bfd8-cd25398f554a,قبل از استفاده از اشتراک چه چیزهایی باید بدونم؟,Services,Services_25_requirements,Hard
+N-HARD-09,Negative,,همگام‌سازی با Outlook رو از کجا انجام بدم؟,OutOfScope-Near,,Hard
+SP-399,Positive,ea8bd693-eaf1-54bd-be9e-6d0b758bd464,سابقه‌های قبلی زبان رابط رو کجا نشون می‌ده؟,Preferences,Preferences_40_history,Hard
+SP-228,Positive,cc493dfe-6907-5998-bfd0-deb8e5aa888c,می‌خوام بدونم سفارش الان در چه مرحله‌ایه.,Orders,Orders_23_status,Medium
+SP-156,Positive,19f51e6c-79c8-50b6-bdee-5ded48f5a402,فاکتور به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Billing,Billing_16_troubleshoot,Hard
+SP-326,Positive,3fd6a5a4-6cf6-5838-9501-448981ad23fd,سطح دسترسی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Access,Access_33_troubleshoot,Hard
+SP-016,Positive,20359054-77cc-5de1-b022-e2997d892171,شماره تماس اضطراری به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Profile,Profile_02_troubleshoot,Hard
+N-EASY-39,Negative,,چطور ویندوز رو نصب کنم؟,OutOfScope-Far,,Easy
+SP-375,Positive,1c40a21e-11d4-5be1-b811-be85186f864c,دیگه قرارداد رو نمی‌خوام؛ چطور خاموشش کنم؟,Contracts,Contracts_38_disable,Medium
+SP-317,Positive,9cd78691-6ebb-55bb-8ccc-7ecdbf3cfb42,قبل از استفاده از نقش کاربری چه چیزهایی باید بدونم؟,Access,Access_32_requirements,Hard
+SP-426,Positive,055e38de-19d6-5df1-af45-5aa20044239e,رضایت‌نامه به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Privacy,Privacy_43_troubleshoot,Hard
+SP-427,Positive,9c12ce09-92d2-5e63-90ff-7fa027cf4975,قبل از استفاده از رضایت‌نامه چه چیزهایی باید بدونم؟,Privacy,Privacy_43_requirements,Hard
+SP-026,Positive,2d693a7d-f75d-5241-8fd3-a85d26494dc5,آدرس پستی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Profile,Profile_03_troubleshoot,Hard
+SP-146,Positive,7d8b548f-7c5b-5e5b-b592-57bff32aff7b,سند هویتی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Documents,Documents_15_troubleshoot,Hard
+SP-349,Positive,7d21dc3e-6a00-5b2d-be16-46c1eaa17bf7,سابقه‌های قبلی واحد سازمانی رو کجا نشون می‌ده؟,Organization,Organization_35_history,Hard
+SP-047,Positive,2eabf7a1-8bad-58e2-8d0b-983bd3e0966d,قبل از استفاده از احراز هویت دومرحله‌ای چه چیزهایی باید بدونم؟,Security,Security_05_requirements,Hard
+N-EASY-07,Negative,,چطور برای کنکور برنامه‌ریزی کنم؟,OutOfScope-Far,,Easy
+N-EASY-10,Negative,,ماشینم روشن نمی‌شه، مشکل از چی می‌تونه باشه؟,OutOfScope-Far,,Easy
+SP-050,Positive,636822ac-f80b-57b5-9a89-6ccf0edc5a73,برای رسیدن به احراز هویت دومرحله‌ای باید کدوم منو رو باز کنم؟,Security,Security_05_access,Hard
+SP-460,Positive,374eeb18-0065-5a1b-8601-bca444688252,برای رسیدن به حافظه کش مرورگر باید کدوم منو رو باز کنم؟,Technical,Technical_46_access,Hard
+SP-009,Positive,a406116d-1b13-5bb9-8618-994676f97316,سابقه‌های قبلی ایمیل اطلاع‌رسانی رو کجا نشون می‌ده؟,Notifications,Notifications_01_history,Hard
+SP-166,Positive,f987d9e7-83cc-58f1-955a-6eb13db90d5f,رسید پرداخت به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Billing,Billing_17_troubleshoot,Hard
+SP-297,Positive,78b3d959-903e-5ae9-bcc8-375ae5c5f02b,قبل از استفاده از فیلتر جستجو چه چیزهایی باید بدونم؟,Search,Search_30_requirements,Hard
+N-EASY-29,Negative,,امروز بارون میاد؟,OutOfScope-Far,,Easy
+N-EASY-40,Negative,,فرق HTTP و HTTPS چیه؟,OutOfScope-Far,,Easy
+N-HARD-35,Negative,,چطور فرم سفارشی جدید بسازم؟,OutOfScope-Near,,Hard
+N-EASY-01,Negative,,هوای تهران فردا چطوره؟,OutOfScope-Far,,Easy
+SP-391,Positive,4e130a35-5e70-5475-8c21-23af400f86ad,برای زبان رابط از کجا باید شروع کنم؟,Preferences,Preferences_40_guide,Medium
+SP-435,Positive,da764a9b-4b35-5a02-b995-2fa7628b8e0a,دیگه تاریخچه فعالیت رو نمی‌خوام؛ چطور خاموشش کنم؟,Audit,Audit_44_disable,Medium
+SP-270,Positive,bc66f9af-f340-5f53-9ed2-ec00dde1a6e5,برای رسیدن به گزارش فعالیت باید کدوم منو رو باز کنم؟,Reports,Reports_27_access,Hard
+N-HARD-12,Negative,,اندازه فونت پنل رو چطور بزرگ کنم؟,OutOfScope-Near,,Hard
+N-HARD-01,Negative,,می‌خوام با اثر انگشت وارد حساب بشم؛ از کجا فعالش کنم؟,OutOfScope-Near,,Hard
+N-HARD-02,Negative,,ورود با تشخیص چهره رو چطور روشن کنم؟,OutOfScope-Near,,Hard
+SP-339,Positive,9b5d585e-16e6-5527-b790-c7d16af39329,سابقه‌های قبلی سازمان رو کجا نشون می‌ده؟,Organization,Organization_34_history,Hard
+SP-139,Positive,b5f1a577-9079-5840-a4c4-41993529fb17,سابقه‌های قبلی فایل بارگذاری‌شده رو کجا نشون می‌ده؟,Documents,Documents_14_history,Hard
+N-HARD-28,Negative,,چطور یک حساب بانکی برای تسویه ثبت کنم؟,OutOfScope-Near,,Hard
+N-EASY-09,Negative,,برای کاهش مصرف برق چه کار کنم؟,OutOfScope-Far,,Easy
+SP-400,Positive,124eed74-8426-5f0f-ae3a-3a5c619bfeb0,برای رسیدن به زبان رابط باید کدوم منو رو باز کنم؟,Preferences,Preferences_40_access,Hard
+N-HARD-04,Negative,,چطور با حساب گوگل وارد سایت بشم؟,OutOfScope-Near,,Hard
+SP-147,Positive,237a062b-0361-5c68-be7d-03730c71670c,قبل از استفاده از سند هویتی چه چیزهایی باید بدونم؟,Documents,Documents_15_requirements,Hard
+N-HARD-16,Negative,,اعلان داخل اپ موبایل رو از کجا تنظیم کنم؟,OutOfScope-Near,,Hard
+N-EASY-05,Negative,,نتیجه بازی دیشب چی شد؟,OutOfScope-Far,,Easy
+SP-267,Positive,3f0e054c-99c4-5818-8842-ba291d13ab2d,قبل از استفاده از گزارش فعالیت چه چیزهایی باید بدونم؟,Reports,Reports_27_requirements,Hard
+SP-106,Positive,64cf05ad-a06b-53c1-8ae6-4b125389eb43,درخواست پشتیبانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Support,Support_11_troubleshoot,Hard
+N-EASY-19,Negative,,چطور در اکسل نمودار بسازم؟,OutOfScope-Far,,Easy
+SP-346,Positive,301baa03-1571-56e5-a8ca-d803d1da7857,واحد سازمانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Organization,Organization_35_troubleshoot,Hard
+N-EASY-25,Negative,,یک رستوران خوب نزدیک من پیدا کن.,OutOfScope-Far,,Easy
+N-EASY-08,Negative,,یک فیلم کمدی خوب معرفی کن.,OutOfScope-Far,,Easy
+SP-319,Positive,f22223db-49fd-568b-b505-ecf0b517583d,سابقه‌های قبلی نقش کاربری رو کجا نشون می‌ده؟,Access,Access_32_history,Hard
+N-HARD-24,Negative,,چطور لوگوی سازمان رو روی فاکتور چاپ کنم؟,OutOfScope-Near,,Hard
+N-HARD-10,Negative,,چطور ورود با QR Code رو فعال کنم؟,OutOfScope-Near,,Hard
+N-HARD-32,Negative,,وظایف تیم رو از کجا مدیریت کنم؟,OutOfScope-Near,,Hard
+SP-109,Positive,0defaf77-be5e-5736-bee3-3484f4ab07ba,سابقه‌های قبلی درخواست پشتیبانی رو کجا نشون می‌ده؟,Support,Support_11_history,Hard
+SP-296,Positive,352dc9a4-1b69-5bbf-87c9-490f999df266,فیلتر جستجو به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Search,Search_30_troubleshoot,Hard
+SP-020,Positive,3a2791a1-30e6-536b-9119-78fc32911cc9,برای رسیدن به شماره تماس اضطراری باید کدوم منو رو باز کنم؟,Profile,Profile_02_access,Hard
+N-EASY-27,Negative,,رم کامپیوترم رو چطور ارتقا بدم؟,OutOfScope-Far,,Easy
+SP-116,Positive,2fee746b-ac89-5011-bb27-86a8319971f2,تیکت پشتیبانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Support,Support_12_troubleshoot,Hard
+N-EASY-12,Negative,,بهترین مسیر کوهنوردی اطراف تهران کجاست؟,OutOfScope-Far,,Easy
+SP-017,Positive,4c256519-6c87-5ff1-a29c-0d657a532c8b,قبل از استفاده از شماره تماس اضطراری چه چیزهایی باید بدونم؟,Profile,Profile_02_requirements,Hard
+SP-446,Positive,6d516bc6-a53c-51d4-be79-84af2066dd40,مرورگرهای پشتیبانی‌شده به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Technical,Technical_45_troubleshoot,Hard
+N-EASY-26,Negative,,چطور حافظه گوشی رو خالی کنم؟,OutOfScope-Far,,Easy
+SP-407,Positive,b4004427-d092-5b47-a8a5-d421efd8ed20,قبل از استفاده از منطقه زمانی چه چیزهایی باید بدونم؟,Preferences,Preferences_41_requirements,Hard
+SP-430,Positive,82f394fd-fe26-5860-96dd-284b2abe249f,برای رسیدن به رضایت‌نامه باید کدوم منو رو باز کنم؟,Privacy,Privacy_43_access,Hard
+N-EASY-21,Negative,,برای سردرد چه کار کنم؟,OutOfScope-Far,,Easy
+SP-226,Positive,4e4a4cc1-51d5-55b8-92f6-068a76f787ac,سفارش به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Orders,Orders_23_troubleshoot,Hard
+SP-249,Positive,c65f941b-8ea4-5eb6-be43-ac1ded8a5a91,سابقه‌های قبلی اشتراک رو کجا نشون می‌ده؟,Services,Services_25_history,Hard
+SP-431,Positive,82a5b6d5-d994-51c8-9f97-7175b699aa0c,برای تاریخچه فعالیت از کجا باید شروع کنم؟,Audit,Audit_44_guide,Medium
+SP-417,Positive,24ad4f0a-8bee-5776-9077-a744f8039ff3,قبل از استفاده از تنظیمات حریم خصوصی چه چیزهایی باید بدونم؟,Privacy,Privacy_42_requirements,Hard
+SP-046,Positive,75339938-c481-594d-8bd7-4acfd932b76d,احراز هویت دومرحله‌ای به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Security,Security_05_troubleshoot,Hard
+N-HARD-22,Negative,,چطور سند رو با گواهی دیجیتال امضا کنم؟,OutOfScope-Near,,Hard
+SP-336,Positive,ceacc1bb-c5f2-58de-a9f3-7cebaedb1ae3,سازمان به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Organization,Organization_34_troubleshoot,Hard
+SP-227,Positive,e4af4b59-d956-5e26-9e4f-cd1fa4f5cf91,قبل از استفاده از سفارش چه چیزهایی باید بدونم؟,Orders,Orders_23_requirements,Hard
+N-HARD-30,Negative,,چطور برداشت خودکار رو غیرفعال کنم؟,OutOfScope-Near,,Hard
+SP-406,Positive,7f3d5cd4-c5ee-5490-a4fc-63dcc0917df6,منطقه زمانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Preferences,Preferences_41_troubleshoot,Hard
+SP-229,Positive,cabe1217-525f-5b4c-8d82-fb35d62562fd,سابقه‌های قبلی سفارش رو کجا نشون می‌ده؟,Orders,Orders_23_history,Hard
+SP-149,Positive,4c560742-97b3-5790-8d43-ba17ae07e7ff,سابقه‌های قبلی سند هویتی رو کجا نشون می‌ده؟,Documents,Documents_15_history,Hard
+N-EASY-14,Negative,,چطور رزومه انگلیسی بنویسم؟,OutOfScope-Far,,Easy
+SP-419,Positive,28948209-d8d3-5907-843a-2288fda056f4,سابقه‌های قبلی تنظیمات حریم خصوصی رو کجا نشون می‌ده؟,Privacy,Privacy_42_history,Hard
+SP-309,Positive,2367e3dc-178c-5bbd-a4f9-5ecba88a9e30,سابقه‌های قبلی جستجوی پیشرفته رو کجا نشون می‌ده؟,Search,Search_31_history,Hard
+N-HARD-38,Negative,,ویجت‌های داشبورد رو از کجا اضافه کنم؟,OutOfScope-Near,,Hard
+N-EASY-33,Negative,,چطور گل رز رو نگهداری کنم؟,OutOfScope-Far,,Easy
+SP-090,Positive,2e49709f-7687-5c96-b889-3ca679f55f32,برای رسیدن به اعلان‌های داخل سایت باید کدوم منو رو باز کنم؟,Notifications,Notifications_09_access,Hard
+SP-096,Positive,74ebe004-dfc6-5774-9098-410a8d5455e3,پیامک اطلاع‌رسانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Notifications,Notifications_10_troubleshoot,Hard
+SP-150,Positive,da66458a-9770-5069-9784-75de577d9793,برای رسیدن به سند هویتی باید کدوم منو رو باز کنم؟,Documents,Documents_15_access,Hard
+N-HARD-39,Negative,,چطور اعلان Slack رو فعال کنم؟,OutOfScope-Near,,Hard
+N-EASY-30,Negative,,چطور زبان انگلیسی رو سریع‌تر یاد بگیرم؟,OutOfScope-Far,,Easy
+SP-056,Positive,64da39a3-953e-5e73-a944-398ef28eec83,کد تأیید به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Security,Security_06_troubleshoot,Hard
+SP-327,Positive,0c0cc7a9-fb42-5617-85dc-6f2311afbe65,قبل از استفاده از سطح دسترسی چه چیزهایی باید بدونم؟,Access,Access_33_requirements,Hard
+SP-167,Positive,c7734c84-6911-53ec-8126-36efd742f37a,قبل از استفاده از رسید پرداخت چه چیزهایی باید بدونم؟,Billing,Billing_17_requirements,Hard
+SP-380,Positive,ac62dba3-f8aa-54ff-a031-1e2670bdab8f,برای رسیدن به قرارداد باید کدوم منو رو باز کنم؟,Contracts,Contracts_38_access,Hard
+SP-420,Positive,4597fecf-ac53-54f5-874b-4edd72aa5635,برای رسیدن به تنظیمات حریم خصوصی باید کدوم منو رو باز کنم؟,Privacy,Privacy_42_access,Hard
+SP-299,Positive,508bdbb8-d4ab-5a50-a52f-e870940c4a33,سابقه‌های قبلی فیلتر جستجو رو کجا نشون می‌ده؟,Search,Search_30_history,Hard
+SP-449,Positive,1c888b07-07ff-51b3-83e0-09529c5843e0,سابقه‌های قبلی مرورگرهای پشتیبانی‌شده رو کجا نشون می‌ده؟,Technical,Technical_45_history,Hard
+SP-057,Positive,0e5e5869-a63a-5d3d-8b93-2e9c9b1e6e0b,قبل از استفاده از کد تأیید چه چیزهایی باید بدونم؟,Security,Security_06_requirements,Hard
+N-HARD-23,Negative,,قالب چاپ فاکتور رو چطور تغییر بدم؟,OutOfScope-Near,,Hard
+SP-416,Positive,6cd526a7-3949-5118-822d-7d1fb4859184,تنظیمات حریم خصوصی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Privacy,Privacy_42_troubleshoot,Hard
+SP-277,Positive,19739deb-e609-5bc6-9c01-c8836fa5e55d,قبل از استفاده از گزارش مالی چه چیزهایی باید بدونم؟,Reports,Reports_28_requirements,Hard
+SP-316,Positive,ee456eaa-212a-5c0b-8d98-e9c8a86f7e7b,نقش کاربری به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Access,Access_32_troubleshoot,Hard
+N-EASY-13,Negative,,برای مصاحبه شغلی چی بپوشم؟,OutOfScope-Far,,Easy
+SP-239,Positive,1bd1ed65-691d-538c-bcdf-4b294f316191,سابقه‌های قبلی درخواست خدمات رو کجا نشون می‌ده؟,Services,Services_24_history,Hard
+SP-310,Positive,e1026145-508c-5aee-884b-581189f5a8d6,برای رسیدن به جستجوی پیشرفته باید کدوم منو رو باز کنم؟,Search,Search_31_access,Hard
+SP-240,Positive,09ad0cb3-621e-5a02-8b51-0128f6abaafc,برای رسیدن به درخواست خدمات باید کدوم منو رو باز کنم؟,Services,Services_24_access,Hard
+SP-029,Positive,f18ecbf6-aff8-5a46-a01c-98bc825bd824,سابقه‌های قبلی آدرس پستی رو کجا نشون می‌ده؟,Profile,Profile_03_history,Hard
+N-EASY-03,Negative,,برای سفر به شیراز چه هتلی خوبه؟,OutOfScope-Far,,Easy
+N-HARD-36,Negative,,Workflow جدید رو چطور طراحی کنم؟,OutOfScope-Near,,Hard
+SP-320,Positive,27f2c846-8451-5ac7-a3ed-d1d5497ec728,برای رسیدن به نقش کاربری باید کدوم منو رو باز کنم؟,Access,Access_32_access,Hard
+N-HARD-27,Negative,,چطور مالیات بر ارزش افزوده رو محاسبه کنم؟,OutOfScope-Near,,Hard
+N-EASY-23,Negative,,چطور عکس رو به سبک کارتونی تبدیل کنم؟,OutOfScope-Far,,Easy
+N-HARD-08,Negative,,چطور اتصال به تقویم گوگل رو فعال کنم؟,OutOfScope-Near,,Hard
+SP-300,Positive,d790407c-1229-5548-a8bf-cf210f3271db,برای رسیدن به فیلتر جستجو باید کدوم منو رو باز کنم؟,Search,Search_30_access,Hard
+N-HARD-11,Negative,,حالت تاریک سایت رو از کجا روشن کنم؟,OutOfScope-Near,,Hard
+SP-246,Positive,0a994c01-d1e2-52ce-83f4-78f30ca4a633,اشتراک به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Services,Services_25_troubleshoot,Hard
+SP-356,Positive,36d40d4d-9acd-5a40-8335-6c6e5aa56f8b,مخاطب به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Organization,Organization_36_troubleshoot,Hard
+SP-347,Positive,5d92e929-04d3-528c-9d3d-21340c6f51b8,قبل از استفاده از واحد سازمانی چه چیزهایی باید بدونم؟,Organization,Organization_35_requirements,Hard
+SP-176,Positive,94bfb499-fcac-5b89-a842-580ce4939b91,تراکنش به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Billing,Billing_18_troubleshoot,Hard
+SP-107,Positive,2e6f4a39-f2d6-5604-972f-060bfbea28ba,قبل از استفاده از درخواست پشتیبانی چه چیزهایی باید بدونم؟,Support,Support_11_requirements,Hard
+SP-376,Positive,751c9337-dc07-5272-a814-54611d49b083,قرارداد به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Contracts,Contracts_38_troubleshoot,Hard
+SP-286,Positive,6c92a4ff-8ff8-5bfb-83e2-26c4e2288215,خروجی اکسل به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Reports,Reports_29_troubleshoot,Hard
+N-EASY-38,Negative,,بهترین دوربین برای عکاسی مبتدی چیه؟,OutOfScope-Far,,Easy
+N-HARD-29,Negative,,تسویه خودکار بانکی رو از کجا فعال کنم؟,OutOfScope-Near,,Hard
+SP-230,Positive,3e33b3e1-0630-5a95-ae71-a00de8582f7a,برای رسیدن به سفارش باید کدوم منو رو باز کنم؟,Orders,Orders_23_access,Hard
+SP-236,Positive,6bdad741-79d6-5fb0-bc84-28280c7a946f,درخواست خدمات به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Services,Services_24_troubleshoot,Hard
+SP-169,Positive,c6920fb3-f0de-5a2c-947f-3a0f06f39e2c,سابقه‌های قبلی رسید پرداخت رو کجا نشون می‌ده؟,Billing,Billing_17_history,Hard
+N-HARD-37,Negative,,چطور یک داشبورد سفارشی بسازم؟,OutOfScope-Near,,Hard
+N-HARD-26,Negative,,نرخ تبدیل ارز رو از کجا تنظیم کنم؟,OutOfScope-Near,,Hard
+N-EASY-36,Negative,,برای خرید خانه چه نکاتی مهمه؟,OutOfScope-Far,,Easy
+SP-225,Positive,a62ff42a-0f91-55dc-938d-a1890bd47b62,دیگه سفارش رو نمی‌خوام؛ چطور خاموشش کنم؟,Orders,Orders_23_disable,Medium
+SP-307,Positive,61c593da-a933-5fc2-8f29-2627e84ce56f,قبل از استفاده از جستجوی پیشرفته چه چیزهایی باید بدونم؟,Search,Search_31_requirements,Hard
+SP-006,Positive,a70bb018-86e1-5e23-8e86-b2040e30de64,ایمیل اطلاع‌رسانی به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Notifications,Notifications_01_troubleshoot,Hard
+N-HARD-17,Negative,,چطور موقعیت مکانی رو برای سایت فعال کنم؟,OutOfScope-Near,,Hard
+SP-140,Positive,6202a32f-2c42-50f2-bd56-59d30c613343,برای رسیدن به فایل بارگذاری‌شده باید کدوم منو رو باز کنم؟,Documents,Documents_14_access,Hard
+N-EASY-16,Negative,,امروز چه روزیه؟,OutOfScope-Far,,Easy
+N-EASY-17,Negative,,ده کیلومتر چند مایل میشه؟,OutOfScope-Far,,Easy
+SP-379,Positive,02e6d68f-13a8-514b-95c2-34f87dba13b0,سابقه‌های قبلی قرارداد رو کجا نشون می‌ده؟,Contracts,Contracts_38_history,Hard
+SP-374,Positive,6e835b5b-954a-5a26-b39a-dc5a0eb9f519,قرارداد فعلی مناسب نیست؛ از کجا عوضش کنم؟,Contracts,Contracts_38_change,Medium
+N-HARD-19,Negative,,مجوز میکروفون رو برای تماس آنلاین چطور فعال کنم؟,OutOfScope-Near,,Hard
+SP-087,Positive,e2bfb918-7f03-53c5-9ad2-2fd88851277b,قبل از استفاده از اعلان‌های داخل سایت چه چیزهایی باید بدونم؟,Notifications,Notifications_09_requirements,Hard
+N-EASY-35,Negative,,یه معمای منطقی بگو.,OutOfScope-Far,,Easy
+N-EASY-34,Negative,,بهترین فصل سفر به شمال چه موقعه؟,OutOfScope-Far,,Easy
+N-HARD-20,Negative,,چطور فایل PDF گزارش رو مستقیم دانلود کنم؟,OutOfScope-Near,,Hard
+SP-266,Positive,4306ca41-6f58-598f-99c2-4b8b0c7a054f,گزارش فعالیت به مشکل خورده و کار نمی‌کنه؛ باید چیکار کنم؟,Reports,Reports_27_troubleshoot,Hard
+SP-010,Positive,21e8a8d0-c846-5ebd-b7ed-7b6e083da598,برای رسیدن به ایمیل اطلاع‌رسانی باید کدوم منو رو باز کنم؟,Notifications,Notifications_01_access,Hard
+SP-127,Positive,80104a7a-d87c-5868-8ec9-4cf2aa66d734,قبل از استفاده از پیوست تیکت چه چیزهایی باید بدونم؟,Support,Support_13_requirements,Hard
+N-EASY-15,Negative,,یک متن تبریک تولد رسمی بنویس.,OutOfScope-Far,,Easy
+N-HARD-13,Negative,,رنگ تم حساب کاربری رو از کجا عوض کنم؟,OutOfScope-Near,,Hard
+N-HARD-33,Negative,,تقویم کاری تیم کجاست؟,OutOfScope-Near,,Hard
+N-HARD-15,Negative,,چطور صدای اعلان‌ها رو تغییر بدم؟,OutOfScope-Near,,Hard
+SP-337,Positive,812ef821-2047-52a8-b8dc-7dbc1fb3a7b3,قبل از استفاده از سازمان چه چیزهایی باید بدونم؟,Organization,Organization_34_requirements,Hard
+N-HARD-31,Negative,,چطور یک پروژه جدید داخل پنل بسازم؟,OutOfScope-Near,,Hard
+N-HARD-05,Negative,,ورود با حساب مایکروسافت از کجاست؟,OutOfScope-Near,,Hard
+N-HARD-07,Negative,,وب‌هوک رو از کجا تعریف کنم؟,OutOfScope-Near,,Hard
+SP-433,Positive,633913d1-0984-552f-8511-a59a8b93d983,برای تنظیم کردن تاریخچه فعالیت باید کجا برم؟,Audit,Audit_44_configure,Easy
+SP-060,Positive,1fb425c4-9908-5d02-a8d2-75a72c169b9a,برای رسیدن به کد تأیید باید کدوم منو رو باز کنم؟,Security,Security_06_access,Hard
+N-EASY-18,Negative,,بورس امروز چرا افت کرد؟,OutOfScope-Far,,Easy
+SP-110,Positive,fbf8f6c6-8bd8-52c2-a40d-3c64178e70fa,برای رسیدن به درخواست پشتیبانی باید کدوم منو رو باز کنم؟,Support,Support_11_access,Hard
+SP-157,Positive,cac78af0-33e5-5998-abd1-d400444ebb20,قبل از استفاده از فاکتور چه چیزهایی باید بدونم؟,Billing,Billing_16_requirements,Hard
