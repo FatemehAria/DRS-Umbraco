@@ -57,8 +57,6 @@ The current website structure includes:
 - `/`
 - `/products/`
 - `/products/{product-name}/`
-- `/news/`
-- `/news/{article-name}/`
 - `/about-us/`
 - `/contact-us/`
 - `/recruitment/`
