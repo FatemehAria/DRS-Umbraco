@@ -1,5 +1,6 @@
 using DrsUmbraco.Cms.Options;
 using Microsoft.Extensions.Options;
+using DrsUmbraco.Cms.Middleware;
 
 namespace DrsUmbraco.Cms.Extensions;
 
@@ -29,10 +30,15 @@ public static class CrmGatewayApplicationBuilderExtensions
 
                 var path = context.Request.Path;
 
+                // var isLocalAuthenticationRoute =
+                //     path.StartsWithSegments("/sso/login") ||
+                //     path.StartsWithSegments("/sso/logout") ||
+                //     path.StartsWithSegments("/login");
+
                 var isLocalAuthenticationRoute =
-                    path.StartsWithSegments("/sso/login") ||
-                    path.StartsWithSegments("/sso/logout") ||
-                    path.StartsWithSegments("/login");
+                        path.StartsWithSegments("/signin") ||
+                        path.StartsWithSegments("/signout") ||
+                        path.StartsWithSegments("/login");
 
                 if (isLocalAuthenticationRoute)
                 {
@@ -65,23 +71,35 @@ public static class CrmGatewayApplicationBuilderExtensions
                     }
 
                     var hasGatewaySession =
-                        context.Request.Cookies.ContainsKey("CrmGatewaySession");
+                        context.Request.Cookies.ContainsKey(
+                            "CrmGatewaySession");
 
                     if (!hasGatewaySession)
                     {
                         if (path.StartsWithSegments("/api"))
                         {
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            context.Response.StatusCode =
+                                StatusCodes.Status401Unauthorized;
+
                             return;
                         }
 
-                        context.Response.Redirect("/sso/login?expired=1");
+                        context.Response.Redirect(
+                            "/signin?expired=1");
+
                         return;
                     }
 
                     await next();
                 });
 
+                proxyApp.UseMiddleware<
+                    CrmGatewayHtmlInjectionMiddleware>();
+
+                proxyApp.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapReverseProxy();
+                });
                 proxyApp.UseEndpoints(endpoints =>
                 {
                     endpoints.MapReverseProxy();

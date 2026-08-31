@@ -33,7 +33,7 @@ public sealed class SsoController : Controller
             siteOptions.Value;
     }
 
-    [HttpGet("login")]
+    [HttpGet("~/signin")]
     public IActionResult Login()
     {
         PreventBrowserCache();
@@ -58,7 +58,7 @@ public sealed class SsoController : Controller
         return View(model);
     }
 
-    [HttpPost("login")]
+    [HttpPost("~/signin")]
     public async Task<IActionResult> Login(
         [FromForm] LoginRequestModel model,
         CancellationToken cancellationToken)
@@ -101,8 +101,8 @@ public sealed class SsoController : Controller
             viewModel);
     }
 
-    [HttpGet("logout")]
-    [HttpGet("logout/{**catchAll}")]
+    [HttpGet("~/signout")]
+    [HttpGet("~/signout/{**catchAll}")]
     [HttpGet("~/login")]
     [HttpGet("~/login/{**catchAll}")]
     public IActionResult Logout()
