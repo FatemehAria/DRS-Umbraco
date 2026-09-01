@@ -9,9 +9,11 @@ using DrsUmbraco.Cms.Features.Chatbot.Configuration;
 using DrsUmbraco.Cms.Features.Chatbot.Search;
 using DrsUmbraco.Cms.Features.Chatbot.Relevance;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
-WebApplicationBuilder builder =
-    WebApplication.CreateBuilder(args);
+Stopwatch applicationStartupStopwatch = Stopwatch.StartNew();
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
@@ -225,7 +227,17 @@ builder.CreateUmbracoBuilder()
 WebApplication app =
     builder.Build();
 
+Stopwatch umbracoBootStopwatch =
+    Stopwatch.StartNew();
+
 await app.BootUmbracoAsync();
+
+umbracoBootStopwatch.Stop();
+
+app.Logger.LogInformation(
+    "Performance metric {MetricName} completed in {ElapsedMs} ms.",
+    "UmbracoBoot",
+    umbracoBootStopwatch.ElapsedMilliseconds);
 
 app.UseResponseCompression();
 
@@ -246,6 +258,17 @@ app.UseUmbraco()
 
         umbraco.UseBackOfficeEndpoints();
         umbraco.UseWebsiteEndpoints();
+    });
+
+app.Lifetime.ApplicationStarted.Register(
+    () =>
+    {
+        applicationStartupStopwatch.Stop();
+
+        app.Logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms.",
+            "ApplicationStartup",
+            applicationStartupStopwatch.ElapsedMilliseconds);
     });
 
 await app.RunAsync();
