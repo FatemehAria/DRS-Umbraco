@@ -4,6 +4,7 @@ using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
+using System.Diagnostics;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Notifications;
 
@@ -32,6 +33,8 @@ public sealed class ChatbotSemanticIndexStartupHandler
             return;
         }
 
+        Stopwatch semanticIndexStopwatch = Stopwatch.StartNew();
+
         try
         {
             using IServiceScope scope =
@@ -41,18 +44,25 @@ public sealed class ChatbotSemanticIndexStartupHandler
                 scope.ServiceProvider
                     .GetRequiredService<IChatbotSemanticIndexBuilder>();
 
-            int candidateCount =
-                indexBuilder.Rebuild();
+            int candidateCount = indexBuilder.Rebuild();
+
+            semanticIndexStopwatch.Stop();
 
             _logger.LogInformation(
-                "Chatbot semantic index built at startup with {CandidateCount} candidates.",
+                "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates.",
+                "SemanticIndexBuild",
+                semanticIndexStopwatch.ElapsedMilliseconds,
                 candidateCount);
         }
         catch (Exception exception)
         {
+            semanticIndexStopwatch.Stop();
+
             _logger.LogError(
                 exception,
-                "Failed to build chatbot semantic index at startup.");
+                "Performance metric {MetricName} failed after {ElapsedMs} ms.",
+                "SemanticIndexBuild",
+                semanticIndexStopwatch.ElapsedMilliseconds);
         }
     }
 }
