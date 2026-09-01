@@ -39,8 +39,6 @@ builder.Services.AddSingleton<IChatbotSemanticDecisionService, ChatbotSemanticDe
 
 builder.Services.AddSingleton<IChatbotSemanticCandidateFactory, ChatbotSemanticCandidateFactory>();
 
-builder.Services.AddSingleton<ILexicalSimilarityCalculator, PersianLexicalSimilarityCalculator>();
-
 builder.Services.AddScoped<IChatbotSemanticIndexUpdater, ChatbotSemanticIndexUpdater>();
 
 builder.Services.AddSingleton<IChatbotHybridSearchService, ChatbotHybridSearchService>();
