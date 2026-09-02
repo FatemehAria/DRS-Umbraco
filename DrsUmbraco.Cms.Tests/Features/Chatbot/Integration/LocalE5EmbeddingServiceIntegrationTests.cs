@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 
+
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Integration;
 
 public sealed class LocalE5EmbeddingServiceIntegrationTests
@@ -17,7 +18,8 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             CreateEnvironment();
 
         XlmRobertaEmbeddingTokenizer tokenizer =
-            new(environment);
+            new(environment,
+            NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);
@@ -46,7 +48,7 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             CreateEnvironment();
 
         XlmRobertaEmbeddingTokenizer tokenizer =
-            new(environment);
+            new(environment, NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);
@@ -104,7 +106,7 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             CreateEnvironment();
 
         XlmRobertaEmbeddingTokenizer tokenizer =
-            new(environment);
+            new(environment, NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);

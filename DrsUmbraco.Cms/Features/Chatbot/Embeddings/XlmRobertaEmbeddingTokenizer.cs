@@ -1,4 +1,5 @@
 using Microsoft.ML.Tokenizers;
+using System.Diagnostics;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 
@@ -6,7 +7,7 @@ public sealed class XlmRobertaEmbeddingTokenizer
     : ILocalEmbeddingTokenizer
 {
     private readonly SentencePieceTokenizer _tokenizer;
-
+    private readonly ILogger<XlmRobertaEmbeddingTokenizer> _logger;
     private const long BeginningOfSentenceTokenId = 0;
     private const long EndOfSentenceTokenId = 2;
     private const long UnknownTokenId = 3;
@@ -14,8 +15,14 @@ public sealed class XlmRobertaEmbeddingTokenizer
     private const int MaxSequenceLength = 512;
     private const int MaxContentTokenCount = MaxSequenceLength - 2;
     public XlmRobertaEmbeddingTokenizer(
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        ILogger<XlmRobertaEmbeddingTokenizer> logger)
     {
+        ArgumentNullException.ThrowIfNull(environment);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _logger = logger;
+
         // 1. مسیر sentencepiece.bpe.model
         string tokenizerPath = Path.Combine(
             environment.ContentRootPath,
@@ -29,6 +36,9 @@ public sealed class XlmRobertaEmbeddingTokenizer
                 "Embedding tokenizer model was not found.",
                 tokenizerPath);
         }
+
+        Stopwatch tokenizerLoadStopwatch = Stopwatch.StartNew();
+
         // 3. باز کردن فایل
         using FileStream stream =
             File.OpenRead(tokenizerPath);
@@ -37,6 +47,13 @@ public sealed class XlmRobertaEmbeddingTokenizer
             stream,
             false,
             false);
+
+        tokenizerLoadStopwatch.Stop();
+
+        _logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms.",
+            "E5TokenizerLoad",
+            tokenizerLoadStopwatch.ElapsedMilliseconds);
         // 4. ساخت SentencePieceTokenizer
 
     }
