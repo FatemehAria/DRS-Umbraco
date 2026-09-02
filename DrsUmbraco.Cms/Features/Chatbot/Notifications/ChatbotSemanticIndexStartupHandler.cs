@@ -33,6 +33,18 @@ public sealed class ChatbotSemanticIndexStartupHandler
             return;
         }
 
+        using Process process = Process.GetCurrentProcess();
+
+        process.Refresh();
+
+        long workingSetBefore = process.WorkingSet64;
+
+        long privateMemoryBefore = process.PrivateMemorySize64;
+
+        long managedMemoryBefore =
+            GC.GetTotalMemory(
+                forceFullCollection: false);
+
         Stopwatch semanticIndexStopwatch = Stopwatch.StartNew();
 
         try
@@ -48,11 +60,42 @@ public sealed class ChatbotSemanticIndexStartupHandler
 
             semanticIndexStopwatch.Stop();
 
+            process.Refresh();
+
+            long workingSetAfter = process.WorkingSet64;
+
+            long privateMemoryAfter = process.PrivateMemorySize64;
+
+            long managedMemoryAfter =
+                GC.GetTotalMemory(
+                    forceFullCollection: false);
+
+            double workingSetBeforeMb = ToMegabytes(workingSetBefore);
+
+            double workingSetAfterMb = ToMegabytes(workingSetAfter);
+
+            double privateMemoryBeforeMb = ToMegabytes(privateMemoryBefore);
+
+            double privateMemoryAfterMb = ToMegabytes(privateMemoryAfter);
+
+            double managedMemoryBeforeMb = ToMegabytes(managedMemoryBefore);
+
+            double managedMemoryAfterMb = ToMegabytes(managedMemoryAfter);
+
             _logger.LogInformation(
-                "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates.",
+                "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates. " +
+                "WorkingSet: {WorkingSetBeforeMb} MB -> {WorkingSetAfterMb} MB. " +
+                "PrivateMemory: {PrivateMemoryBeforeMb} MB -> {PrivateMemoryAfterMb} MB. " +
+                "ManagedMemory: {ManagedMemoryBeforeMb} MB -> {ManagedMemoryAfterMb} MB.",
                 "SemanticIndexBuild",
                 semanticIndexStopwatch.ElapsedMilliseconds,
-                candidateCount);
+                candidateCount,
+                workingSetBeforeMb,
+                workingSetAfterMb,
+                privateMemoryBeforeMb,
+                privateMemoryAfterMb,
+                managedMemoryBeforeMb,
+                managedMemoryAfterMb);
         }
         catch (Exception exception)
         {
@@ -64,5 +107,13 @@ public sealed class ChatbotSemanticIndexStartupHandler
                 "SemanticIndexBuild",
                 semanticIndexStopwatch.ElapsedMilliseconds);
         }
+    }
+
+    private static double ToMegabytes(
+    long bytes)
+    {
+        return Math.Round(
+            bytes / 1024d / 1024d,
+            2);
     }
 }
