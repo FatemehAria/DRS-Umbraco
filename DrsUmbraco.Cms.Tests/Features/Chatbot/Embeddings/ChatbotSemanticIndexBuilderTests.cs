@@ -1,6 +1,7 @@
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Embeddings;
 
@@ -26,7 +27,8 @@ public sealed class ChatbotSemanticIndexBuilderTests
             new(
                 knowledgeService,
                 candidateFactory,
-                semanticIndex);
+                semanticIndex,
+                NullLogger<ChatbotSemanticIndexBuilder>.Instance);
 
         int result = builder.Rebuild();
 
@@ -77,7 +79,8 @@ public sealed class ChatbotSemanticIndexBuilderTests
             new(
                 knowledgeService,
                 candidateFactory,
-                semanticIndex);
+                semanticIndex,
+                NullLogger<ChatbotSemanticIndexBuilder>.Instance);
 
         builder.Rebuild();
 
