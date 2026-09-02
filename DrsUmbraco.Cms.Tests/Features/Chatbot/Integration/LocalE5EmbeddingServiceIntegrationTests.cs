@@ -21,13 +21,16 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             new(environment,
             NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
+        EmbeddingPerformanceMetrics performanceMetrics = new();
+
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
                 tokenizer,
-                model);
+                model,
+                performanceMetrics);
 
         float[] embedding =
             service.Generate(
@@ -50,13 +53,16 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
         XlmRobertaEmbeddingTokenizer tokenizer =
             new(environment, NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
+        EmbeddingPerformanceMetrics performanceMetrics = new();
+
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
                 tokenizer,
-                model);
+                model,
+                performanceMetrics);
 
         float[] embedding =
             service.Generate(
@@ -108,13 +114,16 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
         XlmRobertaEmbeddingTokenizer tokenizer =
             new(environment, NullLogger<XlmRobertaEmbeddingTokenizer>.Instance);
 
+        EmbeddingPerformanceMetrics performanceMetrics = new();
+
         using LocalEmbeddingModel model =
             new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
                 tokenizer,
-                model);
+                model,
+                performanceMetrics);
 
         float[] originalEmbedding =
             service.Generate(

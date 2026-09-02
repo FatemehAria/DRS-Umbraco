@@ -23,12 +23,15 @@ public sealed class ChatbotSemanticIndexBuilderTests
 
         ChatbotSemanticIndex semanticIndex = new();
 
+        EmbeddingPerformanceMetrics performanceMetrics = new();
+
         ChatbotSemanticIndexBuilder builder =
             new(
                 knowledgeService,
                 candidateFactory,
                 semanticIndex,
-                NullLogger<ChatbotSemanticIndexBuilder>.Instance);
+                NullLogger<ChatbotSemanticIndexBuilder>.Instance,
+                performanceMetrics);
 
         int result = builder.Rebuild();
 
@@ -75,12 +78,15 @@ public sealed class ChatbotSemanticIndexBuilderTests
 
         FakeCandidateFactory candidateFactory = new();
 
+        EmbeddingPerformanceMetrics performanceMetrics = new();
+
         ChatbotSemanticIndexBuilder builder =
             new(
                 knowledgeService,
                 candidateFactory,
                 semanticIndex,
-                NullLogger<ChatbotSemanticIndexBuilder>.Instance);
+                NullLogger<ChatbotSemanticIndexBuilder>.Instance,
+                performanceMetrics);
 
         builder.Rebuild();
 

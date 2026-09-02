@@ -29,6 +29,8 @@ builder.Services.AddSingleton<LocalEmbeddingModel>();
 
 builder.Services.AddSingleton<ILocalEmbeddingTokenizer, XlmRobertaEmbeddingTokenizer>();
 
+builder.Services.AddSingleton<EmbeddingPerformanceMetrics>();
+
 builder.Services.AddSingleton<IEmbeddingService, LocalE5EmbeddingService>();
 
 builder.Services.AddSingleton<IChatbotSemanticIndex, ChatbotSemanticIndex>();

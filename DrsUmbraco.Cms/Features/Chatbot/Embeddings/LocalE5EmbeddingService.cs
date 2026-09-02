@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 
 public sealed class LocalE5EmbeddingService
@@ -5,13 +7,16 @@ public sealed class LocalE5EmbeddingService
 {
     private readonly ILocalEmbeddingTokenizer _tokenizer;
     private readonly LocalEmbeddingModel _model;
+    private readonly EmbeddingPerformanceMetrics _performanceMetrics;
 
     public LocalE5EmbeddingService(
         ILocalEmbeddingTokenizer tokenizer,
-        LocalEmbeddingModel model)
+        LocalEmbeddingModel model,
+        EmbeddingPerformanceMetrics performanceMetrics)
     {
         _tokenizer = tokenizer;
         _model = model;
+        _performanceMetrics = performanceMetrics;
     }
 
     public float[] Generate(string text)
@@ -23,18 +28,68 @@ public sealed class LocalE5EmbeddingService
                 "Text is required.",
                 nameof(text));
         }
-        // 2. اضافه کردن query:
-        string modelText = $"query: {text.Trim()}";
-        // 3. Tokenize
-        EmbeddingModelInput input = _tokenizer.Encode(modelText);
-        // 4. اجرای ONNX
-        EmbeddingModelRawOutput output = _model.Run(input);
-        // 5. Mean Pooling
-        float[] embedding = MeanPool(output, input.AttentionMask);
-        // 6. L2 Normalization
-        NormalizeL2(embedding);
-        // 7. return
-        return embedding;
+
+        long pipelineStartedAt = Stopwatch.GetTimestamp();
+
+        try
+        {
+
+            // 2. اضافه کردن query:
+            string modelText = $"query: {text.Trim()}";
+
+            long tokenizationStartedAt =
+                Stopwatch.GetTimestamp();
+
+            // 3. Tokenize
+            EmbeddingModelInput input = _tokenizer.Encode(modelText);
+
+            long tokenizationTicks =
+                Stopwatch.GetTimestamp() -
+                tokenizationStartedAt;
+
+            long inferenceStartedAt =
+                Stopwatch.GetTimestamp();
+
+            // 4. اجرای ONNX
+            EmbeddingModelRawOutput output = _model.Run(input);
+
+            long inferenceTicks =
+                Stopwatch.GetTimestamp() -
+                inferenceStartedAt;
+
+            long postProcessingStartedAt =
+                Stopwatch.GetTimestamp();
+
+
+            // 5. Mean Pooling
+            float[] embedding = MeanPool(output, input.AttentionMask);
+
+            // 6. L2 Normalization
+            NormalizeL2(embedding);
+
+            long postProcessingTicks =
+                Stopwatch.GetTimestamp() -
+                postProcessingStartedAt;
+
+            long pipelineTicks =
+                Stopwatch.GetTimestamp() -
+                pipelineStartedAt;
+
+            _performanceMetrics.RecordSuccess(
+                tokenizationTicks,
+                inferenceTicks,
+                postProcessingTicks,
+                pipelineTicks);
+
+
+            // 7. return
+            return embedding;
+        }
+        catch
+        {
+            _performanceMetrics.RecordFailure();
+            throw;
+        }
 
     }
 

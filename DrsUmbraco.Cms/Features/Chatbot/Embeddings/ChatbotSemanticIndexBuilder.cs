@@ -11,16 +11,19 @@ public sealed class ChatbotSemanticIndexBuilder
     private readonly IChatbotSemanticCandidateFactory _candidateFactory;
     private readonly IChatbotSemanticIndex _semanticIndex;
     private readonly ILogger<ChatbotSemanticIndexBuilder> _logger;
+    private readonly EmbeddingPerformanceMetrics _embeddingPerformanceMetrics;
     public ChatbotSemanticIndexBuilder(
         IChatbotKnowledgeService knowledgeService,
         IChatbotSemanticCandidateFactory candidateFactory,
         IChatbotSemanticIndex semanticIndex,
-        ILogger<ChatbotSemanticIndexBuilder> logger)
+        ILogger<ChatbotSemanticIndexBuilder> logger,
+        EmbeddingPerformanceMetrics embeddingPerformanceMetrics)
     {
         _knowledgeService = knowledgeService;
         _candidateFactory = candidateFactory;
         _semanticIndex = semanticIndex;
         _logger = logger;
+        _embeddingPerformanceMetrics = embeddingPerformanceMetrics;
     }
 
     public int Rebuild()
@@ -37,6 +40,8 @@ public sealed class ChatbotSemanticIndexBuilder
             knowledgeLoadStopwatch.ElapsedMilliseconds,
             knowledgeItems.Count);
 
+        EmbeddingPerformanceSnapshot embeddingMetricsBefore = _embeddingPerformanceMetrics.Capture();
+
         Stopwatch candidateGenerationStopwatch = Stopwatch.StartNew();
 
         List<ChatbotSemanticCandidate> candidates = [];
@@ -50,7 +55,74 @@ public sealed class ChatbotSemanticIndexBuilder
             candidates.AddRange(itemCandidates);
         }
 
+
         candidateGenerationStopwatch.Stop();
+        
+        EmbeddingPerformanceSnapshot embeddingMetricsAfter = _embeddingPerformanceMetrics.Capture();
+
+        EmbeddingPerformanceSnapshot embeddingMetrics = embeddingMetricsAfter.DifferenceFrom(embeddingMetricsBefore);
+
+        double tokenizationTotalMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.TokenizationTicks);
+
+        double inferenceTotalMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.InferenceTicks);
+
+        double postProcessingTotalMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.PostProcessingTicks);
+
+        double pipelineTotalMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.PipelineTicks);
+
+        double tokenizationMaxMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.TokenizationMaxTicks);
+
+        double inferenceMaxMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.InferenceMaxTicks);
+
+        double postProcessingMaxMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.PostProcessingMaxTicks);
+
+        double pipelineMaxMs = EmbeddingPerformanceMetrics.ToMilliseconds(embeddingMetrics.PipelineMaxTicks);
+
+        long successCount = embeddingMetrics.SuccessCount;
+
+        double tokenizationAverageMs =
+            successCount == 0
+                ? 0
+                : tokenizationTotalMs / successCount;
+
+        double inferenceAverageMs =
+            successCount == 0
+                ? 0
+                : inferenceTotalMs / successCount;
+
+        double postProcessingAverageMs =
+            successCount == 0
+                ? 0
+                : postProcessingTotalMs / successCount;
+
+        double pipelineAverageMs =
+            successCount == 0
+                ? 0
+                : pipelineTotalMs / successCount;
+
+        _logger.LogInformation(
+                "Performance metric {MetricName}. " +
+                "Calls: {CallCount}, Success: {SuccessCount}, Failed: {FailureCount}. " +
+                "Pipeline: Total={PipelineTotalMs:F2} ms, Average={PipelineAverageMs:F3} ms, Max={PipelineMaxMs:F3} ms. " +
+                "Tokenization: Total={TokenizationTotalMs:F2} ms, Average={TokenizationAverageMs:F3} ms, Max={TokenizationMaxMs:F3} ms. " +
+                "Inference: Total={InferenceTotalMs:F2} ms, Average={InferenceAverageMs:F3} ms, Max={InferenceMaxMs:F3} ms. " +
+                "PostProcessing: Total={PostProcessingTotalMs:F2} ms, Average={PostProcessingAverageMs:F3} ms, Max={PostProcessingMaxMs:F3} ms.",
+                "EmbeddingBatch",
+                embeddingMetrics.CallCount,
+                embeddingMetrics.SuccessCount,
+                embeddingMetrics.FailureCount,
+                pipelineTotalMs,
+                pipelineAverageMs,
+                pipelineMaxMs,
+                tokenizationTotalMs,
+                tokenizationAverageMs,
+                tokenizationMaxMs,
+                inferenceTotalMs,
+                inferenceAverageMs,
+                inferenceMaxMs,
+                postProcessingTotalMs,
+                postProcessingAverageMs,
+                postProcessingMaxMs);
 
         _logger.LogInformation(
             "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates.",
