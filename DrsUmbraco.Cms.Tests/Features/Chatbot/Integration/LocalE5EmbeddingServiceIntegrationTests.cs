@@ -1,6 +1,7 @@
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Integration;
 
@@ -19,7 +20,7 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             new(environment);
 
         using LocalEmbeddingModel model =
-            new(environment);
+            new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
@@ -48,7 +49,7 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             new(environment);
 
         using LocalEmbeddingModel model =
-            new(environment);
+            new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
@@ -106,7 +107,7 @@ public sealed class LocalE5EmbeddingServiceIntegrationTests
             new(environment);
 
         using LocalEmbeddingModel model =
-            new(environment);
+            new(environment, NullLogger<LocalEmbeddingModel>.Instance);
 
         LocalE5EmbeddingService service =
             new(
