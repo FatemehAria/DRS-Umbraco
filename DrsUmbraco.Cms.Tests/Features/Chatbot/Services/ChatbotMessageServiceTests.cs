@@ -1,6 +1,7 @@
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Services;
 
@@ -46,7 +47,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -104,7 +106,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -175,7 +178,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -245,7 +249,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -375,7 +380,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -477,7 +483,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =
@@ -533,7 +540,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult? result =
@@ -593,7 +601,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult? result =
@@ -655,7 +664,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true));
+                new FakeRelevanceVerifier(true),
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult? result =
@@ -739,7 +749,8 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                relevanceVerifier);
+                relevanceVerifier,
+                NullLogger<ChatbotMessageService>.Instance);
 
         // Act
         ChatbotMessageResult result =

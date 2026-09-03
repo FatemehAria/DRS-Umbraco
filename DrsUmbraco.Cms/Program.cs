@@ -117,6 +117,10 @@ builder.Services.AddSingleton<
     BgeRelevanceTokenizer>(
     serviceProvider =>
     {
+        ILogger<BgeRelevanceTokenizer> logger =
+            serviceProvider.GetRequiredService<
+                ILogger<BgeRelevanceTokenizer>>();
+
         IWebHostEnvironment environment =
             serviceProvider
                 .GetRequiredService<
@@ -137,14 +141,18 @@ builder.Services.AddSingleton<
                     options.TokenizerPath);
 
         return new BgeRelevanceTokenizer(
-            Path.GetFullPath(
-                tokenizerPath));
+            Path.GetFullPath(tokenizerPath),
+            logger);
     });
 
 builder.Services.AddSingleton<
     BgeRelevanceModel>(
     serviceProvider =>
     {
+        ILogger<BgeRelevanceModel> logger =
+            serviceProvider.GetRequiredService<
+                ILogger<BgeRelevanceModel>>();
+
         IWebHostEnvironment environment =
             serviceProvider
                 .GetRequiredService<
@@ -165,8 +173,8 @@ builder.Services.AddSingleton<
                     options.ModelPath);
 
         return new BgeRelevanceModel(
-            Path.GetFullPath(
-                modelPath));
+            Path.GetFullPath(modelPath),
+            logger);
     });
 
 builder.Services.AddSingleton<IBgeRelevanceScorer, BgeRelevanceScorer>();
@@ -244,6 +252,50 @@ app.Logger.LogInformation(
 app.UseResponseCompression();
 
 app.UseStaticFiles();
+
+ILogger chatbotPerformanceLogger =
+    app.Services
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("ChatbotPerformance");
+
+int chatbotRequestCount = 0;
+
+app.Use(
+    async (context, next) =>
+    {
+        if (!context.Request.Path.StartsWithSegments(
+                "/api/chatbot"))
+        {
+            await next();
+
+            return;
+        }
+
+        int requestNumber =
+            Interlocked.Increment(
+                ref chatbotRequestCount);
+
+        Stopwatch requestStopwatch =
+            Stopwatch.StartNew();
+
+        try
+        {
+            await next();
+        }
+        finally
+        {
+            requestStopwatch.Stop();
+
+            chatbotPerformanceLogger.LogInformation(
+                "Performance metric {MetricName} completed in {ElapsedMs} ms. " +
+                "RequestNumber={RequestNumber}, Path={RequestPath}, StatusCode={StatusCode}.",
+                "ChatbotHttpRequest",
+                requestStopwatch.Elapsed.TotalMilliseconds,
+                requestNumber,
+                context.Request.Path.Value,
+                context.Response.StatusCode);
+        }
+    });
 
 app.MapCrmGateway();
 

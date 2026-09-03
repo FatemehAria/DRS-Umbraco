@@ -1,4 +1,5 @@
 using Microsoft.ML.OnnxRuntime;
+using System.Diagnostics;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Relevance;
 
@@ -6,7 +7,9 @@ public sealed class BgeRelevanceModel : IDisposable
 {
     private readonly InferenceSession _session;
 
-    public BgeRelevanceModel(string modelPath)
+    public BgeRelevanceModel(
+        string modelPath,
+        ILogger<BgeRelevanceModel> logger)
     {
         if (string.IsNullOrWhiteSpace(modelPath))
         {
@@ -22,7 +25,51 @@ public sealed class BgeRelevanceModel : IDisposable
                 modelPath);
         }
 
+        using Process process = Process.GetCurrentProcess();
+
+        process.Refresh();
+
+        long workingSetBefore = process.WorkingSet64;
+
+        long privateMemoryBefore = process.PrivateMemorySize64;
+
+        long managedMemoryBefore = GC.GetTotalMemory(forceFullCollection: false);
+
+        Stopwatch modelLoadStopwatch = Stopwatch.StartNew();
+
         _session = new InferenceSession(modelPath);
+
+        modelLoadStopwatch.Stop();
+
+        process.Refresh();
+
+        long workingSetAfter = process.WorkingSet64;
+
+        long privateMemoryAfter = process.PrivateMemorySize64;
+
+        long managedMemoryAfter = GC.GetTotalMemory(forceFullCollection: false);
+
+        logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms. " +
+            "WorkingSet: {WorkingSetBeforeMb} MB -> {WorkingSetAfterMb} MB. " +
+            "PrivateMemory: {PrivateMemoryBeforeMb} MB -> {PrivateMemoryAfterMb} MB. " +
+            "ManagedMemory: {ManagedMemoryBeforeMb} MB -> {ManagedMemoryAfterMb} MB.",
+            "BgeModelLoad",
+            modelLoadStopwatch.ElapsedMilliseconds,
+            ToMegabytes(workingSetBefore),
+            ToMegabytes(workingSetAfter),
+            ToMegabytes(privateMemoryBefore),
+            ToMegabytes(privateMemoryAfter),
+            ToMegabytes(managedMemoryBefore),
+            ToMegabytes(managedMemoryAfter));
+    }
+
+    private static double ToMegabytes(
+    long bytes)
+    {
+        return Math.Round(
+            bytes / 1024d / 1024d,
+            2);
     }
 
     public float Run(BgeRelevanceModelInput input)

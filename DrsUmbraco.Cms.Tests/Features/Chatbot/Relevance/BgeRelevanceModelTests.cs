@@ -1,4 +1,5 @@
 using DrsUmbraco.Cms.Features.Chatbot.Relevance;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Relevance;
 
@@ -28,7 +29,8 @@ public sealed class BgeRelevanceModelTests
 
         var tokenizer =
             new BgeRelevanceTokenizer(
-                tokenizerPath);
+                tokenizerPath,
+                NullLogger<BgeRelevanceTokenizer>.Instance);
 
         BgeRelevanceModelInput input =
             tokenizer.Encode(
@@ -37,7 +39,8 @@ public sealed class BgeRelevanceModelTests
 
         using var model =
             new BgeRelevanceModel(
-                modelPath);
+                modelPath,
+                NullLogger<BgeRelevanceModel>.Instance);
 
         float score =
             model.Run(input);

@@ -1,4 +1,5 @@
 using Microsoft.ML.Tokenizers;
+using System.Diagnostics;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Relevance;
 
@@ -18,7 +19,8 @@ public sealed class BgeRelevanceTokenizer
         MaxSequenceLength - 4;
 
     public BgeRelevanceTokenizer(
-        string tokenizerPath)
+        string tokenizerPath,
+        ILogger<BgeRelevanceTokenizer> logger)
     {
         if (string.IsNullOrWhiteSpace(tokenizerPath))
         {
@@ -34,6 +36,8 @@ public sealed class BgeRelevanceTokenizer
                 tokenizerPath);
         }
 
+        Stopwatch tokenizerLoadStopwatch = Stopwatch.StartNew();
+
         using FileStream stream =
             File.OpenRead(tokenizerPath);
 
@@ -42,6 +46,13 @@ public sealed class BgeRelevanceTokenizer
                 stream,
                 false,
                 false);
+
+        tokenizerLoadStopwatch.Stop();
+
+        logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms.",
+            "BgeTokenizerLoad",
+            tokenizerLoadStopwatch.ElapsedMilliseconds);
     }
 
     public BgeRelevanceModelInput Encode(

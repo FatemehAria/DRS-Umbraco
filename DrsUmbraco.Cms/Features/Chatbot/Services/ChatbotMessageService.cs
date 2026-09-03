@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
@@ -10,6 +11,7 @@ public sealed class ChatbotMessageService : IChatbotMessageService
     private readonly IChatbotCandidateEvidenceService _candidateEvidenceService;
     private readonly IChatbotKnowledgeService _knowledgeService;
     private readonly IChatbotRelevanceVerifier _relevanceVerifier;
+    private readonly ILogger<ChatbotMessageService> _logger;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
         IChatbotClarificationExactMatchingService
@@ -17,7 +19,8 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         IChatbotNoMatchDecisionService noMatchDecisionService,
         IChatbotCandidateEvidenceService candidateEvidenceService,
         IChatbotKnowledgeService knowledgeService,
-        IChatbotRelevanceVerifier relevanceVerifier)
+        IChatbotRelevanceVerifier relevanceVerifier,
+        ILogger<ChatbotMessageService> logger)
     {
         _matchingService = matchingService;
         _clarificationExactMatchingService = clarificationExactMatchingService;
@@ -25,13 +28,24 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         _candidateEvidenceService = candidateEvidenceService;
         _knowledgeService = knowledgeService;
         _relevanceVerifier = relevanceVerifier;
+        _logger = logger;
     }
 
     public ChatbotMessageResult Process(string message)
     {
+        Stopwatch exactMatchingStopwatch = Stopwatch.StartNew();
+
         // 1. Exact Answer
         ChatbotMatchResult exactResult =
             _matchingService.FindMatch(message);
+
+        exactMatchingStopwatch.Stop();
+
+        _logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms. IsMatch={IsMatch}.",
+            "ExactMatching",
+            exactMatchingStopwatch.Elapsed.TotalMilliseconds,
+            exactResult.IsMatch);
 
         if (exactResult.IsMatch)
         {
@@ -43,10 +57,20 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
         }
 
+        Stopwatch clarificationStopwatch = Stopwatch.StartNew();
+
         // 2. Exact Clarification
         ChatbotMatchResult clarificationResult =
             _clarificationExactMatchingService.Find(
                 message);
+
+        clarificationStopwatch.Stop();
+
+        _logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms. IsMatch={IsMatch}.",
+            "ClarificationExactMatching",
+            clarificationStopwatch.Elapsed.TotalMilliseconds,
+            clarificationResult.IsMatch);
 
         if (clarificationResult.IsMatch)
         {
@@ -56,12 +80,23 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 ResponseType = ChatbotResponseType.Clarification
             };
         }
+
+        Stopwatch candidateEvidenceStopwatch = Stopwatch.StartNew();
+
         // 3. Retrieve Answer candidates once.
         IReadOnlyList<ChatbotCandidateEvidence> candidates =
             _candidateEvidenceService.Find(
                 message,
                 3,
                 ChatbotKnowledgeItemKind.Answer);
+
+        candidateEvidenceStopwatch.Stop();
+
+        _logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates.",
+            "CandidateEvidence",
+            candidateEvidenceStopwatch.Elapsed.TotalMilliseconds,
+            candidates.Count);
 
         if (candidates.Count == 0)
         {
@@ -89,6 +124,13 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
         HashSet<Guid> addedIds = [];
 
+        double knowledgeLookupTotalMs = 0;
+        double relevanceVerificationTotalMs = 0;
+        double relevanceVerificationMaxMs = 0;
+
+        int knowledgeLookupCount = 0;
+        int relevanceVerificationCount = 0;
+
         foreach (ChatbotCandidateEvidence candidate in candidates)
         {
             if (!addedIds.Add(candidate.KnowledgeItemId))
@@ -96,9 +138,18 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 continue;
             }
 
+            Stopwatch knowledgeLookupStopwatch =
+                Stopwatch.StartNew();
+
             ChatbotKnowledgeItem? knowledgeItem =
                 _knowledgeService.GetById(
                     candidate.KnowledgeItemId);
+
+            knowledgeLookupStopwatch.Stop();
+
+            knowledgeLookupCount++;
+
+            knowledgeLookupTotalMs += knowledgeLookupStopwatch.Elapsed.TotalMilliseconds;
 
             if (knowledgeItem is null ||
                 knowledgeItem.Kind !=
@@ -107,13 +158,31 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 continue;
             }
 
-            if (!_relevanceVerifier.IsRelevant(
+            Stopwatch relevanceStopwatch = Stopwatch.StartNew();
+
+            bool isRelevant =
+                _relevanceVerifier.IsRelevant(
                     message,
-                    knowledgeItem))
+                    knowledgeItem);
+
+            relevanceStopwatch.Stop();
+
+            double relevanceElapsedMs = relevanceStopwatch.Elapsed.TotalMilliseconds;
+
+            relevanceVerificationCount++;
+
+            relevanceVerificationTotalMs += relevanceElapsedMs;
+
+            relevanceVerificationMaxMs =
+                Math.Max(
+                    relevanceVerificationMaxMs,
+                    relevanceElapsedMs);
+
+            if (!isRelevant)
             {
                 continue;
             }
-            
+
             suggestions.Add(
                 new ChatbotSuggestion
                 {
@@ -129,6 +198,22 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 break;
             }
         }
+
+        _logger.LogInformation(
+            "Performance metric {MetricName}. " +
+            "KnowledgeLookupCount={KnowledgeLookupCount}, KnowledgeLookupTotalMs={KnowledgeLookupTotalMs}. " +
+            "VerificationCount={VerificationCount}, VerificationTotalMs={VerificationTotalMs}, " +
+            "VerificationAverageMs={VerificationAverageMs}, VerificationMaxMs={VerificationMaxMs}.",
+            "SuggestionEvaluation",
+            knowledgeLookupCount,
+            knowledgeLookupTotalMs,
+            relevanceVerificationCount,
+            relevanceVerificationTotalMs,
+            relevanceVerificationCount == 0
+                ? 0
+                : relevanceVerificationTotalMs /
+                relevanceVerificationCount,
+            relevanceVerificationMaxMs);
 
         if (suggestions.Count == 0)
         {
