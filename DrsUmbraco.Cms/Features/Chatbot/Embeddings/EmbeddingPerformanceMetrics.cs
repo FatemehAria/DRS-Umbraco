@@ -20,7 +20,7 @@ public sealed class EmbeddingPerformanceMetrics
 
     private long _pipelineTicks;
     private long _pipelineMaxTicks;
-
+    private long _firstInferenceTicks;
     public void RecordSuccess(
         long tokenizationTicks,
         long inferenceTicks,
@@ -39,6 +39,11 @@ public sealed class EmbeddingPerformanceMetrics
             ref _inferenceTicks,
             ref _inferenceMaxTicks,
             inferenceTicks);
+
+        Interlocked.CompareExchange(
+            ref _firstInferenceTicks,
+            inferenceTicks,
+            comparand: 0);
 
         AddMeasurement(
             ref _postProcessingTicks,
@@ -67,6 +72,7 @@ public sealed class EmbeddingPerformanceMetrics
             Interlocked.Read(ref _tokenizationMaxTicks),
             Interlocked.Read(ref _inferenceTicks),
             Interlocked.Read(ref _inferenceMaxTicks),
+            Interlocked.Read(ref _firstInferenceTicks),
             Interlocked.Read(ref _postProcessingTicks),
             Interlocked.Read(ref _postProcessingMaxTicks),
             Interlocked.Read(ref _pipelineTicks),

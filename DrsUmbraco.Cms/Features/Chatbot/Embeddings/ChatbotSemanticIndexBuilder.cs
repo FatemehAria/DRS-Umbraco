@@ -57,7 +57,7 @@ public sealed class ChatbotSemanticIndexBuilder
 
 
         candidateGenerationStopwatch.Stop();
-        
+
         EmbeddingPerformanceSnapshot embeddingMetricsAfter = _embeddingPerformanceMetrics.Capture();
 
         EmbeddingPerformanceSnapshot embeddingMetrics = embeddingMetricsAfter.DifferenceFrom(embeddingMetricsBefore);
@@ -100,12 +100,36 @@ public sealed class ChatbotSemanticIndexBuilder
                 ? 0
                 : pipelineTotalMs / successCount;
 
+        double firstInferenceMs =
+            EmbeddingPerformanceMetrics.ToMilliseconds(
+                embeddingMetrics.FirstInferenceTicks);
+
+        long subsequentInferenceCount =
+            firstInferenceMs > 0
+                ? Math.Max(
+                    embeddingMetrics.SuccessCount - 1,
+                    0)
+                : embeddingMetrics.SuccessCount;
+
+        double subsequentInferenceTotalMs =
+            Math.Max(
+                inferenceTotalMs - firstInferenceMs,
+                0);
+
+        double subsequentInferenceAverageMs =
+            subsequentInferenceCount == 0
+                ? 0
+                : subsequentInferenceTotalMs /
+                  subsequentInferenceCount;
+
         _logger.LogInformation(
                 "Performance metric {MetricName}. " +
                 "Calls: {CallCount}, Success: {SuccessCount}, Failed: {FailureCount}. " +
                 "Pipeline: Total={PipelineTotalMs:F2} ms, Average={PipelineAverageMs:F3} ms, Max={PipelineMaxMs:F3} ms. " +
                 "Tokenization: Total={TokenizationTotalMs:F2} ms, Average={TokenizationAverageMs:F3} ms, Max={TokenizationMaxMs:F3} ms. " +
                 "Inference: Total={InferenceTotalMs:F2} ms, Average={InferenceAverageMs:F3} ms, Max={InferenceMaxMs:F3} ms. " +
+                "FirstInference={FirstInferenceMs:F3} ms, " +
+                "SubsequentInferenceAverage={SubsequentInferenceAverageMs:F3} ms. " +
                 "PostProcessing: Total={PostProcessingTotalMs:F2} ms, Average={PostProcessingAverageMs:F3} ms, Max={PostProcessingMaxMs:F3} ms.",
                 "EmbeddingBatch",
                 embeddingMetrics.CallCount,
@@ -120,6 +144,8 @@ public sealed class ChatbotSemanticIndexBuilder
                 inferenceTotalMs,
                 inferenceAverageMs,
                 inferenceMaxMs,
+                firstInferenceMs,
+                subsequentInferenceAverageMs,
                 postProcessingTotalMs,
                 postProcessingAverageMs,
                 postProcessingMaxMs);
