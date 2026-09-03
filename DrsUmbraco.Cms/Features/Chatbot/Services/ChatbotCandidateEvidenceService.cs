@@ -1,40 +1,37 @@
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Search;
+using System.Diagnostics;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
 
 public sealed class ChatbotCandidateEvidenceService
     : IChatbotCandidateEvidenceService
 {
-    private readonly IChatbotSemanticRankingService
-        _semanticRankingService;
+    private readonly IChatbotSemanticRankingService _semanticRankingService;
 
-    private readonly IChatbotSemanticCentroidRankingService
-        _centroidRankingService;
+    private readonly IChatbotSemanticCentroidRankingService _centroidRankingService;
 
-    private readonly IChatbotWeightedLexicalRankingService
-        _weightedLexicalRankingService;
+    private readonly IChatbotWeightedLexicalRankingService _weightedLexicalRankingService;
 
-    private readonly IChatbotBm25RankingService
-        _bm25RankingService;
+    private readonly IChatbotBm25RankingService _bm25RankingService;
 
+    private readonly ILogger<ChatbotCandidateEvidenceService> _logger;
     public ChatbotCandidateEvidenceService(
         IChatbotSemanticRankingService semanticRankingService,
         IChatbotSemanticCentroidRankingService centroidRankingService,
         IChatbotWeightedLexicalRankingService weightedLexicalRankingService,
-        IChatbotBm25RankingService bm25RankingService)
+        IChatbotBm25RankingService bm25RankingService,
+        ILogger<ChatbotCandidateEvidenceService> logger)
     {
-        _semanticRankingService =
-            semanticRankingService;
+        _semanticRankingService = semanticRankingService;
 
-        _centroidRankingService =
-            centroidRankingService;
+        _centroidRankingService = centroidRankingService;
 
-        _weightedLexicalRankingService =
-            weightedLexicalRankingService;
+        _weightedLexicalRankingService = weightedLexicalRankingService;
 
-        _bm25RankingService =
-            bm25RankingService;
+        _bm25RankingService = bm25RankingService;
+
+        _logger = logger;
     }
 
     public IReadOnlyList<ChatbotCandidateEvidence> Find(
@@ -56,42 +53,63 @@ public sealed class ChatbotCandidateEvidenceService
 
         int retrievalDepth = Math.Max(limit, 10);
 
+        Stopwatch semanticStopwatch = Stopwatch.StartNew();
+
         IReadOnlyList<ChatbotSemanticRankedResult> semantic =
         _semanticRankingService.FindTop(
             question,
             retrievalDepth,
             kind);
+
+        semanticStopwatch.Stop();
+
         // IReadOnlyList<ChatbotSemanticRankedResult> centroid =
         //     _centroidRankingService.FindTop(
         //         question,
         //         limit,
         //         kind);
+
+        Stopwatch centroidStopwatch = Stopwatch.StartNew();
+
         IReadOnlyList<ChatbotSemanticRankedResult> centroid =
             _centroidRankingService.FindTop(
                 question,
                 retrievalDepth,
                 kind);
+
+        centroidStopwatch.Stop();
         // IReadOnlyList<ChatbotLexicalRankedResult> weightedLexical =
         //     _weightedLexicalRankingService.FindTop(
         //         question,
         //         limit,
         //         kind);
+
+        Stopwatch weightedLexicalStopwatch = Stopwatch.StartNew();
+
         IReadOnlyList<ChatbotLexicalRankedResult> weightedLexical =
             _weightedLexicalRankingService.FindTop(
                 question,
                 retrievalDepth,
                 kind);
 
+        weightedLexicalStopwatch.Stop();
         // IReadOnlyList<ChatbotLexicalRankedResult> bm25 =
         //     _bm25RankingService.FindTop(
         //         question,
         //         limit,
         //         kind);
+
+        Stopwatch bm25Stopwatch = Stopwatch.StartNew();
+
         IReadOnlyList<ChatbotLexicalRankedResult> bm25 =
             _bm25RankingService.FindTop(
                 question,
                 retrievalDepth,
                 kind);
+
+        bm25Stopwatch.Stop();
+
+        Stopwatch evidenceAssemblyStopwatch = Stopwatch.StartNew();
 
         HashSet<Guid> knowledgeItemIds =
             semantic
@@ -190,12 +208,44 @@ public sealed class ChatbotCandidateEvidenceService
                 });
         }
 
-        return results
-        .OrderByDescending(GetFusionScore)
-        .ThenByDescending(GetStrategyCount)
-        .ThenBy(GetBestRank)
-        .ThenBy(x => x.KnowledgeItemId)
-        .ToArray();
+        evidenceAssemblyStopwatch.Stop();
+
+        Stopwatch sortingStopwatch =
+            Stopwatch.StartNew();
+
+        ChatbotCandidateEvidence[] orderedResults =
+            results
+                .OrderByDescending(GetFusionScore)
+                .ThenByDescending(GetStrategyCount)
+                .ThenBy(GetBestRank)
+                .ThenBy(x => x.KnowledgeItemId)
+                .ToArray();
+
+        sortingStopwatch.Stop();
+
+        _logger.LogInformation(
+            "Performance metric {MetricName}. " +
+            "RetrievalDepth={RetrievalDepth}, FinalCandidateCount={FinalCandidateCount}. " +
+            "SemanticMs={SemanticMs}, SemanticCount={SemanticCount}. " +
+            "CentroidMs={CentroidMs}, CentroidCount={CentroidCount}. " +
+            "WeightedLexicalMs={WeightedLexicalMs}, WeightedLexicalCount={WeightedLexicalCount}. " +
+            "Bm25Ms={Bm25Ms}, Bm25Count={Bm25Count}. " +
+            "EvidenceAssemblyMs={EvidenceAssemblyMs}, SortingMs={SortingMs}.",
+            "CandidateEvidenceBreakdown",
+            retrievalDepth,
+            orderedResults.Length,
+            semanticStopwatch.Elapsed.TotalMilliseconds,
+            semantic.Count,
+            centroidStopwatch.Elapsed.TotalMilliseconds,
+            centroid.Count,
+            weightedLexicalStopwatch.Elapsed.TotalMilliseconds,
+            weightedLexical.Count,
+            bm25Stopwatch.Elapsed.TotalMilliseconds,
+            bm25.Count,
+            evidenceAssemblyStopwatch.Elapsed.TotalMilliseconds,
+            sortingStopwatch.Elapsed.TotalMilliseconds);
+
+        return orderedResults;
     }
 
     private static int GetBestRank(

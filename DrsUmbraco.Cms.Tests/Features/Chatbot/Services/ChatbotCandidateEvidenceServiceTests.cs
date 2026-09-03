@@ -1,6 +1,7 @@
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Search;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Services;
 
@@ -54,7 +55,8 @@ public sealed class ChatbotCandidateEvidenceServiceTests
                 semanticRankingService,
                 centroidRankingService,
                 weightedLexicalRankingService,
-                bm25RankingService);
+                bm25RankingService,
+                NullLogger<ChatbotCandidateEvidenceService>.Instance);
 
         // Act
         IReadOnlyList<ChatbotCandidateEvidence> results =
