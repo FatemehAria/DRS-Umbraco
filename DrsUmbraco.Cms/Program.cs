@@ -179,6 +179,17 @@ builder.Services.AddSingleton<
 
 builder.Services.AddSingleton<IBgeRelevanceScorer, BgeRelevanceScorer>();
 
+builder.Services.AddSingleton<
+    Lazy<IBgeRelevanceScorer>>(
+    serviceProvider =>
+        new Lazy<IBgeRelevanceScorer>(
+            () =>
+                serviceProvider
+                    .GetRequiredService<
+                        IBgeRelevanceScorer>(),
+            LazyThreadSafetyMode
+                .ExecutionAndPublication));
+
 builder.Services.AddSingleton<IChatbotRelevanceVerifier, BgeChatbotRelevanceVerifier>();
 
 builder.Services

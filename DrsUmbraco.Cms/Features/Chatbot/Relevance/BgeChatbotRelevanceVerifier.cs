@@ -7,22 +7,22 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Relevance;
 public sealed class BgeChatbotRelevanceVerifier
     : IChatbotRelevanceVerifier
 {
-    private readonly IBgeRelevanceScorer _scorer;
+    // private readonly IBgeRelevanceScorer _scorer;
     private readonly float _threshold;
-
+    private readonly Lazy<IBgeRelevanceScorer> _lazyScorer;
     public BgeChatbotRelevanceVerifier(
-        IBgeRelevanceScorer scorer,
+        // IBgeRelevanceScorer scorer,
+        Lazy<IBgeRelevanceScorer> lazyScorer,
         IOptions<BgeRelevanceOptions> options)
     {
-        _scorer =
-            scorer
+        _lazyScorer =
+            lazyScorer
             ?? throw new ArgumentNullException(
-                nameof(scorer));
+                nameof(lazyScorer));
 
         ArgumentNullException.ThrowIfNull(options);
 
-        _threshold =
-            options.Value.Threshold;
+        _threshold = options.Value.Threshold;
     }
 
     public bool IsRelevant(
@@ -42,7 +42,7 @@ public sealed class BgeChatbotRelevanceVerifier
             BuildCandidateText(candidate);
 
         float score =
-            _scorer.Score(
+            _lazyScorer.Value.Score(
                 question,
                 candidateText);
 

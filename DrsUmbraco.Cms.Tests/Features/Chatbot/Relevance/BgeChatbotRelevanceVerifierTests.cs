@@ -22,9 +22,12 @@ public sealed class BgeChatbotRelevanceVerifierTests
                     Threshold = -2.777814f
                 });
 
+        Lazy<IBgeRelevanceScorer> lazyScorer =
+            new(() => scorer);
+
         var verifier =
             new BgeChatbotRelevanceVerifier(
-                scorer,
+                lazyScorer,
                 options);
 
         ChatbotKnowledgeItem candidate =
@@ -54,9 +57,12 @@ public sealed class BgeChatbotRelevanceVerifierTests
                     Threshold = -2.777814f
                 });
 
+        Lazy<IBgeRelevanceScorer> lazyScorer =
+            new(() => scorer);
+
         var verifier =
             new BgeChatbotRelevanceVerifier(
-                scorer,
+                lazyScorer,
                 options);
 
         ChatbotKnowledgeItem candidate =
@@ -86,9 +92,12 @@ public sealed class BgeChatbotRelevanceVerifierTests
                     Threshold = -2.777814f
                 });
 
+        Lazy<IBgeRelevanceScorer> lazyScorer =
+            new(() => scorer);
+
         var verifier =
             new BgeChatbotRelevanceVerifier(
-                scorer,
+                lazyScorer,
                 options);
 
         ChatbotKnowledgeItem candidate =
