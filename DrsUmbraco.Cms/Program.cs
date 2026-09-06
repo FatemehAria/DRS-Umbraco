@@ -11,6 +11,7 @@ using DrsUmbraco.Cms.Features.Chatbot.Relevance;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using DrsUmbraco.Cms.Features.Chatbot.Caching;
+using DrsUmbraco.Cms.Features.Chatbot.Readiness;
 
 Stopwatch applicationStartupStopwatch = Stopwatch.StartNew();
 
@@ -227,6 +228,8 @@ builder.Services
     .ValidateOnStart();
 
 builder.Services.AddSingleton<IChatbotResponseCache, ChatbotResponseMemoryCache>();
+
+builder.Services.AddSingleton<IChatbotSemanticIndexReadiness, ChatbotSemanticIndexReadiness>();
 
 builder.Services.AddApplicationCompression();
 

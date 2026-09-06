@@ -14,6 +14,15 @@ const chatbotSend = chatbotForm.querySelector(".chatbot-send");
 
 let isSendingMessage = false;
 
+class ChatbotUnavailableError extends Error {
+  constructor(retryAfterSeconds) {
+    super("Chatbot is still initializing.");
+
+    this.name = "ChatbotUnavailableError";
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
+
 function openChatbot() {
   chatbotPanel.hidden = false;
 
@@ -94,6 +103,12 @@ async function sendMessage(message) {
       message: message,
     }),
   });
+
+  if (response.status === 503) {
+    const retryAfterSeconds = Number(response.headers.get("Retry-After")) || 5;
+
+    throw new ChatbotUnavailableError(retryAfterSeconds);
+  }
 
   if (!response.ok) {
     throw new Error(`Chatbot request failed: ${response.status}`);
@@ -270,7 +285,12 @@ async function processMessageRequest(message) {
 
     loading.remove();
 
-    appendRetryMessage("در ارتباط با دستیار مشکلی پیش آمد.", async () => {
+    const errorMessage =
+      error instanceof ChatbotUnavailableError
+        ? "دستیار سایت در حال آماده‌سازی است. لطفاً چند لحظه دیگر دوباره تلاش کنید."
+        : "در ارتباط با دستیار مشکلی پیش آمد.";
+
+    appendRetryMessage(errorMessage, async () => {
       await processMessageRequest(message);
     });
   } finally {

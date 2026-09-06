@@ -1,8 +1,7 @@
 using DrsUmbraco.Cms.Features.Chatbot.Contracts;
-using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
+using DrsUmbraco.Cms.Features.Chatbot.Readiness;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
-using DrsUmbraco.Cms.Features.Chatbot.Text;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Controllers;
@@ -12,10 +11,13 @@ namespace DrsUmbraco.Cms.Features.Chatbot.Controllers;
 public sealed class ChatbotController : ControllerBase
 {
     private readonly IChatbotMessageService _chatbotMessageService;
+    private readonly IChatbotSemanticIndexReadiness _readiness;
     public ChatbotController(
-        IChatbotMessageService chatbotMsgService)
+        IChatbotMessageService chatbotMsgService,
+        IChatbotSemanticIndexReadiness readiness)
     {
         _chatbotMessageService = chatbotMsgService;
+        _readiness = readiness;
     }
 
     [HttpPost("messages")]
@@ -30,8 +32,22 @@ public sealed class ChatbotController : ControllerBase
             });
         }
 
-        ChatbotMessageResult chatbotMessageResult = _chatbotMessageService.Process(request.Message);
+        if (!_readiness.IsReady)
+        {
+            Response.Headers[
+                "Retry-After"] = "5";
 
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new
+                {
+                    error =
+                        "Chatbot semantic index is not ready.",
+
+                    retryAfterSeconds = 5
+                });
+        }
+        ChatbotMessageResult chatbotMessageResult = _chatbotMessageService.Process(request.Message);
         return Ok(new SendMessageResponse
         {
             ResponseType = chatbotMessageResult.ResponseType,

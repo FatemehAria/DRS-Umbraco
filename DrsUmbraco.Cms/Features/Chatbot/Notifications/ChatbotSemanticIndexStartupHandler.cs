@@ -5,6 +5,7 @@ using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using System.Diagnostics;
+using DrsUmbraco.Cms.Features.Chatbot.Readiness;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Notifications;
 
@@ -14,15 +15,17 @@ public sealed class ChatbotSemanticIndexStartupHandler
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IRuntimeState _runtimeState;
     private readonly ILogger<ChatbotSemanticIndexStartupHandler> _logger;
-
+    private readonly IChatbotSemanticIndexReadiness _readiness;
     public ChatbotSemanticIndexStartupHandler(
         IServiceScopeFactory scopeFactory,
         IRuntimeState runtimeState,
+        IChatbotSemanticIndexReadiness readiness,
         ILogger<ChatbotSemanticIndexStartupHandler> logger)
     {
         _scopeFactory = scopeFactory;
         _runtimeState = runtimeState;
         _logger = logger;
+        _readiness = readiness;
     }
 
     public void Handle(
@@ -57,6 +60,8 @@ public sealed class ChatbotSemanticIndexStartupHandler
                     .GetRequiredService<IChatbotSemanticIndexBuilder>();
 
             int candidateCount = indexBuilder.Rebuild();
+
+            _readiness.MarkReady();
 
             semanticIndexStopwatch.Stop();
 
