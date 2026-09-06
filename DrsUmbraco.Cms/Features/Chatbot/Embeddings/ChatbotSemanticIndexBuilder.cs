@@ -1,3 +1,4 @@
+using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
 using System.Diagnostics;
@@ -12,18 +13,21 @@ public sealed class ChatbotSemanticIndexBuilder
     private readonly IChatbotSemanticIndex _semanticIndex;
     private readonly ILogger<ChatbotSemanticIndexBuilder> _logger;
     private readonly EmbeddingPerformanceMetrics _embeddingPerformanceMetrics;
+    private readonly IChatbotResponseCache _responseCache;
     public ChatbotSemanticIndexBuilder(
         IChatbotKnowledgeService knowledgeService,
         IChatbotSemanticCandidateFactory candidateFactory,
         IChatbotSemanticIndex semanticIndex,
         ILogger<ChatbotSemanticIndexBuilder> logger,
-        EmbeddingPerformanceMetrics embeddingPerformanceMetrics)
+        EmbeddingPerformanceMetrics embeddingPerformanceMetrics,
+        IChatbotResponseCache responseCache)
     {
         _knowledgeService = knowledgeService;
         _candidateFactory = candidateFactory;
         _semanticIndex = semanticIndex;
         _logger = logger;
         _embeddingPerformanceMetrics = embeddingPerformanceMetrics;
+        _responseCache = responseCache;
     }
 
     public int Rebuild()
@@ -162,11 +166,22 @@ public sealed class ChatbotSemanticIndexBuilder
 
         indexReplaceStopwatch.Stop();
 
+        Stopwatch cacheInvalidationStopwatch = Stopwatch.StartNew();
+
+        _responseCache.Invalidate();
+
+        cacheInvalidationStopwatch.Stop();
+
         _logger.LogInformation(
             "Performance metric {MetricName} completed in {ElapsedMs} ms with {CandidateCount} candidates.",
             "IndexReplace",
             indexReplaceStopwatch.ElapsedMilliseconds,
             candidates.Count);
+
+        _logger.LogInformation(
+            "Performance metric {MetricName} completed in {ElapsedMs} ms.",
+            "ChatbotResponseCacheInvalidation",
+            cacheInvalidationStopwatch.Elapsed.TotalMilliseconds);
 
         return candidates.Count;
     }

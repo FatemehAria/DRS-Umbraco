@@ -10,6 +10,7 @@ using DrsUmbraco.Cms.Features.Chatbot.Search;
 using DrsUmbraco.Cms.Features.Chatbot.Relevance;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using DrsUmbraco.Cms.Features.Chatbot.Caching;
 
 Stopwatch applicationStartupStopwatch = Stopwatch.StartNew();
 
@@ -204,9 +205,7 @@ builder.Services
         "Chatbot MinimumSemanticScore must be between 0 and 1.")
     .ValidateOnStart();
 
-builder.Services.AddSingleton<
-    IChatbotNoMatchDecisionService,
-    ChatbotNoMatchDecisionService>();
+builder.Services.AddSingleton<IChatbotNoMatchDecisionService, ChatbotNoMatchDecisionService>();
 
 builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
@@ -226,6 +225,8 @@ builder.Services
             options.MinimumMargin <= 1f,
         "Chatbot MinimumMargin must be between 0 and 1.")
     .ValidateOnStart();
+
+builder.Services.AddSingleton<IChatbotResponseCache, ChatbotResponseMemoryCache>();
 
 builder.Services.AddApplicationCompression();
 

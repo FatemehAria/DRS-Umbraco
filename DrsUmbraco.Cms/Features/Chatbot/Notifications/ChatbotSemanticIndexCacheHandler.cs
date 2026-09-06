@@ -15,16 +15,13 @@ public sealed class ChatbotSemanticIndexCacheHandler
     private const string KnowledgeBaseContentTypeAlias = "chatbotKnowledgeBase";
 
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IChatbotSemanticIndex _semanticIndex;
     private readonly ILogger<ChatbotSemanticIndexCacheHandler> _logger;
 
     public ChatbotSemanticIndexCacheHandler(
         IServiceScopeFactory scopeFactory,
-        IChatbotSemanticIndex semanticIndex,
         ILogger<ChatbotSemanticIndexCacheHandler> logger)
     {
         _scopeFactory = scopeFactory;
-        _semanticIndex = semanticIndex;
         _logger = logger;
     }
 
@@ -99,20 +96,11 @@ public sealed class ChatbotSemanticIndexCacheHandler
             // Content may have been deleted.
             if (payload.Key is Guid key)
             {
-                bool existsInSemanticIndex =
-                    _semanticIndex
-                        .GetAll()
-                        .Any(candidate =>
-                            candidate.KnowledgeItemId == key);
+                updater.Refresh(key);
 
-                if (existsInSemanticIndex)
-                {
-                    _semanticIndex.RemoveForKnowledgeItem(key);
-
-                    _logger.LogInformation(
-                        "FAQ {Key} was removed from chatbot semantic index.",
-                        key);
-                }
+                _logger.LogInformation(
+                    "FAQ {Key} was removed from chatbot semantic index.",
+                    key);
             }
         }
     }

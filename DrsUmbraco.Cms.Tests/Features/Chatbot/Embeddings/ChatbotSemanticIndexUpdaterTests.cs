@@ -1,3 +1,4 @@
+using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
@@ -36,6 +37,8 @@ public sealed class ChatbotSemanticIndexUpdaterTests
 
         FakeCandidateFactory candidateFactory = new();
 
+        FakeChatbotResponseCache responseCache = new();
+
         ChatbotSemanticIndex semanticIndex = new();
 
         ChatbotSemanticCandidate oldPasswordCandidate =
@@ -57,15 +60,14 @@ public sealed class ChatbotSemanticIndexUpdaterTests
             new(
                 knowledgeService,
                 candidateFactory,
-                semanticIndex);
+                semanticIndex,
+                responseCache);
 
-        bool result =
-            updater.Refresh(passwordId);
+        bool result = updater.Refresh(passwordId);
 
         Assert.True(result);
 
-        IReadOnlyList<ChatbotSemanticCandidate> candidates =
-            semanticIndex.GetAll();
+        IReadOnlyList<ChatbotSemanticCandidate> candidates = semanticIndex.GetAll();
 
         Assert.Equal(2, candidates.Count);
 
@@ -82,6 +84,8 @@ public sealed class ChatbotSemanticIndexUpdaterTests
         Assert.Contains(
             supportCandidate,
             candidates);
+
+        Assert.Equal(1, responseCache.InvalidateCallCount);
     }
 
     [Fact]
@@ -108,22 +112,26 @@ public sealed class ChatbotSemanticIndexUpdaterTests
 
         FakeCandidateFactory candidateFactory = new();
 
+        FakeChatbotResponseCache responseCache = new();
+
         ChatbotSemanticIndex semanticIndex = new();
 
         ChatbotSemanticIndexUpdater updater =
             new(
                 knowledgeService,
                 candidateFactory,
-                semanticIndex);
+                semanticIndex,
+                responseCache);
 
         updater.Refresh(passwordId);
 
-        Assert.Single(
-            candidateFactory.CreatedForItems);
+        Assert.Single(candidateFactory.CreatedForItems);
 
         Assert.Equal(
             passwordId,
             candidateFactory.CreatedForItems[0]);
+
+        Assert.Equal(1, responseCache.InvalidateCallCount);
     }
 
     [Fact]
@@ -132,10 +140,11 @@ public sealed class ChatbotSemanticIndexUpdaterTests
         Guid deletedFaqId = Guid.NewGuid();
         Guid remainingFaqId = Guid.NewGuid();
 
-        FakeKnowledgeService knowledgeService =
-            new([]);
+        FakeKnowledgeService knowledgeService = new([]);
 
         FakeCandidateFactory candidateFactory = new();
+
+        FakeChatbotResponseCache responseCache = new();
 
         ChatbotSemanticIndex semanticIndex = new();
 
@@ -158,15 +167,14 @@ public sealed class ChatbotSemanticIndexUpdaterTests
             new(
                 knowledgeService,
                 candidateFactory,
-                semanticIndex);
+                semanticIndex,
+                responseCache);
 
-        bool result =
-            updater.Refresh(deletedFaqId);
+        bool result = updater.Refresh(deletedFaqId);
 
         Assert.False(result);
 
-        IReadOnlyList<ChatbotSemanticCandidate> candidates =
-            semanticIndex.GetAll();
+        IReadOnlyList<ChatbotSemanticCandidate> candidates = semanticIndex.GetAll();
 
         Assert.Single(candidates);
 
@@ -178,8 +186,9 @@ public sealed class ChatbotSemanticIndexUpdaterTests
             deletedCandidate,
             candidates);
 
-        Assert.Empty(
-            candidateFactory.CreatedForItems);
+        Assert.Empty(candidateFactory.CreatedForItems);
+
+        Assert.Equal(1, responseCache.InvalidateCallCount);
     }
 
     private static ChatbotKnowledgeItem CreateKnowledgeItem(
@@ -206,6 +215,41 @@ public sealed class ChatbotSemanticIndexUpdaterTests
             Embedding = [1f, 0f],
             Kind = ChatbotKnowledgeItemKind.Clarification
         };
+    }
+
+    private sealed class FakeChatbotResponseCache : IChatbotResponseCache
+    {
+        public int InvalidateCallCount
+        {
+            get;
+            private set;
+        }
+
+        public long CaptureVersion()
+        {
+            return 0;
+        }
+
+        public bool TryGet(
+            string normalizedQuestion,
+            long version,
+            out ChatbotMessageResult? result)
+        {
+            result = null;
+            return false;
+        }
+
+        public void Set(
+            string normalizedQuestion,
+            long version,
+            ChatbotMessageResult result)
+        {
+        }
+
+        public void Invalidate()
+        {
+            InvalidateCallCount++;
+        }
     }
 
     private sealed class FakeKnowledgeService

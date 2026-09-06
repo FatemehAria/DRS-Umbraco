@@ -1,6 +1,8 @@
+using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Embeddings;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
 using DrsUmbraco.Cms.Features.Chatbot.Services;
+using DrsUmbraco.Cms.Features.Chatbot.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Services;
@@ -48,6 +50,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -107,6 +111,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -179,6 +185,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -250,6 +258,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -381,6 +391,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -484,6 +496,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -541,6 +555,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -602,6 +618,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -665,6 +683,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 new FakeRelevanceVerifier(true),
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -750,6 +770,8 @@ public sealed class ChatbotMessageServiceTests
                 candidateEvidenceService,
                 knowledgeService,
                 relevanceVerifier,
+                new FakeChatbotResponseCache(),
+                new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
 
         // Act
@@ -768,7 +790,208 @@ public sealed class ChatbotMessageServiceTests
             1,
             relevanceVerifier.CallCount);
     }
-    
+
+    [Fact]
+    public void Process_WhenNormalizedQuestionIsRepeated_ShouldUseCachedResult()
+    {
+        // Arrange
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = false
+                });
+
+        FakeClarificationExactMatchingService
+            clarificationService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
+        FakeNoMatchDecisionService noMatchService =
+            new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService
+            candidateEvidenceService =
+                new([]);
+
+        FakeKnowledgeService knowledgeService =
+            new();
+
+        FakeChatbotResponseCache responseCache =
+            new();
+
+        PersianTextNormalizer textNormalizer =
+            new();
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService,
+                new FakeRelevanceVerifier(true),
+                responseCache,
+                textNormalizer,
+                NullLogger<ChatbotMessageService>.Instance);
+
+        // Act
+        ChatbotMessageResult firstResult =
+            service.Process(
+                "سؤال ناشناخته؟");
+
+        ChatbotMessageResult secondResult =
+            service.Process(
+                "  سؤال ناشناخته  ");
+
+        // Assert
+        Assert.Equal(
+            ChatbotResponseType.Fallback,
+            firstResult.ResponseType);
+
+        Assert.Equal(
+            ChatbotResponseType.Fallback,
+            secondResult.ResponseType);
+
+        Assert.Equal(
+            firstResult.Reply,
+            secondResult.Reply);
+
+        Assert.Equal(
+            1,
+            candidateEvidenceService.CallCount);
+    }
+
+    [Fact]
+    public void Process_WhenExactMatchExists_ShouldIgnoreCachedFallback()
+    {
+        // Arrange
+        const string question = "Exact question";
+
+        FakeMatchingService matchingService =
+            new(
+                new ChatbotMatchResult
+                {
+                    IsMatch = true,
+                    KnowledgeItemId =
+                        Guid.NewGuid(),
+                    Answer =
+                        "Current exact answer"
+                });
+
+        FakeClarificationExactMatchingService
+            clarificationService =
+                new(
+                    new ChatbotMatchResult
+                    {
+                        IsMatch = false
+                    });
+
+        FakeNoMatchDecisionService noMatchService = new(ChatbotNoMatchDecision.InDomain);
+
+        FakeCandidateEvidenceService candidateEvidenceService = new([]);
+
+        FakeKnowledgeService knowledgeService = new();
+
+        FakeChatbotResponseCache responseCache = new();
+
+        PersianTextNormalizer textNormalizer = new();
+
+        string normalizedQuestion = textNormalizer.Normalize(question);
+
+        long cacheVersion = responseCache.CaptureVersion();
+
+        responseCache.Set(
+            normalizedQuestion,
+            cacheVersion,
+            new ChatbotMessageResult
+            {
+                ResponseType = ChatbotResponseType.Fallback,
+
+                Reply = "Old cached fallback"
+            });
+
+        ChatbotMessageService service =
+            new(
+                matchingService,
+                clarificationService,
+                noMatchService,
+                candidateEvidenceService,
+                knowledgeService,
+                new FakeRelevanceVerifier(true),
+                responseCache,
+                textNormalizer,
+                NullLogger<ChatbotMessageService>.Instance);
+
+        // Act
+        ChatbotMessageResult result = service.Process(question);
+
+        // Assert
+        Assert.Equal(
+            ChatbotResponseType.Answer,
+            result.ResponseType);
+
+        Assert.Equal(
+            "Current exact answer",
+            result.Reply);
+
+        Assert.Equal(
+            0,
+            clarificationService.CallCount);
+
+        Assert.Equal(
+            0,
+            candidateEvidenceService.CallCount);
+    }
+
+    private sealed class FakeChatbotResponseCache : IChatbotResponseCache
+    {
+        private readonly Dictionary<
+            (long Version, string Question),
+            ChatbotMessageResult> _entries = [];
+
+        private long _version;
+
+        public long CaptureVersion()
+        {
+            return _version;
+        }
+
+        public bool TryGet(
+            string normalizedQuestion,
+            long version,
+            out ChatbotMessageResult? result)
+        {
+            return _entries.TryGetValue(
+                (version, normalizedQuestion),
+                out result);
+        }
+
+        public void Set(
+            string normalizedQuestion,
+            long version,
+            ChatbotMessageResult result)
+        {
+            if (version != _version)
+            {
+                return;
+            }
+
+            _entries[
+                (version, normalizedQuestion)] =
+                    result;
+        }
+
+        public void Invalidate()
+        {
+            _version++;
+            _entries.Clear();
+        }
+    }
+
     private sealed class FakeRelevanceVerifier
     : IChatbotRelevanceVerifier
     {

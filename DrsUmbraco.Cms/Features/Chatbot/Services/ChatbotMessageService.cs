@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Models;
+using DrsUmbraco.Cms.Features.Chatbot.Text;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Services;
 
@@ -12,6 +14,9 @@ public sealed class ChatbotMessageService : IChatbotMessageService
     private readonly IChatbotKnowledgeService _knowledgeService;
     private readonly IChatbotRelevanceVerifier _relevanceVerifier;
     private readonly ILogger<ChatbotMessageService> _logger;
+    private readonly IChatbotResponseCache _responseCache;
+
+    private readonly IPersianTextNormalizer _textNormalizer;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
         IChatbotClarificationExactMatchingService
@@ -20,6 +25,8 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         IChatbotCandidateEvidenceService candidateEvidenceService,
         IChatbotKnowledgeService knowledgeService,
         IChatbotRelevanceVerifier relevanceVerifier,
+        IChatbotResponseCache responseCache,
+        IPersianTextNormalizer textNormalizer,
         ILogger<ChatbotMessageService> logger)
     {
         _matchingService = matchingService;
@@ -28,6 +35,8 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         _candidateEvidenceService = candidateEvidenceService;
         _knowledgeService = knowledgeService;
         _relevanceVerifier = relevanceVerifier;
+        _responseCache = responseCache;
+        _textNormalizer = textNormalizer;
         _logger = logger;
     }
 
@@ -36,8 +45,7 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         Stopwatch exactMatchingStopwatch = Stopwatch.StartNew();
 
         // 1. Exact Answer
-        ChatbotMatchResult exactResult =
-            _matchingService.FindMatch(message);
+        ChatbotMatchResult exactResult = _matchingService.FindMatch(message);
 
         exactMatchingStopwatch.Stop();
 
@@ -81,6 +89,37 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             };
         }
 
+        string normalizedQuestion = _textNormalizer.Normalize(message);
+
+        bool canUseCache = !string.IsNullOrWhiteSpace(normalizedQuestion);
+
+        long cacheVersion =
+            canUseCache
+                ? _responseCache.CaptureVersion()
+                : 0;
+
+        if (canUseCache &&
+            _responseCache.TryGet(
+                normalizedQuestion,
+                cacheVersion,
+                out ChatbotMessageResult? cachedResult) &&
+            cachedResult is not null)
+        {
+            _logger.LogInformation(
+                "Performance metric {MetricName}. Outcome={CacheOutcome}.",
+                "ChatbotResponseCache",
+                "Hit");
+
+            return cachedResult;
+        }
+
+        _logger.LogInformation(
+            "Performance metric {MetricName}. Outcome={CacheOutcome}.",
+            "ChatbotResponseCache",
+            canUseCache
+                ? "Miss"
+                : "Bypass");
+
         Stopwatch candidateEvidenceStopwatch = Stopwatch.StartNew();
 
         // 3. Retrieve Answer candidates once.
@@ -100,7 +139,10 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
         if (candidates.Count == 0)
         {
-            return CreateNoMatchResult();
+            return CacheResult(
+                normalizedQuestion,
+                cacheVersion,
+                CreateNoMatchResult());
         }
 
         float semanticTopScore =
@@ -114,10 +156,12 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
         ChatbotNoMatchDecision noMatchDecision = _noMatchDecisionService.Decide(semanticTopScore);
 
-        if (noMatchDecision ==
-            ChatbotNoMatchDecision.NoMatch)
+        if (noMatchDecision == ChatbotNoMatchDecision.NoMatch)
         {
-            return CreateNoMatchResult();
+            return CacheResult(
+                normalizedQuestion,
+                cacheVersion,
+                CreateNoMatchResult());
         }
 
         List<ChatbotSuggestion> suggestions = [];
@@ -217,20 +261,29 @@ public sealed class ChatbotMessageService : IChatbotMessageService
 
         if (suggestions.Count == 0)
         {
-            return CreateNoMatchResult();
+            return CacheResult(
+                normalizedQuestion,
+                cacheVersion,
+                CreateNoMatchResult());
         }
 
-        return new ChatbotMessageResult
-        {
-            ResponseType =
-                ChatbotResponseType.Suggestions,
+        ChatbotMessageResult result =
+            new()
+            {
+                ResponseType =
+                    ChatbotResponseType.Suggestions,
 
-            Reply =
-                "منظورتان کدام مورد است؟",
+                Reply =
+                    "منظورتان کدام مورد است؟",
 
-            Suggestions =
-                suggestions
-        };
+                Suggestions =
+                    suggestions
+            };
+
+        return CacheResult(
+            normalizedQuestion,
+            cacheVersion,
+            result);
     }
 
     public ChatbotMessageResult? SelectSuggestion(
@@ -252,6 +305,24 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             Reply = item.Answer
         };
     }
+
+    private ChatbotMessageResult CacheResult(
+    string normalizedQuestion,
+    long cacheVersion,
+    ChatbotMessageResult result)
+    {
+        if (!string.IsNullOrWhiteSpace(
+                normalizedQuestion))
+        {
+            _responseCache.Set(
+                normalizedQuestion,
+                cacheVersion,
+                result);
+        }
+
+        return result;
+    }
+
     private static ChatbotMessageResult
     CreateNoMatchResult()
     {
