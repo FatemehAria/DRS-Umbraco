@@ -314,8 +314,7 @@ public sealed class ChatbotMessageServiceTests
                     answer: "Some candidate answer",
                     selectedStrategy: "Centroid"));
 
-        FakeNoMatchDecisionService noMatchService =
-            new(ChatbotNoMatchDecision.InDomain);
+        FakeNoMatchDecisionService noMatchService = new(ChatbotNoMatchDecision.InDomain);
 
         FakeCandidateEvidenceService
             candidateEvidenceService =
@@ -383,6 +382,8 @@ public sealed class ChatbotMessageServiceTests
                 }
                 ]);
 
+        FakeRelevanceVerifier relevanceVerifier = new(true);
+
         ChatbotMessageService service =
             new(
                 matchingService,
@@ -390,7 +391,7 @@ public sealed class ChatbotMessageServiceTests
                 noMatchService,
                 candidateEvidenceService,
                 knowledgeService,
-                new FakeRelevanceVerifier(true),
+                relevanceVerifier,
                 new FakeChatbotResponseCache(),
                 new PersianTextNormalizer(),
                 NullLogger<ChatbotMessageService>.Instance);
@@ -452,6 +453,10 @@ public sealed class ChatbotMessageServiceTests
         Assert.Equal(
             3,
             knowledgeService.GetByIdCallCount);
+
+        Assert.Equal(
+            3,
+            relevanceVerifier.CallCount);
     }
 
     [Fact]

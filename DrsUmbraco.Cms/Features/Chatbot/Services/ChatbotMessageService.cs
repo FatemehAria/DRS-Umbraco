@@ -15,7 +15,6 @@ public sealed class ChatbotMessageService : IChatbotMessageService
     private readonly IChatbotRelevanceVerifier _relevanceVerifier;
     private readonly ILogger<ChatbotMessageService> _logger;
     private readonly IChatbotResponseCache _responseCache;
-
     private readonly IPersianTextNormalizer _textNormalizer;
     public ChatbotMessageService(
         IChatbotMatchingService matchingService,
@@ -175,15 +174,21 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         int knowledgeLookupCount = 0;
         int relevanceVerificationCount = 0;
 
+        int candidatePosition = 0;
+        int lastVerifiedCandidatePosition = 0;
+
+        List<int> acceptedCandidatePositions = [];
+
         foreach (ChatbotCandidateEvidence candidate in candidates)
         {
+            candidatePosition++;
+
             if (!addedIds.Add(candidate.KnowledgeItemId))
             {
                 continue;
             }
 
-            Stopwatch knowledgeLookupStopwatch =
-                Stopwatch.StartNew();
+            Stopwatch knowledgeLookupStopwatch = Stopwatch.StartNew();
 
             ChatbotKnowledgeItem? knowledgeItem =
                 _knowledgeService.GetById(
@@ -201,6 +206,8 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             {
                 continue;
             }
+
+            lastVerifiedCandidatePosition = candidatePosition;
 
             Stopwatch relevanceStopwatch = Stopwatch.StartNew();
 
@@ -227,14 +234,14 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 continue;
             }
 
+            acceptedCandidatePositions.Add(candidatePosition);
+
             suggestions.Add(
                 new ChatbotSuggestion
                 {
-                    KnowledgeItemId =
-                        knowledgeItem.Id,
+                    KnowledgeItemId = knowledgeItem.Id,
 
-                    Label =
-                        knowledgeItem.Question
+                    Label = knowledgeItem.Question
                 });
 
             if (suggestions.Count == 3)
@@ -243,12 +250,31 @@ public sealed class ChatbotMessageService : IChatbotMessageService
             }
         }
 
+        int acceptedCount = suggestions.Count;
+
+        int rejectedCount = relevanceVerificationCount - acceptedCount;
+
+        bool stoppedAfterFindingThree = suggestions.Count == 3;
+
+        string acceptedPositions =
+            acceptedCandidatePositions.Count == 0
+                ? "None"
+                : string.Join(
+                    ",",
+                    acceptedCandidatePositions);
+
         _logger.LogInformation(
             "Performance metric {MetricName}. " +
+            "CandidateCount={CandidateCount}, " +
             "KnowledgeLookupCount={KnowledgeLookupCount}, KnowledgeLookupTotalMs={KnowledgeLookupTotalMs}. " +
             "VerificationCount={VerificationCount}, VerificationTotalMs={VerificationTotalMs}, " +
-            "VerificationAverageMs={VerificationAverageMs}, VerificationMaxMs={VerificationMaxMs}.",
+            "VerificationAverageMs={VerificationAverageMs}, VerificationMaxMs={VerificationMaxMs}. " +
+            "AcceptedCount={AcceptedCount}, RejectedCount={RejectedCount}, " +
+            "AcceptedPositions={AcceptedPositions}, " +
+            "LastVerifiedCandidatePosition={LastVerifiedCandidatePosition}, " +
+            "StoppedAfterFindingThree={StoppedAfterFindingThree}.",
             "SuggestionEvaluation",
+            candidates.Count,
             knowledgeLookupCount,
             knowledgeLookupTotalMs,
             relevanceVerificationCount,
@@ -257,7 +283,12 @@ public sealed class ChatbotMessageService : IChatbotMessageService
                 ? 0
                 : relevanceVerificationTotalMs /
                 relevanceVerificationCount,
-            relevanceVerificationMaxMs);
+            relevanceVerificationMaxMs,
+            acceptedCount,
+            rejectedCount,
+            acceptedPositions,
+            lastVerifiedCandidatePosition,
+            stoppedAfterFindingThree);
 
         if (suggestions.Count == 0)
         {
@@ -270,14 +301,11 @@ public sealed class ChatbotMessageService : IChatbotMessageService
         ChatbotMessageResult result =
             new()
             {
-                ResponseType =
-                    ChatbotResponseType.Suggestions,
+                ResponseType = ChatbotResponseType.Suggestions,
 
-                Reply =
-                    "منظورتان کدام مورد است؟",
+                Reply = "منظورتان کدام مورد است؟",
 
-                Suggestions =
-                    suggestions
+                Suggestions = suggestions
             };
 
         return CacheResult(
@@ -328,8 +356,7 @@ public sealed class ChatbotMessageService : IChatbotMessageService
     {
         return new ChatbotMessageResult
         {
-            Reply =
-                "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
+            Reply = "پاسخ دقیقی برای سؤال شما پیدا نکردم. لطفاً با پشتیبانی تماس بگیرید.",
             ResponseType = ChatbotResponseType.Fallback
         };
     }
