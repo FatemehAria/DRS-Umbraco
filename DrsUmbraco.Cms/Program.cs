@@ -19,6 +19,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services
+    .AddOptions<ChatbotFeatureOptions>()
+    .Bind(
+        builder.Configuration.GetSection(
+            ChatbotFeatureOptions.SectionName));
+
 builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
 
 builder.Services.AddScoped<IChatbotKnowledgeService, UmbracoChatbotKnowledgeService>();
@@ -267,6 +273,32 @@ app.Logger.LogInformation(
 app.UseResponseCompression();
 
 app.UseStaticFiles();
+
+ChatbotFeatureOptions chatbotFeatureOptions =
+    app.Services
+        .GetRequiredService<
+            IOptions<ChatbotFeatureOptions>>()
+        .Value;
+
+app.Use(
+    async (context, next) =>
+    {
+        bool isChatbotRequest =
+            context.Request.Path
+                .StartsWithSegments(
+                    "/api/chatbot");
+
+        if (!chatbotFeatureOptions.Enabled &&
+            isChatbotRequest)
+        {
+            context.Response.StatusCode =
+                StatusCodes.Status404NotFound;
+
+            return;
+        }
+
+        await next();
+    });
 
 ILogger chatbotPerformanceLogger =
     app.Services

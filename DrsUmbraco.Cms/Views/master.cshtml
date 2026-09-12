@@ -2,12 +2,18 @@
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Extensions
 @using Umbraco.Cms.Core.Models.Blocks
+@using DrsUmbraco.Cms.Features.Chatbot.Configuration
+@using Microsoft.Extensions.Options
+
+@inject IOptions<ChatbotFeatureOptions> ChatbotFeatureOptionsAccessor
 
 @{
 
     var siteSettings = Umbraco.ContentAtRoot()
     .SelectMany(x => x.DescendantsOrSelf())
     .FirstOrDefault(x => x.ContentType.Alias == "siteSettings");
+
+    var isChatbotEnabled = ChatbotFeatureOptionsAccessor.Value.Enabled;
 
     var isCustomerPortalPage =
     Context.Request.Path.StartsWithSegments("/پورتال-مشتریان", StringComparison.OrdinalIgnoreCase);
@@ -286,7 +292,12 @@
     {
         <meta name="robots" content="noindex,follow" />
     }
-    <link rel="stylesheet" href="/css/chatbot.css" />
+
+    @if (isChatbotEnabled)
+    {
+        <link rel="stylesheet" href="/css/chatbot.css" />
+    }
+
     <link rel="stylesheet" href="~/css/sama.bundle.min.css" asp-append-version="true" />
 </head>
 
@@ -301,7 +312,7 @@
 
                 <!-- @if (!string.IsNullOrWhiteSpace(siteTagline))
                     {
-                                    <small>@siteTagline</small>
+                                                        <small>@siteTagline</small>
                     }
  -->
                 <!-- </span> -->
@@ -485,9 +496,13 @@
         <span class="top-arrow">↑</span>
     </button>
 
-    <partial name="Chatbot/ChatbotWidget" />
+    @if (isChatbotEnabled)
+    {
+        <partial name="Chatbot/ChatbotWidget" />
 
-    <script src="/js/chatbot.js"></script>
+        <script src="/js/chatbot.js"></script>
+    }
+
     <script src="/js/sama.js"></script>
 </body>
 

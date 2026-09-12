@@ -6,6 +6,8 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using System.Diagnostics;
 using DrsUmbraco.Cms.Features.Chatbot.Readiness;
+using DrsUmbraco.Cms.Features.Chatbot.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Notifications;
 
@@ -16,21 +18,32 @@ public sealed class ChatbotSemanticIndexStartupHandler
     private readonly IRuntimeState _runtimeState;
     private readonly ILogger<ChatbotSemanticIndexStartupHandler> _logger;
     private readonly IChatbotSemanticIndexReadiness _readiness;
+    private readonly ChatbotFeatureOptions _featureOptions;
     public ChatbotSemanticIndexStartupHandler(
         IServiceScopeFactory scopeFactory,
         IRuntimeState runtimeState,
         IChatbotSemanticIndexReadiness readiness,
+        IOptions<ChatbotFeatureOptions> featureOptions,
         ILogger<ChatbotSemanticIndexStartupHandler> logger)
     {
         _scopeFactory = scopeFactory;
         _runtimeState = runtimeState;
-        _logger = logger;
         _readiness = readiness;
+        _featureOptions = featureOptions.Value;
+        _logger = logger;
     }
 
     public void Handle(
         UmbracoApplicationStartedNotification notification)
     {
+        if (!_featureOptions.Enabled)
+        {
+            _logger.LogInformation(
+                "Chatbot semantic index startup was skipped because the chatbot feature is disabled.");
+
+            return;
+        }
+
         if (_runtimeState.Level != RuntimeLevel.Run)
         {
             return;

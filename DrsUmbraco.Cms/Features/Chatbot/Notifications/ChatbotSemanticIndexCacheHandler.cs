@@ -5,6 +5,8 @@ using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Services.Changes;
+using DrsUmbraco.Cms.Features.Chatbot.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Features.Chatbot.Notifications;
 
@@ -15,19 +17,27 @@ public sealed class ChatbotSemanticIndexCacheHandler
     private const string KnowledgeBaseContentTypeAlias = "chatbotKnowledgeBase";
 
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ChatbotFeatureOptions _featureOptions;
     private readonly ILogger<ChatbotSemanticIndexCacheHandler> _logger;
 
     public ChatbotSemanticIndexCacheHandler(
         IServiceScopeFactory scopeFactory,
+        IOptions<ChatbotFeatureOptions> featureOptions,
         ILogger<ChatbotSemanticIndexCacheHandler> logger)
     {
         _scopeFactory = scopeFactory;
+        _featureOptions = featureOptions.Value;
         _logger = logger;
     }
 
     public void Handle(
         ContentCacheRefresherNotification notification)
     {
+        if (!_featureOptions.Enabled)
+        {
+            return;
+        }
+
         if (notification.MessageObject
             is not ContentCacheRefresher.JsonPayload[] payloads)
         {
