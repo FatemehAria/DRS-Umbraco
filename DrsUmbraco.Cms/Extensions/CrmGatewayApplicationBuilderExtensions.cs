@@ -35,12 +35,13 @@ public static class CrmGatewayApplicationBuilderExtensions
                 //     path.StartsWithSegments("/sso/logout") ||
                 //     path.StartsWithSegments("/login");
 
-                var isLocalAuthenticationRoute =
+                var isLocalRoute =
                         path.StartsWithSegments("/signin") ||
                         path.StartsWithSegments("/signout") ||
-                        path.StartsWithSegments("/login");
+                        path.StartsWithSegments("/login") ||
+                        path.StartsWithSegments("/umbraco");
 
-                if (isLocalAuthenticationRoute)
+                if (isLocalRoute)
                 {
                     return false;
                 }
@@ -61,8 +62,7 @@ public static class CrmGatewayApplicationBuilderExtensions
                         path.StartsWithSegments("/css") ||
                         path.StartsWithSegments("/js") ||
                         path.StartsWithSegments("/assets") ||
-                        path.StartsWithSegments("/media") ||
-                        path.StartsWithSegments("/umbraco");
+                        path.StartsWithSegments("/media");
 
                     if (isStaticAssetPath)
                     {
@@ -96,10 +96,6 @@ public static class CrmGatewayApplicationBuilderExtensions
                 proxyApp.UseMiddleware<
                     CrmGatewayHtmlInjectionMiddleware>();
 
-                proxyApp.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapReverseProxy();
-                });
                 proxyApp.UseEndpoints(endpoints =>
                 {
                     endpoints.MapReverseProxy();
