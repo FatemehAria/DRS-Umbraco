@@ -13,9 +13,36 @@ using System.Diagnostics;
 using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Readiness;
 
+DateTime managedEntryAtUtc = DateTime.UtcNow;
+
+DateTime processStartedAtUtc;
+
+using (Process startupProcess = Process.GetCurrentProcess())
+{
+    processStartedAtUtc =
+        startupProcess
+            .StartTime
+            .ToUniversalTime();
+}
+
+double processToManagedEntryMs =
+    Math.Max(
+        (managedEntryAtUtc -
+         processStartedAtUtc)
+            .TotalMilliseconds,
+        0);
+
 Stopwatch applicationStartupStopwatch = Stopwatch.StartNew();
 
+Stopwatch createBuilderStopwatch = Stopwatch.StartNew();
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+createBuilderStopwatch.Stop();
+
+Stopwatch serviceRegistrationStopwatch = Stopwatch.StartNew();
+
+Stopwatch applicationServiceRegistrationStopwatch = Stopwatch.StartNew();
 
 builder.Services.AddControllersWithViews();
 
@@ -121,24 +148,14 @@ builder.Services
         "BGE relevance Threshold must be finite.")
     .ValidateOnStart();
 
-builder.Services.AddSingleton<
-    BgeRelevanceTokenizer>(
+builder.Services.AddSingleton<BgeRelevanceTokenizer>(
     serviceProvider =>
     {
-        ILogger<BgeRelevanceTokenizer> logger =
-            serviceProvider.GetRequiredService<
-                ILogger<BgeRelevanceTokenizer>>();
+        ILogger<BgeRelevanceTokenizer> logger = serviceProvider.GetRequiredService<ILogger<BgeRelevanceTokenizer>>();
 
-        IWebHostEnvironment environment =
-            serviceProvider
-                .GetRequiredService<
-                    IWebHostEnvironment>();
+        IWebHostEnvironment environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
-        BgeRelevanceOptions options =
-            serviceProvider
-                .GetRequiredService<
-                    IOptions<BgeRelevanceOptions>>()
-                .Value;
+        BgeRelevanceOptions options = serviceProvider.GetRequiredService<IOptions<BgeRelevanceOptions>>().Value;
 
         string tokenizerPath =
             Path.IsPathRooted(
@@ -153,24 +170,14 @@ builder.Services.AddSingleton<
             logger);
     });
 
-builder.Services.AddSingleton<
-    BgeRelevanceModel>(
+builder.Services.AddSingleton<BgeRelevanceModel>(
     serviceProvider =>
     {
-        ILogger<BgeRelevanceModel> logger =
-            serviceProvider.GetRequiredService<
-                ILogger<BgeRelevanceModel>>();
+        ILogger<BgeRelevanceModel> logger = serviceProvider.GetRequiredService<ILogger<BgeRelevanceModel>>();
 
-        IWebHostEnvironment environment =
-            serviceProvider
-                .GetRequiredService<
-                    IWebHostEnvironment>();
+        IWebHostEnvironment environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
-        BgeRelevanceOptions options =
-            serviceProvider
-                .GetRequiredService<
-                    IOptions<BgeRelevanceOptions>>()
-                .Value;
+        BgeRelevanceOptions options = serviceProvider.GetRequiredService<IOptions<BgeRelevanceOptions>>().Value;
 
         string modelPath =
             Path.IsPathRooted(
@@ -180,15 +187,12 @@ builder.Services.AddSingleton<
                     environment.ContentRootPath,
                     options.ModelPath);
 
-        return new BgeRelevanceModel(
-            Path.GetFullPath(modelPath),
-            logger);
+        return new BgeRelevanceModel(Path.GetFullPath(modelPath), logger);
     });
 
 builder.Services.AddSingleton<IBgeRelevanceScorer, BgeRelevanceScorer>();
 
-builder.Services.AddSingleton<
-    Lazy<IBgeRelevanceScorer>>(
+builder.Services.AddSingleton<Lazy<IBgeRelevanceScorer>>(
     serviceProvider =>
         new Lazy<IBgeRelevanceScorer>(
             () =>
@@ -239,8 +243,11 @@ builder.Services.AddSingleton<IChatbotSemanticIndexReadiness, ChatbotSemanticInd
 
 builder.Services.AddApplicationCompression();
 
-builder.Services.AddCrmIntegration(
-    builder.Configuration);
+builder.Services.AddCrmIntegration(builder.Configuration);
+
+applicationServiceRegistrationStopwatch.Stop();
+
+Stopwatch umbracoCompositionStopwatch = Stopwatch.StartNew();
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
@@ -254,12 +261,17 @@ builder.CreateUmbracoBuilder()
         ChatbotSemanticIndexStartupHandler>()
     .Build();
 
+umbracoCompositionStopwatch.Stop();
 
-WebApplication app =
-    builder.Build();
+serviceRegistrationStopwatch.Stop();
 
-Stopwatch umbracoBootStopwatch =
-    Stopwatch.StartNew();
+Stopwatch webApplicationBuildStopwatch = Stopwatch.StartNew();
+
+WebApplication app = builder.Build();
+
+webApplicationBuildStopwatch.Stop();
+
+Stopwatch umbracoBootStopwatch = Stopwatch.StartNew();
 
 await app.BootUmbracoAsync();
 
@@ -269,6 +281,10 @@ app.Logger.LogInformation(
     "Performance metric {MetricName} completed in {ElapsedMs} ms.",
     "UmbracoBoot",
     umbracoBootStopwatch.ElapsedMilliseconds);
+
+Stopwatch pipelineConfigurationStopwatch = Stopwatch.StartNew();
+
+Stopwatch applicationPipelineStopwatch = Stopwatch.StartNew();
 
 app.UseResponseCompression();
 
@@ -288,8 +304,7 @@ app.Use(
                 .StartsWithSegments(
                     "/api/chatbot");
 
-        if (!chatbotFeatureOptions.Enabled &&
-            isChatbotRequest)
+        if (!chatbotFeatureOptions.Enabled && isChatbotRequest)
         {
             context.Response.StatusCode =
                 StatusCodes.Status404NotFound;
@@ -310,20 +325,16 @@ int chatbotRequestCount = 0;
 app.Use(
     async (context, next) =>
     {
-        if (!context.Request.Path.StartsWithSegments(
-                "/api/chatbot"))
+        if (!context.Request.Path.StartsWithSegments("/api/chatbot"))
         {
             await next();
 
             return;
         }
 
-        int requestNumber =
-            Interlocked.Increment(
-                ref chatbotRequestCount);
+        int requestNumber = Interlocked.Increment(ref chatbotRequestCount);
 
-        Stopwatch requestStopwatch =
-            Stopwatch.StartNew();
+        Stopwatch requestStopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -346,6 +357,10 @@ app.Use(
 
 app.MapCrmGateway();
 
+applicationPipelineStopwatch.Stop();
+
+Stopwatch umbracoPipelineStopwatch = Stopwatch.StartNew();
+
 app.UseUmbraco()
     .WithMiddleware(umbraco =>
     {
@@ -361,15 +376,52 @@ app.UseUmbraco()
         umbraco.UseWebsiteEndpoints();
     });
 
+umbracoPipelineStopwatch.Stop();
+
+pipelineConfigurationStopwatch.Stop();
+
+Stopwatch hostStartStopwatch = new();
+
 app.Lifetime.ApplicationStarted.Register(
     () =>
     {
+        hostStartStopwatch.Stop();
         applicationStartupStopwatch.Stop();
+
+        app.Logger.LogInformation(
+            "Performance metric {MetricName}. " +
+            "ProcessToManagedEntry={ProcessToManagedEntryMs:F2} ms. " +
+            "CreateBuilder={CreateBuilderMs:F2} ms. " +
+            "ServiceRegistrationAndComposition={ServiceRegistrationMs:F2} ms. " +
+            "ApplicationServiceRegistration={ApplicationServiceRegistrationMs:F2} ms. " +
+            "UmbracoComposition={UmbracoCompositionMs:F2} ms. " +
+            "WebApplicationBuild={WebApplicationBuildMs:F2} ms. " +
+            "UmbracoBoot={UmbracoBootMs:F2} ms. " +
+            "PipelineConfiguration={PipelineConfigurationMs:F2} ms. " +
+            "ApplicationPipeline={ApplicationPipelineMs:F2} ms. " +
+            "UmbracoPipeline={UmbracoPipelineMs:F2} ms. " +
+            "HostStart={HostStartMs:F2} ms. " +
+            "ManagedStartupTotal={ManagedStartupTotalMs:F2} ms.",
+            "ApplicationStartupBreakdown",
+            processToManagedEntryMs,
+            createBuilderStopwatch.Elapsed.TotalMilliseconds,
+            serviceRegistrationStopwatch.Elapsed.TotalMilliseconds,
+            applicationServiceRegistrationStopwatch.Elapsed.TotalMilliseconds,
+            umbracoCompositionStopwatch.Elapsed.TotalMilliseconds,
+            webApplicationBuildStopwatch.Elapsed.TotalMilliseconds,
+            umbracoBootStopwatch.Elapsed.TotalMilliseconds,
+            pipelineConfigurationStopwatch.Elapsed.TotalMilliseconds,
+            applicationPipelineStopwatch.Elapsed.TotalMilliseconds,
+            umbracoPipelineStopwatch.Elapsed.TotalMilliseconds,
+            hostStartStopwatch.Elapsed.TotalMilliseconds,
+            applicationStartupStopwatch.Elapsed.TotalMilliseconds);
 
         app.Logger.LogInformation(
             "Performance metric {MetricName} completed in {ElapsedMs} ms.",
             "ApplicationStartup",
             applicationStartupStopwatch.ElapsedMilliseconds);
     });
+
+hostStartStopwatch.Start();
 
 await app.RunAsync();
