@@ -19,33 +19,25 @@ public sealed class CrmSessionService : ICrmSessionService
 
     private readonly CrmOptions _crmOptions;
 
-    public CrmSessionService(
-    IOptions<CrmOptions> crmOptions)
+    public CrmSessionService(IOptions<CrmOptions> crmOptions)
     {
-        _crmOptions =
-            crmOptions.Value;
+        _crmOptions = crmOptions.Value;
     }
 
     public void EstablishSession(
         HttpResponse response,
         CrmLoginResult loginResult)
     {
-        CopyCrmCookies(
-            response,
-            loginResult.SetCookieHeaders);
+        CopyCrmCookies(response, loginResult.SetCookieHeaders);
 
-        CreateGatewaySessionCookie(
-            response,
-            loginResult.ResponseBody);
+        CreateGatewaySessionCookie(response, loginResult.ResponseBody);
     }
 
     public void ClearSession(HttpResponse response)
     {
         foreach (var cookieName in CrmCookieNames)
         {
-            response.Cookies.Delete(
-                cookieName,
-                CreateCookieOptions());
+            response.Cookies.Delete(cookieName, CreateCookieOptions());
         }
     }
 
@@ -55,9 +47,7 @@ public sealed class CrmSessionService : ICrmSessionService
     {
         foreach (var cookie in setCookieHeaders)
         {
-            response.Headers.Append(
-                "Set-Cookie",
-                cookie);
+            response.Headers.Append("Set-Cookie", cookie);
         }
     }
 
@@ -65,19 +55,15 @@ public sealed class CrmSessionService : ICrmSessionService
         HttpResponse response,
         string responseBody)
     {
-        var expires =
-            GetGatewaySessionExpires(responseBody);
+        var expires = GetGatewaySessionExpires(responseBody);
 
-        var maxAge =
-            expires - DateTimeOffset.UtcNow;
+        var maxAge = expires - DateTimeOffset.UtcNow;
 
         if (maxAge <= TimeSpan.Zero)
         {
-            expires =
-                DateTimeOffset.UtcNow.AddMinutes(30);
+            expires = DateTimeOffset.UtcNow.AddMinutes(30);
 
-            maxAge =
-                TimeSpan.FromMinutes(30);
+            maxAge = TimeSpan.FromMinutes(30);
         }
 
         response.Cookies.Append(
@@ -97,18 +83,13 @@ public sealed class CrmSessionService : ICrmSessionService
     private DateTimeOffset GetGatewaySessionExpires(
         string responseBody)
     {
-        var fallbackExpires =
-            DateTimeOffset.UtcNow.AddMinutes(30);
+        var fallbackExpires = DateTimeOffset.UtcNow.AddMinutes(30);
 
         try
         {
-            using var document =
-                JsonDocument.Parse(responseBody);
+            using var document = JsonDocument.Parse(responseBody);
 
-            var expireText =
-                GetJsonStringCaseInsensitive(
-                    document.RootElement,
-                    "expireDateTime");
+            var expireText = GetJsonStringCaseInsensitive(document.RootElement, "expireDateTime");
 
             if (string.IsNullOrWhiteSpace(expireText))
             {
@@ -124,20 +105,11 @@ public sealed class CrmSessionService : ICrmSessionService
                 return fallbackExpires;
             }
 
-            var unspecifiedCrmDateTime =
-                DateTime.SpecifyKind(
-                    crmLocalDateTime,
-                    DateTimeKind.Unspecified);
+            var unspecifiedCrmDateTime = DateTime.SpecifyKind(crmLocalDateTime, DateTimeKind.Unspecified);
 
-            var utcDateTime =
-                TimeZoneInfo.ConvertTimeToUtc(
-                    unspecifiedCrmDateTime,
-                    GetCrmTimeZone());
+            var utcDateTime = TimeZoneInfo.ConvertTimeToUtc(unspecifiedCrmDateTime, GetCrmTimeZone());
 
-            var expires =
-                new DateTimeOffset(
-                    utcDateTime,
-                    TimeSpan.Zero);
+            var expires = new DateTimeOffset(utcDateTime, TimeSpan.Zero);
 
             return expires > DateTimeOffset.UtcNow
                 ? expires
@@ -165,27 +137,22 @@ public sealed class CrmSessionService : ICrmSessionService
     {
         var configuredTimeZoneId = _crmOptions.TimeZoneId;
 
-        if (!string.IsNullOrWhiteSpace(
-                configuredTimeZoneId))
+        if (!string.IsNullOrWhiteSpace(configuredTimeZoneId))
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                configuredTimeZoneId);
+            return TimeZoneInfo.FindSystemTimeZoneById(configuredTimeZoneId);
         }
 
         try
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                "Iran Standard Time");
+            return TimeZoneInfo.FindSystemTimeZoneById("Iran Standard Time");
         }
         catch (TimeZoneNotFoundException)
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(
-                "Asia/Tehran");
+            return TimeZoneInfo.FindSystemTimeZoneById("Asia/Tehran");
         }
     }
 
-    private static string?
-        GetJsonStringCaseInsensitive(
+    private static string? GetJsonStringCaseInsensitive(
             JsonElement element,
             string propertyName)
     {

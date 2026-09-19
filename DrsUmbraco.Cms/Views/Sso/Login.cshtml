@@ -29,17 +29,21 @@
         </p>
 
         <form class="login-form" method="post" action="/signin" autocomplete="on">
-        @* <form class="login-form" method="post" action="/sso/login" autocomplete="on"> *@
-            <div class="login-error" id="loginError">
-                نام کاربری یا رمز عبور صحیح نیست.
-            </div>
+            @Html.AntiForgeryToken()
+            @* <form class="login-form" method="post" action="/sso/login" autocomplete="on"> *@
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="login-error" id="loginError" role="alert" aria-live="assertive">
+                    @Model.ErrorMessage
+                </div>
+            }
 
             <div class="login-field">
                 <label for="userNo">نام کاربری</label>
 
                 <div class="login-input">
                     <input id="userNo" name="UserNo" type="text" autocomplete="username"
-                        placeholder="نام کاربری خود را وارد کنید" required />
+                        placeholder="نام کاربری خود را وارد کنید" value="@Model.UserNo" required />
 
                     <svg class="login-input__icon" viewBox="0 0 24 24" aria-hidden="true">
                         <path
