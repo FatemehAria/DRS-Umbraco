@@ -28,7 +28,7 @@
             برای ادامه، نام کاربری و رمز عبور خود را وارد کنید.
         </p>
 
-        <form class="login-form" method="post" action="/signin" autocomplete="on">
+        <form class="login-form" method="post" action="/signin" data-login-form autocomplete="on" novalidate>
             @Html.AntiForgeryToken()
             @* <form class="login-form" method="post" action="/sso/login" autocomplete="on"> *@
             @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
@@ -39,7 +39,9 @@
             }
 
             <div class="login-field">
-                <label for="userNo">نام کاربری</label>
+                <label for="userNo">
+                    نام کاربری
+                </label>
 
                 <div class="login-input">
                     <input id="userNo" name="UserNo" type="text" autocomplete="username"
@@ -51,6 +53,9 @@
                             fill="currentColor" />
                     </svg>
                 </div>
+
+                <span class="login-field-error" id="userNoError" role="alert" hidden>
+                </span>
             </div>
 
             <div class="login-field">
@@ -66,15 +71,32 @@
                             fill="currentColor" />
                     </svg>
 
-                    <button class="login-input__toggle" type="button" aria-label="نمایش یا مخفی کردن رمز عبور"
+                    <button class="login-input__toggle" type="button" aria-label="نمایش رمز عبور" aria-pressed="false"
                         data-password-toggle>
-                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+
+                        <!-- رمز مخفی است: چشم معمولی -->
+                        <svg data-password-show-icon viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                             <path
                                 d="M12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4C20.7 13.9 17.3 19 12 19s-8.7-5.1-9.4-6.3a1.4 1.4 0 0 1 0-1.4C3.3 10.1 6.7 5 12 5Zm0 2c-3.8 0-6.5 3.4-7.4 5 .9 1.6 3.6 5 7.4 5s6.5-3.4 7.4-5c-.9-1.6-3.6-5-7.4-5Zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6Z"
                                 fill="currentColor" />
                         </svg>
+
+                        <!-- رمز نمایش داده می‌شود: چشم خط‌خورده -->
+                        <svg data-password-hide-icon viewBox="0 0 24 24" width="22" height="22" fill="none"
+                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true" hidden>
+                            <path d="M3 3l18 18" />
+                            <path
+                                d="M10.6 5.2A9.8 9.8 0 0 1 12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4a16.8 16.8 0 0 1-3 3.6" />
+                            <path d="M14.1 14.2a3 3 0 0 1-4.3-4.3" />
+                            <path
+                                d="M6.2 6.2a17 17 0 0 0-3.6 5.1 1.4 1.4 0 0 0 0 1.4C3.3 13.9 6.7 19 12 19c1.5 0 2.8-.4 4-1" />
+                        </svg>
                     </button>
                 </div>
+
+                <span class="login-field-error" id="passwordError" role="alert" hidden>
+                </span>
             </div>
 
             @* <div class="login-actions">
@@ -91,15 +113,174 @@
         </form>
 
         <script>
-            document.querySelector("[data-password-toggle]")?.addEventListener("click", function () {
-                const input = document.getElementById("password");
+            (() => {
+                "use strict";
 
-                if (!input) {
+                const form = document.querySelector("[data-login-form]");
+
+                const userNoInput = document.getElementById("userNo");
+
+                const passwordInput = document.getElementById("password");
+
+                const passwordToggle = document.querySelector("[data-password-toggle]");
+
+                const passwordShowIcon = document.querySelector("[data-password-show-icon]");
+
+                const passwordHideIcon = document.querySelector("[data-password-hide-icon]");
+
+                if (!form || !userNoInput || !passwordInput) {
                     return;
                 }
 
-                input.type = input.type === "password" ? "text" : "password";
-            });
+                passwordToggle?.addEventListener(
+                    "click",
+                    function () {
+                        const shouldShowPassword = passwordInput.type === "password";
+
+                        passwordInput.type = shouldShowPassword ? "text" : "password";
+
+                        passwordToggle.setAttribute("aria-pressed", shouldShowPassword ? "true" : "false");
+
+                        passwordToggle.setAttribute("aria-label", shouldShowPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور");
+
+                        if (passwordShowIcon) {
+                            passwordShowIcon.hidden = shouldShowPassword;
+                        }
+
+                        if (passwordHideIcon) {
+                            passwordHideIcon.hidden = !shouldShowPassword;
+                        }
+                    });
+
+                form.addEventListener(
+                    "submit",
+                    function (event) {
+                        const userNoIsValid =
+                            validateLoginField(
+                                userNoInput);
+
+                        const passwordIsValid =
+                            validateLoginField(
+                                passwordInput);
+
+                        if (userNoIsValid &&
+                            passwordIsValid) {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        const firstInvalidField =
+                            !userNoIsValid
+                                ? userNoInput
+                                : passwordInput;
+
+                        firstInvalidField.focus();
+                    });
+
+                [userNoInput, passwordInput]
+                    .forEach(function (field) {
+                        field.addEventListener(
+                            "blur",
+                            function () {
+                                validateLoginField(
+                                    field);
+                            });
+
+                        field.addEventListener(
+                            "input",
+                            function () {
+                                if (
+                                    field.getAttribute(
+                                        "aria-invalid") ===
+                                    "true"
+                                ) {
+                                    validateLoginField(
+                                        field);
+                                }
+                            });
+                    });
+
+                function validateLoginField(field) {
+                    let errorMessage = "";
+
+                    if (
+                        field === userNoInput &&
+                        !field.value.trim()
+                    ) {
+                        errorMessage =
+                            "وارد کردن نام کاربری الزامی است.";
+                    }
+
+                    if (
+                        field === passwordInput &&
+                        field.value.length === 0
+                    ) {
+                        errorMessage =
+                            "وارد کردن رمز عبور الزامی است.";
+                    }
+
+                    showLoginFieldError(
+                        field,
+                        errorMessage);
+
+                    return !errorMessage;
+                }
+
+                function showLoginFieldError(
+                    field,
+                    errorMessage) {
+
+                    const fieldContainer =
+                        field.closest(
+                            ".login-field");
+
+                    const errorElement =
+                        document.getElementById(
+                            `${field.id}Error`);
+
+                    if (!fieldContainer ||
+                        !errorElement) {
+                        return;
+                    }
+
+                    if (!errorMessage) {
+                        field.removeAttribute(
+                            "aria-invalid");
+
+                        field.removeAttribute(
+                            "aria-describedby");
+
+                        fieldContainer.classList.remove(
+                            "has-error");
+
+                        errorElement.textContent =
+                            "";
+
+                        errorElement.hidden =
+                            true;
+
+                        return;
+                    }
+
+                    field.setAttribute(
+                        "aria-invalid",
+                        "true");
+
+                    field.setAttribute(
+                        "aria-describedby",
+                        errorElement.id);
+
+                    fieldContainer.classList.add(
+                        "has-error");
+
+                    errorElement.textContent =
+                        errorMessage;
+
+                    errorElement.hidden =
+                        false;
+                }
+            })();
         </script>
     </section>
 </main>
