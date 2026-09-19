@@ -75,16 +75,17 @@
                         data-password-toggle>
 
                         <!-- رمز مخفی است: چشم معمولی -->
-                        <svg data-password-show-icon viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                        <svg class="password-icon password-icon--show" viewBox="0 0 24 24" width="22" height="22"
+                            aria-hidden="true">
                             <path
                                 d="M12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4C20.7 13.9 17.3 19 12 19s-8.7-5.1-9.4-6.3a1.4 1.4 0 0 1 0-1.4C3.3 10.1 6.7 5 12 5Zm0 2c-3.8 0-6.5 3.4-7.4 5 .9 1.6 3.6 5 7.4 5s6.5-3.4 7.4-5c-.9-1.6-3.6-5-7.4-5Zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6Z"
                                 fill="currentColor" />
                         </svg>
 
                         <!-- رمز نمایش داده می‌شود: چشم خط‌خورده -->
-                        <svg data-password-hide-icon viewBox="0 0 24 24" width="22" height="22" fill="none"
-                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                            aria-hidden="true" hidden>
+                        <svg class="password-icon password-icon--hide" viewBox="0 0 24 24" width="22" height="22"
+                            fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
                             <path d="M3 3l18 18" />
                             <path
                                 d="M10.6 5.2A9.8 9.8 0 0 1 12 5c5.3 0 8.7 5.1 9.4 6.3.2.4.2.9 0 1.4a16.8 16.8 0 0 1-3 3.6" />
@@ -124,10 +125,6 @@
 
                 const passwordToggle = document.querySelector("[data-password-toggle]");
 
-                const passwordShowIcon = document.querySelector("[data-password-show-icon]");
-
-                const passwordHideIcon = document.querySelector("[data-password-hide-icon]");
-
                 if (!form || !userNoInput || !passwordInput) {
                     return;
                 }
@@ -142,14 +139,10 @@
                         passwordToggle.setAttribute("aria-pressed", shouldShowPassword ? "true" : "false");
 
                         passwordToggle.setAttribute("aria-label", shouldShowPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور");
-
-                        if (passwordShowIcon) {
-                            passwordShowIcon.hidden = shouldShowPassword;
-                        }
-
-                        if (passwordHideIcon) {
-                            passwordHideIcon.hidden = !shouldShowPassword;
-                        }
+                        
+                        passwordToggle.classList.toggle(
+                            "is-password-visible",
+                            shouldShowPassword);
                     });
 
                 form.addEventListener(

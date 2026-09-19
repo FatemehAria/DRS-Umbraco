@@ -522,8 +522,25 @@
   display: block;
 }
 
-.login-input__toggle svg[hidden] {
+.login-input__toggle .password-icon {
+  display: block;
+  grid-area: 1 / 1;
+}
+
+.login-input__toggle .password-icon--show {
+  display: block;
+}
+
+.login-input__toggle .password-icon--hide {
   display: none;
+}
+
+.login-input__toggle.is-password-visible .password-icon--show {
+  display: none;
+}
+
+.login-input__toggle.is-password-visible .password-icon--hide {
+  display: block;
 }
 
 .login-input__toggle:hover {
