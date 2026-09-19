@@ -1,0 +1,32 @@
+{
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "Consult Requests",
+  "version": "1.0.7",
+  "extensions": [
+    {
+      "type": "dashboard",
+      "alias": "Drs.ConsultRequests.Dashboard",
+      "name": "Job applications dashboard",
+      "element": "/App_Plugins/ConsultRequests/job-applications-dashboard.js",
+      "elementName": "drs-job-applications-dashboard",
+      "weight": 100,
+      "meta": {
+        "label": "درخواست‌های همکاری",
+        "pathname": "job-applications"
+      },
+      "conditions": [
+        {
+          "alias": "Umb.Condition.SectionAlias",
+          "match": "Umb.Section.Content"
+        },
+        {
+          "alias": "Umb.Condition.CurrentUser.GroupId",
+          "oneOf": [
+            "e5e7f6c8-7f9c-4b5b-8d5d-9e1e5a4f7e4d",
+            "bcf9d2c0-6b7b-4e65-88e5-c6c60e90ff01"
+          ]
+        }
+      ]
+    }
+  ]
+}

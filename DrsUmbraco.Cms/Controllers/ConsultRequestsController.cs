@@ -15,6 +15,16 @@ public sealed class ConsultRequestsController : ControllerBase
 
     private const long MaxResumeFileSizeBytes = 5 * 1024 * 1024;
 
+    private static readonly HashSet<string>
+        AllowedFormNames =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+            "contact_form",
+            "consult_form",
+            "product_demo_form",
+            "job_interest_form"
+            };
+
     public ConsultRequestsController(
         IElementorSubmissionService elementorSubmissionService,
         ILogger<ConsultRequestsController> logger)
@@ -36,7 +46,19 @@ public sealed class ConsultRequestsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        if (IsJobInterestForm(model.FormName))
+        var formName = model.FormName?.Trim();
+
+        if (string.IsNullOrWhiteSpace(formName) || !AllowedFormNames.Contains(formName))
+        {
+            ModelState.AddModelError(nameof(model.FormName), "نوع فرم معتبر نیست.");
+
+            return ValidationProblem(ModelState);
+        }
+
+        formName = formName.ToLowerInvariant();
+        model.FormName = formName;
+
+        if (IsJobInterestForm(formName))
         {
             var resumeError = await ValidateResumeFileAsync(model.ResumeFile, cancellationToken);
 
@@ -45,6 +67,12 @@ public sealed class ConsultRequestsController : ControllerBase
                 ModelState.AddModelError(nameof(model.ResumeFile), resumeError);
                 return ValidationProblem(ModelState);
             }
+        }
+        else if (model.ResumeFile is not null)
+        {
+            ModelState.AddModelError(nameof(model.ResumeFile), "ارسال فایل برای این فرم مجاز نیست.");
+
+            return ValidationProblem(ModelState);
         }
 
         try
@@ -113,17 +141,18 @@ public sealed class ConsultRequestsController : ControllerBase
             return "رزومه باید در قالب PDF باشد.";
         }
 
-        var header = new byte[4];
+        var header = new byte[5];
 
         await using var stream = file.OpenReadStream();
-        var read = await stream.ReadAsync(header.AsMemory(0, 4), cancellationToken);
+        var read = await stream.ReadAsync(header.AsMemory(0, header.Length), cancellationToken);
 
         var looksLikePdf =
-            read == 4 &&
-            header[0] == '%' &&
-            header[1] == 'P' &&
-            header[2] == 'D' &&
-            header[3] == 'F';
+                read == header.Length &&
+                header[0] == '%' &&
+                header[1] == 'P' &&
+                header[2] == 'D' &&
+                header[3] == 'F' &&
+                header[4] == '-';
 
         if (!looksLikePdf)
         {

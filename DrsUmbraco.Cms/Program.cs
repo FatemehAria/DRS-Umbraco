@@ -12,6 +12,10 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using DrsUmbraco.Cms.Features.Chatbot.Caching;
 using DrsUmbraco.Cms.Features.Chatbot.Readiness;
+using DrsUmbraco.Cms.Features.ConsultRequests;
+using DrsUmbraco.Cms.Features.ConsultRequests.Configuration;
+using Microsoft.AspNetCore.Authorization;
+using DrsUmbraco.Cms.Features.ConsultRequests.Security;
 
 DateTime managedEntryAtUtc = DateTime.UtcNow;
 
@@ -19,10 +23,7 @@ DateTime processStartedAtUtc;
 
 using (Process startupProcess = Process.GetCurrentProcess())
 {
-    processStartedAtUtc =
-        startupProcess
-            .StartTime
-            .ToUniversalTime();
+    processStartedAtUtc = startupProcess.StartTime.ToUniversalTime();
 }
 
 double processToManagedEntryMs =
@@ -48,11 +49,11 @@ builder.Services.AddControllersWithViews();
 
 builder.Services
     .AddOptions<ChatbotFeatureOptions>()
-    .Bind(
-        builder.Configuration.GetSection(
-            ChatbotFeatureOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(ChatbotFeatureOptions.SectionName));
 
 builder.Services.AddScoped<IElementorSubmissionService, ElementorSubmissionService>();
+
+builder.Services.AddScoped<IConsultRequestQueryService, ConsultRequestQueryService>();
 
 builder.Services.AddScoped<IChatbotKnowledgeService, UmbracoChatbotKnowledgeService>();
 
@@ -128,9 +129,7 @@ builder.Services.AddScoped<IChatbotDiscriminativeEvidenceService, ChatbotDiscrim
 
 builder.Services
     .AddOptions<BgeRelevanceOptions>()
-    .Bind(
-        builder.Configuration.GetSection(
-            BgeRelevanceOptions.SectionName))
+    .Bind(builder.Configuration.GetSection(BgeRelevanceOptions.SectionName))
     .Validate(
         options =>
             !string.IsNullOrWhiteSpace(
@@ -165,9 +164,7 @@ builder.Services.AddSingleton<BgeRelevanceTokenizer>(
                     environment.ContentRootPath,
                     options.TokenizerPath);
 
-        return new BgeRelevanceTokenizer(
-            Path.GetFullPath(tokenizerPath),
-            logger);
+        return new BgeRelevanceTokenizer(Path.GetFullPath(tokenizerPath), logger);
     });
 
 builder.Services.AddSingleton<BgeRelevanceModel>(
@@ -195,10 +192,7 @@ builder.Services.AddSingleton<IBgeRelevanceScorer, BgeRelevanceScorer>();
 builder.Services.AddSingleton<Lazy<IBgeRelevanceScorer>>(
     serviceProvider =>
         new Lazy<IBgeRelevanceScorer>(
-            () =>
-                serviceProvider
-                    .GetRequiredService<
-                        IBgeRelevanceScorer>(),
+            () => serviceProvider.GetRequiredService<IBgeRelevanceScorer>(),
             LazyThreadSafetyMode
                 .ExecutionAndPublication));
 
@@ -207,8 +201,7 @@ builder.Services.AddSingleton<IChatbotRelevanceVerifier, BgeChatbotRelevanceVeri
 builder.Services
     .AddOptions<ChatbotNoMatchDecisionOptions>()
     .Bind(
-        builder.Configuration.GetSection(
-            ChatbotNoMatchDecisionOptions.SectionName))
+        builder.Configuration.GetSection(ChatbotNoMatchDecisionOptions.SectionName))
     .Validate(
         options =>
             options.MinimumSemanticScore >= 0f &&
@@ -222,9 +215,7 @@ builder.Services.AddScoped<IChatbotMessageService, ChatbotMessageService>();
 
 builder.Services
     .AddOptions<ChatbotSemanticDecisionOptions>()
-    .Bind(
-        builder.Configuration.GetSection(
-            ChatbotSemanticDecisionOptions.SectionName))
+    .Bind(builder.Configuration.GetSection(ChatbotSemanticDecisionOptions.SectionName))
     .Validate(
         options =>
             options.MinimumScore >= 0f &&
@@ -245,6 +236,38 @@ builder.Services.AddApplicationCompression();
 
 builder.Services.AddCrmIntegration(builder.Configuration);
 
+builder.Services
+    .AddOptions<ConsultRequestOptions>()
+    .Bind(builder.Configuration.GetSection(ConsultRequestOptions.SectionName))
+    .Validate(
+        options =>
+            !string.IsNullOrWhiteSpace(options.ResumeStoragePath),
+        "ConsultRequests:ResumeStoragePath is required.")
+    .Validate(
+        options =>
+            Path.IsPathFullyQualified(options.ResumeStoragePath),
+        "ConsultRequests:ResumeStoragePath must be an absolute path.")
+    .Validate(
+        options =>
+            options.AllowedBackofficeGroupKeys
+                is { Length: > 0 } &&
+            options.AllowedBackofficeGroupKeys.All(
+                key => key != Guid.Empty),
+        "ConsultRequests:AllowedBackofficeGroupKeys must contain at least one valid group key.")
+    .ValidateOnStart();
+
+builder.Services.AddSingleton<IAuthorizationHandler, ConsultRequestAccessHandler>();
+
+builder.Services.AddAuthorization(
+    options =>
+    {
+        options.AddPolicy(ConsultRequestAuthorizationPolicies.BackofficeAccess,
+            policy =>
+            {
+                policy.AddRequirements(new ConsultRequestAccessRequirement());
+            });
+    });
+
 applicationServiceRegistrationStopwatch.Stop();
 
 Stopwatch umbracoCompositionStopwatch = Stopwatch.StartNew();
@@ -253,12 +276,8 @@ builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddComposers()
-    .AddNotificationHandler<
-        ContentCacheRefresherNotification,
-        ChatbotSemanticIndexCacheHandler>()
-    .AddNotificationHandler<
-        UmbracoApplicationStartedNotification,
-        ChatbotSemanticIndexStartupHandler>()
+    .AddNotificationHandler<ContentCacheRefresherNotification, ChatbotSemanticIndexCacheHandler>()
+    .AddNotificationHandler<UmbracoApplicationStartedNotification, ChatbotSemanticIndexStartupHandler>()
     .Build();
 
 umbracoCompositionStopwatch.Stop();
@@ -292,8 +311,7 @@ app.UseStaticFiles();
 
 ChatbotFeatureOptions chatbotFeatureOptions =
     app.Services
-        .GetRequiredService<
-            IOptions<ChatbotFeatureOptions>>()
+        .GetRequiredService<IOptions<ChatbotFeatureOptions>>()
         .Value;
 
 app.Use(
@@ -301,8 +319,7 @@ app.Use(
     {
         bool isChatbotRequest =
             context.Request.Path
-                .StartsWithSegments(
-                    "/api/chatbot");
+                .StartsWithSegments("/api/chatbot");
 
         if (!chatbotFeatureOptions.Enabled && isChatbotRequest)
         {
@@ -369,9 +386,7 @@ app.UseUmbraco()
     })
     .WithEndpoints(umbraco =>
     {
-        umbraco.EndpointRouteBuilder
-            .MapControllers();
-
+        umbraco.EndpointRouteBuilder.MapControllers();
         umbraco.UseBackOfficeEndpoints();
         umbraco.UseWebsiteEndpoints();
     });

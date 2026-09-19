@@ -129,7 +129,8 @@
                     <div class="contact-info-item">
                         <div class="contact-info-content">
                             <strong>آدرس</strong>
-                            <p>@(string.IsNullOrWhiteSpace(address) ? "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱" : address)</p>
+                            <p>@(string.IsNullOrWhiteSpace(address) ? "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱" :
+                                                            address)</p>
                         </div>
                     </div>
 
@@ -143,7 +144,8 @@
                     <div class="contact-info-item">
                         <div class="contact-info-content">
                             <strong>ساعات کاری</strong>
-                            <p>@(string.IsNullOrWhiteSpace(workingHours) ? "شنبه تا چهارشنبه، ساعت ۸ تا ۱۶" : workingHours)</p>
+                            <p>@(string.IsNullOrWhiteSpace(workingHours) ? "شنبه تا چهارشنبه، ساعت ۸ تا ۱۶" : workingHours)
+                            </p>
                         </div>
                     </div>
                 }
@@ -151,51 +153,53 @@
         </div>
 
         <div class="contact-form-panel">
-			<span class="section-mini-badge">فرم تماس</span>
+            <span class="section-mini-badge">فرم تماس</span>
 
-			<h2>ارسال پیام</h2>
+            <h2>ارسال پیام</h2>
 
-			<p>
-				پیام، سوال یا درخواست خود را ارسال کنید. تیم ما پس از بررسی، در صورت نیاز با شما تماس می‌گیرد.
-			</p>
+            <p>
+                پیام، سوال یا درخواست خود را ارسال کنید. تیم ما پس از بررسی، در صورت نیاز با شما تماس می‌گیرد.
+            </p>
 
-			<form id="consultRequestForm"
-				class="demo-form sama-consult-form contact-form"
-				data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
+            <form id="consultRequestForm" class="demo-form sama-consult-form contact-form"
+                data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
                 <input type="hidden" name="formName" value="contact_form" />
-				<div class="form-row">
-					<label>
-						نام و نام خانوادگی
-						<input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" required />
-					</label>
+                <div class="form-row">
+                    <label>
+                        نام و نام خانوادگی
+                        <input type="text" placeholder="مثلاً: فاطمه کریمی" name="fullName" minlength="2"
+                            maxlength="100" required />
+                    </label>
 
-					<label>
-						شماره تماس
-						<input type="tel" placeholder="مثلاً: 09120000000" name="mobile" required />
-					</label>
-				</div>
+                    <label>
+                        شماره تماس
+                        <input type="tel" placeholder="مثلاً: 09120000000" name="mobile" minlength="11" maxlength="11"
+                            pattern="09[0-9]{9}" title="شماره موبایل باید با 09 شروع شود و دقیقاً 11 رقم باشد."
+                            inputmode="numeric" required />
+                    </label>
+                </div>
 
-				<label>
-					موضوع پیام
-					<select name="requestType" required>
-						<option value="ارتباط عمومی">ارتباط عمومی</option>
-						<option value="پشتیبانی">پشتیبانی</option>
-						<option value="پیگیری درخواست">پیگیری درخواست</option>
-						<option value="سایر">سایر</option>
-					</select>
-				</label>
+                <label>
+                    موضوع پیام
+                    <select name="requestType" required>
+                        <option value="ارتباط عمومی">ارتباط عمومی</option>
+                        <option value="پشتیبانی">پشتیبانی</option>
+                        <option value="پیگیری درخواست">پیگیری درخواست</option>
+                        <option value="سایر">سایر</option>
+                    </select>
+                </label>
 
-				<label>
-					پیام شما
-					<textarea name="message" placeholder="پیام یا سوال خود را بنویسید..."></textarea>
-				</label>
+                <label>
+                    پیام شما
+                    <textarea name="message" placeholder="پیام یا سوال خود را بنویسید..." maxlength="2000" required></textarea>
+                </label>
 
-				<button type="submit" data-submit-text="ارسال پیام">
-					ارسال پیام
-				</button>
+                <button type="submit" data-submit-text="ارسال پیام">
+                    ارسال پیام
+                </button>
 
-				<div id="consultRequestMessage"></div>
-			</form>
-		</div>
+                <div id="consultRequestMessage"></div>
+            </form>
+        </div>
     </div>
 </section>

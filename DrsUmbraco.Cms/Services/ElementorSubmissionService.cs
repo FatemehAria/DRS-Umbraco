@@ -1,9 +1,9 @@
 using System.Data;
 using System.Text.Json;
+using DrsUmbraco.Cms.Features.ConsultRequests.Configuration;
 using DrsUmbraco.Cms.Models;
 using Microsoft.Data.SqlClient;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace DrsUmbraco.Cms.Services;
 
@@ -17,11 +17,13 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
           string EditPostId);
 
     private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    public ElementorSubmissionService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+    private readonly string _resumeStoragePath;
+    private readonly ILogger<ElementorSubmissionService> _logger;
+    public ElementorSubmissionService(IConfiguration configuration, ILogger<ElementorSubmissionService> logger, IOptions<ConsultRequestOptions> consultRequestOptions)
     {
         _configuration = configuration;
-        _webHostEnvironment = webHostEnvironment;
+        _logger = logger;
+        _resumeStoragePath = Path.GetFullPath(consultRequestOptions.Value.ResumeStoragePath);
     }
 
     public async Task<decimal> CreateConsultRequestAsync(
@@ -38,47 +40,57 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         {
             throw new InvalidOperationException("Connection string 'umbracoDbDSN' is not configured.");
         }
-        
-        var resumeFileUrl = await SaveResumeFileAsync(model.ResumeFile, cancellationToken);
-        var utcNow = DateTime.UtcNow;
-        var localNow = GetIranLocalTime(utcNow);
 
-        var formDefinition = GetFormDefinition(model.FormName);
-
-        await using var connection = new SqlConnection(connectionString);
-        await connection.OpenAsync(cancellationToken);
-
-        await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        string? resumeStoredFileName = null;
 
         try
         {
-            var submissionId = await InsertSubmissionAsync(
-                connection,
-                (SqlTransaction)transaction,
-                referer,
-                refererTitle,
-                ipAddress,
-                userAgent,
-                formDefinition,
-                utcNow,
-                localNow,
-                cancellationToken);
+            resumeStoredFileName = await SaveResumeFileAsync(model.ResumeFile, cancellationToken);
+            var utcNow = DateTime.UtcNow;
+            var localNow = GetIranLocalTime(utcNow);
 
-            await InsertSubmissionValuesAsync(
-                connection,
-                (SqlTransaction)transaction,
-                submissionId,
-                model,
-                resumeFileUrl,
-                cancellationToken);
+            var formDefinition = GetFormDefinition(model.FormName);
 
-            await transaction.CommitAsync(cancellationToken);
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync(cancellationToken);
 
-            return submissionId;
+            await using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var submissionId = await InsertSubmissionAsync(
+                    connection,
+                    (SqlTransaction)transaction,
+                    referer,
+                    refererTitle,
+                    ipAddress,
+                    userAgent,
+                    formDefinition,
+                    utcNow,
+                    localNow,
+                    cancellationToken);
+
+                await InsertSubmissionValuesAsync(
+                    connection,
+                    (SqlTransaction)transaction,
+                    submissionId,
+                    model,
+                    resumeStoredFileName,
+                    cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                return submissionId;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
         catch
         {
-            await transaction.RollbackAsync(cancellationToken);
+            TryDeleteResumeFile(resumeStoredFileName);
+
             throw;
         }
     }
@@ -281,7 +293,7 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         SqlTransaction transaction,
         decimal submissionId,
         ConsultRequestCreateModel model,
-        string? resumeFileUrl,
+        string? resumeStoredFileName,
         CancellationToken cancellationToken)
     {
         var values = new Dictionary<string, string?>
@@ -292,9 +304,9 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
             ["message"] = model.Message
         };
 
-        if (!string.IsNullOrWhiteSpace(resumeFileUrl))
+        if (!string.IsNullOrWhiteSpace(resumeStoredFileName))
         {
-            values["resume_file"] = resumeFileUrl;
+            values["resume_file"] = resumeStoredFileName;
         }
 
         const string sql = """
@@ -419,6 +431,43 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
         };
     }
 
+    private void TryDeleteResumeFile(string? storedFileName)
+    {
+        if (string.IsNullOrWhiteSpace(storedFileName))
+        {
+            return;
+        }
+
+        var safeFileName = Path.GetFileName(storedFileName);
+
+        if (!string.Equals(
+                safeFileName,
+                storedFileName,
+                StringComparison.Ordinal))
+        {
+            _logger.LogWarning("Resume cleanup was skipped because the stored file name was invalid.");
+
+            return;
+        }
+
+        var physicalPath = Path.Combine(_resumeStoragePath, safeFileName);
+
+        try
+        {
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to delete orphan resume file {StoredFileName}.",
+                safeFileName);
+        }
+    }
+
     private async Task<string?> SaveResumeFileAsync(
     IFormFile? file,
     CancellationToken cancellationToken)
@@ -428,24 +477,41 @@ public sealed class ElementorSubmissionService : IElementorSubmissionService
             return null;
         }
 
-        var uploadsFolder = Path.Combine(
-            _webHostEnvironment.WebRootPath,
-            "uploads",
-            "resumes");
-
-        Directory.CreateDirectory(uploadsFolder);
+        Directory.CreateDirectory(_resumeStoragePath);
 
         var storedFileName = $"{Guid.NewGuid():N}.pdf";
-        var physicalPath = Path.Combine(uploadsFolder, storedFileName);
+        var physicalPath = Path.Combine(_resumeStoragePath, storedFileName);
 
-        await using var fileStream = new FileStream(
-            physicalPath,
-            FileMode.CreateNew,
-            FileAccess.Write,
-            FileShare.None);
+        try
+        {
+            await using var fileStream = new FileStream(
+                        physicalPath,
+                        FileMode.CreateNew,
+                        FileAccess.Write,
+                        FileShare.None);
 
-        await file.CopyToAsync(fileStream, cancellationToken);
+            await file.CopyToAsync(fileStream, cancellationToken);
 
-        return $"/uploads/resumes/{storedFileName}";
+            return storedFileName;
+        }
+        catch
+        {
+            try
+            {
+                if (File.Exists(physicalPath))
+                {
+                    File.Delete(physicalPath);
+                }
+            }
+            catch (Exception cleanupException)
+            {
+                _logger.LogError(
+                    cleanupException,
+                    "Failed to delete incomplete resume file {StoredFileName}.",
+                    storedFileName);
+            }
+
+            throw;
+        }
     }
 }
