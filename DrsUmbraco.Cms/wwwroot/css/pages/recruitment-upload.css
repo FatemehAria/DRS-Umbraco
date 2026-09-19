@@ -25,3 +25,88 @@
   font-weight: 600;
   line-height: 1.8;
 }
+
+.resume-upload-field {
+  display: grid;
+  gap: 8px;
+}
+
+.resume-upload-field .field-label {
+  color: var(--sama-text);
+  font-weight: 800;
+}
+
+.resume-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.resume-file-picker {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+
+  min-height: 52px;
+  padding: 6px;
+
+  color: var(--sama-text);
+  background-color: #fff;
+  border: 1px dashed rgba(15, 76, 129, 0.35);
+  border-radius: 14px;
+
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.resume-file-picker:hover {
+  background-color: #f8fbff;
+  border-color: var(--sama-primary);
+}
+
+.resume-file-input:focus-visible + .resume-file-picker {
+  border-color: var(--sama-primary);
+  box-shadow: 0 0 0 4px rgba(15, 76, 129, 0.12);
+}
+
+.resume-file-button {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+
+  color: #fff;
+  background-color: var(--sama-primary);
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.resume-file-name {
+  min-width: 0;
+  overflow: hidden;
+
+  color: var(--sama-muted);
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.resume-upload-field.has-error .resume-file-picker {
+  border-color: #dc2626;
+  background-color: #fffafa;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 8%);
+}
+
+.resume-upload-field .field-hint {
+  color: var(--sama-muted);
+  font-size: 12px;
+  font-weight: 600;
+}

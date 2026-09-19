@@ -376,6 +376,201 @@
     window.requestAnimationFrame(animateScroll);
   }
 
+  function validateConsultForm(form) {
+    const fields = form.querySelectorAll(
+      "input:not([type='hidden']), select, textarea",
+    );
+
+    let firstInvalidField = null;
+
+    fields.forEach(function (field) {
+      const isValid = validateConsultField(field);
+
+      if (!isValid && !firstInvalidField) {
+        firstInvalidField = field;
+      }
+    });
+
+    if (firstInvalidField) {
+      firstInvalidField.focus();
+
+      firstInvalidField.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      return false;
+    }
+
+    return true;
+  }
+
+  function validateConsultField(field) {
+    const errorMessage = getConsultFieldError(field);
+
+    showConsultFieldError(field, errorMessage);
+
+    return !errorMessage;
+  }
+
+  function getConsultFieldError(field) {
+    if (field.disabled) {
+      return "";
+    }
+
+    const value = typeof field.value === "string" ? field.value.trim() : "";
+
+    if (field.required && field.type !== "file" && !value) {
+      return getRequiredFieldMessage(field);
+    }
+
+    if (
+      field.type === "file" &&
+      field.required &&
+      (!field.files || field.files.length === 0)
+    ) {
+      return "انتخاب فایل رزومه الزامی است.";
+    }
+
+    if (field.name === "fullName" && value && value.length < 2) {
+      return "نام و نام خانوادگی باید حداقل ۲ کاراکتر باشد.";
+    }
+
+    if (field.name === "fullName" && value.length > 100) {
+      return "نام و نام خانوادگی نباید بیشتر از ۱۰۰ کاراکتر باشد.";
+    }
+
+    if (field.name === "mobile" && value && !/^09[0-9]{9}$/.test(value)) {
+      return "شماره موبایل باید با ۰۹ شروع شود و دقیقاً ۱۱ رقم باشد.";
+    }
+
+    if (field.name === "resumeFile" && field.files?.length) {
+      return validateResumeFile(field.files[0]);
+    }
+
+    if (field.validity?.tooLong) {
+      return "مقدار واردشده بیش از حد مجاز است.";
+    }
+
+    if (field.validity?.typeMismatch) {
+      return "مقدار واردشده معتبر نیست.";
+    }
+
+    return "";
+  }
+
+  function getRequiredFieldMessage(field) {
+    switch (field.name) {
+      case "fullName":
+        return "وارد کردن نام و نام خانوادگی الزامی است.";
+
+      case "mobile":
+        return "وارد کردن شماره موبایل الزامی است.";
+
+      case "requestType":
+        return "انتخاب نوع درخواست الزامی است.";
+
+      case "resumeFile":
+        return "انتخاب فایل رزومه الزامی است.";
+
+      default:
+        return "تکمیل این فیلد الزامی است.";
+    }
+  }
+
+  function validateResumeFile(file) {
+    const maxFileSize = 5 * 1024 * 1024;
+
+    const fileName = file.name.toLowerCase();
+
+    const hasPdfExtension = fileName.endsWith(".pdf");
+
+    const hasValidMimeType = !file.type || file.type === "application/pdf";
+
+    if (!hasPdfExtension || !hasValidMimeType) {
+      return "فایل رزومه باید در قالب PDF باشد.";
+    }
+
+    if (file.size === 0) {
+      return "فایل رزومه خالی است.";
+    }
+
+    if (file.size > maxFileSize) {
+      return "حجم فایل رزومه نباید بیشتر از ۵ مگابایت باشد.";
+    }
+
+    return "";
+  }
+
+  function showConsultFieldError(field, errorMessage) {
+    const fieldContainer = field.closest(".form-field, label");
+
+    if (!fieldContainer) {
+      return;
+    }
+
+    const errorId = `${field.id || field.name}-error`;
+
+    let errorElement = fieldContainer.querySelector(`#${errorId}`);
+
+    if (!errorMessage) {
+      field.removeAttribute("aria-invalid");
+      field.removeAttribute("aria-describedby");
+
+      fieldContainer.classList.remove("has-error");
+
+      errorElement?.remove();
+
+      return;
+    }
+
+    if (!errorElement) {
+      errorElement = document.createElement("span");
+
+      errorElement.id = errorId;
+
+      errorElement.className = "field-error";
+
+      errorElement.setAttribute("role", "alert");
+
+      fieldContainer.appendChild(errorElement);
+    }
+
+    errorElement.textContent = errorMessage;
+
+    field.setAttribute("aria-invalid", "true");
+
+    field.setAttribute("aria-describedby", errorId);
+
+    fieldContainer.classList.add("has-error");
+  }
+
+  function clearConsultFormErrors(form) {
+    form
+      .querySelectorAll(".field-error")
+      .forEach((element) => element.remove());
+
+    form
+      .querySelectorAll(".has-error")
+      .forEach((element) => element.classList.remove("has-error"));
+
+    form.querySelectorAll("[aria-invalid]").forEach(function (field) {
+      field.removeAttribute("aria-invalid");
+
+      field.removeAttribute("aria-describedby");
+    });
+  }
+
+  function normalizePersianDigits(value) {
+    const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+
+    const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
+
+    return value
+      .replace(/[۰-۹]/g, (character) => persianDigits.indexOf(character))
+      .replace(/[٠-٩]/g, (character) => arabicDigits.indexOf(character));
+  }
+
   function initConsultRequestForm() {
     const form = document.querySelector(SELECTORS.consultForm);
     const messageBox = document.querySelector(SELECTORS.consultMessage);
@@ -383,6 +578,44 @@
     if (!form) {
       return;
     }
+
+    const fields = form.querySelectorAll(
+      "input:not([type='hidden']), select, textarea",
+    );
+
+    const resumeInput = form.querySelector('input[name="resumeFile"]');
+
+    const resumeFileName = form.querySelector("[data-resume-file-name]");
+
+    resumeInput?.addEventListener("change", function () {
+      const selectedFile = resumeInput.files?.[0];
+
+      if (!resumeFileName) {
+        return;
+      }
+
+      resumeFileName.textContent =
+        selectedFile?.name || "هنوز فایلی انتخاب نشده است.";
+    });
+    fields.forEach(function (field) {
+      field.addEventListener("blur", function () {
+        validateConsultField(field);
+      });
+
+      field.addEventListener("input", function () {
+        if (field.name === "mobile") {
+          field.value = normalizePersianDigits(field.value);
+        }
+
+        if (field.getAttribute("aria-invalid") === "true") {
+          validateConsultField(field);
+        }
+      });
+
+      field.addEventListener("change", function () {
+        validateConsultField(field);
+      });
+    });
 
     const submitButton = form.querySelector('button[type="submit"]');
     const defaultSubmitText =
@@ -392,6 +625,10 @@
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
+
+      if (!validateConsultForm(form)) {
+        return;
+      }
 
       setSubmitState({
         submitButton,
@@ -447,6 +684,11 @@
         showMessage(messageBox, successMessage, "success");
 
         form.reset();
+        clearConsultFormErrors(form);
+
+        if (resumeFileName) {
+          resumeFileName.textContent = "هنوز فایلی انتخاب نشده است.";
+        }
       } catch (error) {
         const message =
           error instanceof Error

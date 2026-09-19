@@ -162,7 +162,7 @@
             </p>
 
             <form id="consultRequestForm" class="demo-form sama-consult-form contact-form"
-                data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
+                data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد." novalidate>
                 <input type="hidden" name="formName" value="contact_form" />
                 <div class="form-row">
                     <label>
@@ -191,7 +191,8 @@
 
                 <label>
                     پیام شما
-                    <textarea name="message" placeholder="پیام یا سوال خود را بنویسید..." maxlength="2000" required></textarea>
+                    <textarea name="message" placeholder="پیام یا سوال خود را بنویسید..." maxlength="2000"
+                        required></textarea>
                 </label>
 
                 <button type="submit" data-submit-text="ارسال پیام">

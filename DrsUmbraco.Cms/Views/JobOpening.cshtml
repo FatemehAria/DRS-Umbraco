@@ -99,7 +99,7 @@
     </div>
 
     <form id="consultRequestForm" class="demo-form sama-consult-form job-interest-form" enctype="multipart/form-data"
-        data-success-message="درخواست همکاری شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد.">
+        data-success-message="درخواست همکاری شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد." novalidate>
         <input type="hidden" name="requestType" value="فرصت شغلی - @title" />
         <input type="hidden" name="formName" value="job_interest_form" />
 
@@ -118,11 +118,29 @@
             </label>
         </div>
 
-        <label class="resume-upload-field">
-            رزومه
-            <input type="file" name="resumeFile" accept=".pdf,application/pdf" required />
-            <span class="field-hint">فقط فایل PDF، حداکثر ۵ مگابایت</span>
-        </label>
+        <div class="form-field resume-upload-field">
+            <span class="field-label">
+                رزومه
+            </span>
+
+            <input id="resumeFile" class="resume-file-input" type="file" name="resumeFile" accept=".pdf,application/pdf"
+                required />
+
+            <label class="resume-file-picker" for="resumeFile">
+
+                <span class="resume-file-button">
+                    انتخاب فایل
+                </span>
+
+                <span class="resume-file-name" data-resume-file-name>
+                    هنوز فایلی انتخاب نشده است
+                </span>
+            </label>
+
+            <span class="field-hint">
+                فقط فایل PDF، حداکثر ۵ مگابایت
+            </span>
+        </div>
 
         <button type="submit" data-submit-text="ثبت علاقه‌مندی">
             ثبت علاقه‌مندی

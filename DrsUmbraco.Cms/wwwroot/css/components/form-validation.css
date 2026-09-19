@@ -1,0 +1,93 @@
+.form-row {
+  align-items: start;
+}
+
+.sama-consult-form label,
+.sama-consult-form .form-field {
+  position: relative;
+  align-self: start;
+  align-content: start;
+}
+
+.sama-consult-form input,
+.sama-consult-form select,
+.sama-consult-form textarea {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.sama-consult-form .has-error input:not([type="file"]),
+.sama-consult-form .has-error select,
+.sama-consult-form .has-error textarea {
+  border-color: #dc2626;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 8%);
+}
+
+.sama-consult-form .has-error input:focus,
+.sama-consult-form .has-error select:focus,
+.sama-consult-form .has-error textarea:focus {
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 4px rgb(220 38 38 / 12%);
+}
+
+.sama-consult-form .field-error {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+
+  width: 100%;
+  margin: 0;
+  padding: 7px 9px;
+
+  color: #b42318;
+  background-color: #fff5f4;
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.8;
+
+  animation: field-error-enter 160ms ease-out;
+}
+
+.sama-consult-form .field-error::before {
+  content: "!";
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+
+  color: #fff;
+  background-color: #dc2626;
+  border-radius: 50%;
+
+  font-family: Tahoma, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sama-consult-form input[name="mobile"] {
+  direction: ltr;
+  text-align: right;
+}
+
+@keyframes field-error-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
