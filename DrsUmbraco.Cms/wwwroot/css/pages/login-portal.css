@@ -572,3 +572,70 @@
 .login-input__toggle.is-password-visible .password-icon--hide {
   display: block;
 }
+
+.login-header__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 44px;
+  padding: 8px 17px;
+
+  color: #18365c;
+  background: rgba(15, 76, 129, 0.04);
+  border: 1px solid rgba(15, 76, 129, 0.12);
+  border-radius: 13px;
+
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.login-header__back:hover {
+  color: #0f4c81;
+  background: rgba(15, 76, 129, 0.08);
+  border-color: rgba(15, 76, 129, 0.2);
+  box-shadow: 0 8px 22px rgba(15, 76, 129, 0.08);
+  transform: translateX(-3px);
+}
+
+.login-header__back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(47, 128, 237, 0.14);
+}
+
+.login-header__back svg {
+  flex: 0 0 auto;
+  transition: transform 180ms ease;
+}
+
+.login-header__back:hover svg {
+  transform: translateX(-3px);
+}
+
+@media (max-width: 640px) {
+  .login-header {
+    padding-inline: 18px;
+  }
+
+  .login-header__back {
+    min-height: 40px;
+    padding: 7px 11px;
+  }
+
+  .login-header__back span {
+    font-size: 12px;
+  }
+
+  .login-security-note {
+    font-size: 11px;
+  }
+}

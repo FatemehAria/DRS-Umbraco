@@ -11,9 +11,22 @@
     <link rel="stylesheet" href="~/css/pages/login-portal.css" asp-append-version="true" />
 }
 
+@* <header class="login-header">
+    <a class="login-header__logo" href="@Model.PublicHomeUrl" aria-label="صفحه اصلی">
+        <img src="~/assets/sama/uploads/2024/11/Sama-Logo.webp" asp-append-version="true" alt="دیدگاه رایانه سما" />
+    </a>
+</header> *@
+
 <header class="login-header">
     <a class="login-header__logo" href="@Model.PublicHomeUrl" aria-label="صفحه اصلی">
         <img src="~/assets/sama/uploads/2024/11/Sama-Logo.webp" asp-append-version="true" alt="دیدگاه رایانه سما" />
+    </a>
+
+    <a class="login-header__back" href="@Model.PublicHomeUrl" data-smart-back>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
     </a>
 </header>
 
@@ -139,7 +152,7 @@
                         passwordToggle.setAttribute("aria-pressed", shouldShowPassword ? "true" : "false");
 
                         passwordToggle.setAttribute("aria-label", shouldShowPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور");
-                        
+
                         passwordToggle.classList.toggle(
                             "is-password-visible",
                             shouldShowPassword);
@@ -273,6 +286,29 @@
                     errorElement.hidden =
                         false;
                 }
+
+                document
+                    .querySelector("[data-smart-back]")?.addEventListener("click", function (event) {
+                        if (!document.referrer) {
+                            return;
+                        }
+
+                        try {
+                            const previousUrl =
+                                new URL(document.referrer);
+
+                            if (
+                                previousUrl.origin ===
+                                window.location.origin
+                            ) {
+                                event.preventDefault();
+                                window.history.back();
+                            }
+                        } catch {
+                            // در صورت نامعتبر بودن referrer،
+                            // لینک عادی به صفحه اصلی اجرا می‌شود.
+                        }
+                    });
             })();
         </script>
     </section>
