@@ -634,13 +634,37 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
                 </label>
             </div>
 
-            <label>
+            @* <label>
                 @demoRequestTypeLabel
                 <select name="requestType" required>
                     <option value="دمو">درخواست دمو</option>
                     <option value="مشاوره">درخواست مشاوره</option>
                 </select>
-            </label>
+            </label> *@
+
+            <div class="form-field">
+                <label for="contactRequestType">
+                    @demoRequestTypeLabel
+                </label>
+
+                <select id="homeRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
+                    <option value="ارتباط عمومی">
+                        ارتباط عمومی
+                    </option>
+
+                    <option value="پشتیبانی">
+                        پشتیبانی
+                    </option>
+
+                    <option value="پیگیری درخواست">
+                        پیگیری درخواست
+                    </option>
+
+                    <option value="سایر">
+                        سایر
+                    </option>
+                </select>
+            </div>
 
             <label>
                 @demoMessageLabel

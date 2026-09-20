@@ -165,13 +165,29 @@
             </label>
         </div>
 
-        <label>
+        @* <label>
             نوع درخواست
             <select name="requestType" required>
                 <option value="@demoRequestType">درخواست دمو</option>
                 <option value="@consultingRequestType">درخواست مشاوره</option>
             </select>
-        </label>
+        </label> *@
+
+        <div class="form-field">
+            <label for="productRequestType">
+                نوع درخواست
+            </label>
+
+            <select id="productRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
+                <option value="@demoRequestType">
+                    درخواست دمو
+                </option>
+
+                <option value="@consultingRequestType">
+                    درخواست مشاوره
+                </option>
+            </select>
+        </div>
 
         <label>
             توضیحات

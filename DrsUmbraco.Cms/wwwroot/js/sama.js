@@ -856,3 +856,69 @@ function initMobileMenu() {
     }
   });
 }
+
+// TOM_SELECT DROPDOWN
+
+function initializeTomSelects() {
+  const selectElements = document.querySelectorAll(".js-tom-select");
+
+  if (!selectElements.length) {
+    return;
+  }
+
+  if (typeof TomSelect === "undefined") {
+    console.error("Tom Select has not been loaded.");
+
+    return;
+  }
+
+  selectElements.forEach((selectElement) => {
+    if (selectElement.tomselect) {
+      return;
+    }
+
+    const tomSelect = new TomSelect(selectElement, {
+      create: false,
+      maxItems: 1,
+
+      // عدم نمایش input جستجو
+      controlInput: null,
+
+      // عدم فیلتر گزینه‌ها
+      searchField: [],
+
+      // نمایش گزینه انتخاب‌شده در لیست
+      hideSelected: false,
+
+      // بسته‌شدن پس از انتخاب
+      closeAfterSelect: true,
+
+      // حفظ ترتیب optionهای HTML
+      sortField: [
+        {
+          field: "$order",
+          direction: "asc",
+        },
+      ],
+
+      onInitialize() {
+        this.wrapper.classList.add("sama-tom-select");
+      },
+    });
+
+    const form = selectElement.closest("form");
+
+    form?.addEventListener("reset", () => {
+      window.setTimeout(() => {
+        tomSelect.sync();
+        tomSelect.setValue(selectElement.value, true);
+      }, 0);
+    });
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeTomSelects);
+} else {
+  initializeTomSelects();
+}

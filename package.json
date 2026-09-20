@@ -1,0 +1,27 @@
+{
+  "name": "drsumbracopilot",
+  "version": "1.0.0",
+  "description": "A CMS-driven corporate website pilot built with **Umbraco CMS**, **ASP.NET Core**, and **SQL Server**.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FatemehAria/DRS-Umbraco.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/FatemehAria/DRS-Umbraco/issues"
+  },
+  "homepage": "https://github.com/FatemehAria/DRS-Umbraco#readme",
+  "dependencies": {
+    "tom-select": "2.6.2"
+  }
+}

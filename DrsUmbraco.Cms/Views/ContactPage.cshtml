@@ -179,7 +179,7 @@
                     </label>
                 </div>
 
-                <label>
+                @* <label>
                     موضوع پیام
                     <select name="requestType" required>
                         <option value="ارتباط عمومی">ارتباط عمومی</option>
@@ -187,8 +187,32 @@
                         <option value="پیگیری درخواست">پیگیری درخواست</option>
                         <option value="سایر">سایر</option>
                     </select>
-                </label>
+                </label> *@
 
+                <div class="form-field">
+                    <label for="contactRequestType">
+                        موضوع پیام
+                    </label>
+
+                    <select id="contactRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
+                        <option value="ارتباط عمومی">
+                            ارتباط عمومی
+                        </option>
+
+                        <option value="پشتیبانی">
+                            پشتیبانی
+                        </option>
+
+                        <option value="پیگیری درخواست">
+                            پیگیری درخواست
+                        </option>
+
+                        <option value="سایر">
+                            سایر
+                        </option>
+                    </select>
+                </div>
+                
                 <label>
                     پیام شما
                     <textarea name="message" placeholder="پیام یا سوال خود را بنویسید..." maxlength="2000"
