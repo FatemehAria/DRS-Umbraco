@@ -641,3 +641,24 @@
     transform: translateY(0);
   }
 }
+
+/* عنوان کارت محصول */
+.product-list-page .product-list-card > h3 {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+/* خلاصهٔ محصول */
+.product-list-page .product-list-card > .product-card-summary {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.9;
+  margin-block: 12px 18px;
+}
+
+/* لینک مشاهدهٔ جزئیات */
+.product-list-page .product-list-card > span {
+  font-size: 14px;
+  font-weight: 700;
+}

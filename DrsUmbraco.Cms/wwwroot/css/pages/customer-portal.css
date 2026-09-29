@@ -377,9 +377,9 @@
     linear-gradient(135deg, #061827, #0b3558 55%, #082f55);
 }
 
-.customer-portal-benefits__grid.container {
+/* .customer-portal-benefits__grid.container {
   width: min(1180px, calc(100% - 80px));
-}
+} */
 
 .customer-portal-benefits__grid {
   display: grid;
@@ -618,4 +618,46 @@
 .customer-portal-benefit span:not(.portal-icon)::before {
   content: none !important;
   display: none !important;
+}
+
+/* جدید */
+/* هماهنگی مزایای پورتال با ستون‌های فوتر در دسکتاپ */
+@media (min-width: 1181px) {
+  .customer-portal-benefits__grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1.5fr)
+      minmax(0, 1fr);
+
+    gap: 60px;
+  }
+
+  .customer-portal-benefits__grid > .customer-portal-benefit {
+    position: relative;
+    min-width: 0;
+
+    /* قرارگیری مجموعهٔ آیکون و متن در مرکز هر ستون */
+    grid-template-columns: 54px minmax(0, max-content);
+    justify-content: center;
+    align-content: center;
+
+    padding-inline: 0;
+    border-inline-start: 0;
+  }
+
+  /* خط فقط بین ستون‌ها، در وسط فاصلهٔ ۶۰ پیکسلی */
+  .customer-portal-benefits__grid
+    > .customer-portal-benefit:not(:first-child)::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: -30px;
+    top: 50%;
+
+    width: 1px;
+    height: 54px;
+
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 }

@@ -18,8 +18,11 @@
       transparent 30%
     ),
     radial-gradient(
-      circle at bottom left,
+      /* circle at bottom left,
       rgba(15, 76, 129, 0.1),
+      transparent 28% */
+      circle at bottom left,
+      rgba(245, 166, 35, 0.12),
       transparent 28%
     ),
     #fff;
@@ -35,7 +38,8 @@
   bottom: -120px;
   width: 280px;
   height: 280px;
-  background: rgba(15, 76, 129, 0.08);
+  /* background: rgba(15, 76, 129, 0.08); */
+  background: rgba(245, 166, 35, 0.12);
   border-radius: 50%;
 }
 

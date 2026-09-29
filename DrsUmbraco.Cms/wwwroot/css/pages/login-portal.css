@@ -6,10 +6,11 @@
   min-height: 100dvh;
   color: #10213a;
   background-color: #f5f7fb;
-  background-image: url("/assets/sama/login/login-background.png");
+  background-image: url("/assets/sama/login/login-background.webp");
   background-repeat: no-repeat;
   background-position: left center;
-  background-size: cover;
+  /* background-size: cover; */
+  background-size: auto 100dvh;
 }
 
 /* .login-portal-page { */
@@ -50,14 +51,34 @@
 .login-header__logo {
   display: inline-flex;
   align-items: center;
+  gap: 12px;
+  color: #10213a;
   text-decoration: none;
 }
 
 .login-header__logo img {
+  display: block;
+  width: auto;
+  max-height: 62px;
+}
+
+.login-header__logo span {
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* .login-header__logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+} */
+
+/* .login-header__logo img {
   width: auto;
   max-height: 58px;
   display: block;
-}
+} */
 
 .login-header__back {
   display: inline-flex;
@@ -398,6 +419,18 @@
 
   .login-card h1 {
     font-size: 30px;
+  }
+
+  .login-header__logo {
+    gap: 8px;
+  }
+
+  .login-header__logo img {
+    max-height: 46px;
+  }
+
+  .login-header__logo span {
+    font-size: 13px;
   }
 }
 
