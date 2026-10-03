@@ -47,9 +47,9 @@
     }
 
     var jobs = Model.Children()
-        .Where(x => x.ContentType.Alias == "jobOpening")
-        .OrderBy(x => x.SortOrder)
-        .ToList();
+    .Where(x => x.ContentType.Alias == "jobOpening")
+    .OrderBy(x => x.SortOrder)
+    .ToList();
 }
 
 @if (showHero)
@@ -107,34 +107,61 @@
                 var employmentType = job.Value<string>("employmentType");
                 var summary = job.Value<string>("summary");
 
-                <article class="job-card">
-                    <div class="job-card-top">
-                        <span class="job-tag">
+                <a class="sama-job-card" href="@job.Url()">
+                    <div class="sama-job-card__body">
+                        <span class="sama-job-card__tag">
                             @(string.IsNullOrWhiteSpace(department) ? "فرصت شغلی" : department)
                         </span>
 
-                        <h3>@title</h3>
+                        <h3 class="sama-job-card__title">@title</h3>
 
                         @if (!string.IsNullOrWhiteSpace(summary))
                         {
-                            <p>@summary</p>
+                            <p class="sama-job-card__summary">@summary</p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(location) ||
+                                        !string.IsNullOrWhiteSpace(employmentType))
+                        {
+                            <div class="sama-job-card__meta">
+                                @if (!string.IsNullOrWhiteSpace(location))
+                                {
+                                    <span class="sama-job-card__chip">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                            <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+                                            <circle cx="12" cy="10" r="2.5" />
+                                        </svg>
+                                        <span>@location</span>
+                                    </span>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(employmentType))
+                                {
+                                    <span class="sama-job-card__chip">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                            <circle cx="12" cy="12" r="9" />
+                                            <path d="M12 7v5l3 2" />
+                                        </svg>
+                                        <span>@employmentType</span>
+                                    </span>
+                                }
+                            </div>
                         }
                     </div>
 
-                    <div class="job-meta">
-                        @if (!string.IsNullOrWhiteSpace(location))
-                        {
-                            <span>@location</span>
-                        }
+                    <div class="sama-job-card__footer">
+                        <span>مشاهده جزئیات</span>
 
-                        @if (!string.IsNullOrWhiteSpace(employmentType))
-                        {
-                            <span>@employmentType</span>
-                        }
+                        <span class="sama-job-card__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" focusable="false">
+                                <path d="M19 12H5 M11 6L5 12L11 18" />
+                            </svg>
+                        </span>
                     </div>
-
-                    <a class="job-read-more" href="@job.Url()">مشاهده جزئیات</a>
-                </article>
+                </a>
             }
         </div>
     }
