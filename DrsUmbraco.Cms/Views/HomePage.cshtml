@@ -382,9 +382,12 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
 }
 
 <!-- Products -->
+<!-- Products -->
 @if (showProductsSection && homeProducts.Any())
 {
-    <section class="container products-section reveal-section">
+    <link rel="stylesheet" href="@Url.Content("~/css/product-cards-v2.css")?v=20261003-2" />
+
+    <section class="container products-section home-products-v2 reveal-section">
         <div class="section-heading">
             <span>@productsSectionLabel</span>
             <h2>@productsSectionTitle</h2>
@@ -395,12 +398,11 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
             }
         </div>
 
-        <div class="product-grid product-grid-polished">
-            @for (var i = 0; i < homeProducts.Count; i++)
+        <div class="product-grid product-grid-polished product-list-grid">
+            @foreach (var product in homeProducts)
             {
-                var product = homeProducts[i];
-
                 var title = product.Value<string>("title");
+
                 if (string.IsNullOrWhiteSpace(title))
                 {
                     title = product.Name;
@@ -409,28 +411,41 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
                 var summary = product.Value<string>("summary");
                 var icon = FirstMedia(product, "icon");
 
-                var cardClass = "product-card product-card-polished";
+                <a class="sama-product-card" href="@product.Url()">
+                    <div class="sama-product-card__body">
+                        <div class="sama-product-card__icon" aria-hidden="true">
+                            @if (icon != null)
+                            {
+                                <img src="@icon.MediaUrl()" loading="lazy" decoding="async" alt="" />
+                            }
+                            else
+                            {
+                                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                                    stroke-linejoin="round" focusable="false">
+                                    <rect x="12" y="12" width="40" height="40" rx="5" />
+                                    <path d="M22 24H42 M22 32H42 M22 40H34" />
+                                </svg>
+                            }
+                        </div>
 
-                <a class="@cardClass" href="@product.Url()">
-                    <div class="product-icon">
-                        @if (icon != null)
+                        <h3 class="sama-product-card__title">@title</h3>
+
+                        @if (!string.IsNullOrWhiteSpace(summary))
                         {
-                            <img src="@icon.MediaUrl()" loading="lazy" decoding="async" alt="" />
-                        }
-                        else
-                        {
-                            <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
+                            <p class="sama-product-card__summary">@summary</p>
                         }
                     </div>
 
-                    <h3>@title</h3>
+                    <div class="sama-product-card__footer">
+                        <span>مشاهده جزئیات</span>
 
-                    @if (!string.IsNullOrWhiteSpace(summary))
-                    {
-                        <p>@summary</p>
-                    }
-
-                    <span>مشاهده جزئیات</span>
+                        <span class="sama-product-card__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" focusable="false">
+                                <path d="M19 12H5 M11 6L5 12L11 18" />
+                            </svg>
+                        </span>
+                    </div>
                 </a>
             }
         </div>

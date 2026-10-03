@@ -29,7 +29,7 @@ public sealed class CrmAuthenticationService
         {
             UserNo = userNo,
             WebPWD = password,
-            SystemName = "sama"
+            SystemName = "CRM"
         };
 
         try

@@ -3,80 +3,60 @@
 @using Umbraco.Cms.Core.Models.PublishedContent
 @using Umbraco.Extensions
 @using Umbraco.Cms.Core.Models.Blocks
-
 @{
     Layout = "Master.cshtml";
-
     MediaWithCrops? FirstMedia(IPublishedElement content, string alias)
     {
         var singleMedia = content.Value<MediaWithCrops>(alias);
-
         if (singleMedia != null)
         {
             return singleMedia;
         }
-
         var mediaItems = content.Value<IEnumerable<MediaWithCrops>>(alias);
-
         return mediaItems?.FirstOrDefault();
     }
-
     var pageTitle = Model.Value<string>("pageTitle");
     if (string.IsNullOrWhiteSpace(pageTitle))
     {
         pageTitle = Model.Name;
     }
-
     ViewData["PageTitle"] = pageTitle;
-
     var introText = Model.Value<string>("introText");
-
     var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
-
     var heroBadgeText = Model.Value<string>("heroBadgeText");
     if (string.IsNullOrWhiteSpace(heroBadgeText))
     {
         heroBadgeText = "محصولات";
     }
-
     var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
     var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
-
     if (string.IsNullOrWhiteSpace(heroBackgroundUrl))
     {
         heroBackgroundUrl = "/assets/sama/products/products-hero-bg-final.png";
     }
-
     var products = Model.Children()
-        .Where(x => x.ContentType.Alias == "productItem")
-        .OrderBy(x => x.SortOrder)
-        .ToList();
-
+    .Where(x => x.ContentType.Alias == "productItem")
+    .OrderBy(x => x.SortOrder)
+    .ToList();
     var productCategoryBlocks = Model.Value<BlockListModel>("productCategoryFilters");
     var productCategories = new List<ProductFilterCategory>();
-
     if (productCategoryBlocks != null)
     {
         foreach (var block in productCategoryBlocks)
         {
             var category = block.Content;
-
             var isVisible = category.GetProperty("isVisible") == null || category.Value<bool>("isVisible");
-
             if (!isVisible)
             {
                 continue;
             }
-
             var key = category.Value<string>("categoryKey");
             var title = category.Value<string>("categoryTitle");
             var icon = FirstMedia(category, "categoryIcon");
-
             if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(title))
             {
                 continue;
             }
-
             productCategories.Add(new ProductFilterCategory
             {
                 Key = key,
@@ -85,64 +65,70 @@
             });
         }
     }
-
     productCategories = productCategories
     .OrderByDescending(category =>
-        string.Equals(
-            category.Key,
-            "all",
-            StringComparison.OrdinalIgnoreCase
-        )
+    string.Equals(
+    category.Key,
+    "all",
+    StringComparison.OrdinalIgnoreCase
+    )
     )
     .ToList();
 }
-
 @functions {
+    private static string ProductCardIcon(string category, string title)
+    {
+        var key = title.Contains("خزانه") ? "treasury" : category;
+        return key switch
+        {
+            "administrative" => @"<path d=""M17 7H35L43 15V42H17Z M35 7V16H43 M23 23H36 M23 29H33 M23 35H29""/><path class=""sama-product-icon-accent"" d=""M34 43L46 31L51 36L39 48L32 50Z M43 34L48 39""/>",
+            "financial" => @"<ellipse cx=""28"" cy=""13"" rx=""16"" ry=""6""/><path d=""M12 13V39C12 47 44 47 44 39V13 M12 22C12 30 44 30 44 22 M12 31C12 39 44 39 44 31""/><circle class=""sama-product-icon-accent"" cx=""46"" cy=""46"" r=""9""/>",
+            "sales" => @"<path d=""M13 47V37H18V47Z M25 47V29H30V47Z M37 47V21H42V47Z""/><path class=""sama-product-icon-accent"" d=""M13 28L26 20L35 23L49 9 M39 9H49V19""/>",
+            "humanResources" => @"<circle cx=""31"" cy=""18"" r=""7""/><path d=""M19 48V39C19 27 43 27 43 39V48Z M10 46V37C10 31 14 28 18 28 M48 28C53 29 55 32 55 38V46""/><circle class=""sama-product-icon-accent"" cx=""12"" cy=""20"" r=""5""/><circle class=""sama-product-icon-accent"" cx=""51"" cy=""20"" r=""5""/>",
+            "supplyChain" => @"<path d=""M9 28L32 10L55 28 M13 26V51H51V26 M22 51V31H42V51""/><path class=""sama-product-icon-accent"" d=""M24 40H32V49H24Z M34 40H42V49H34Z M29 31H37V39H29Z""/>",
+            "treasury" => @"<rect x=""12"" y=""18"" width=""40"" height=""34"" rx=""5""/><path d=""M23 18V12C23 5 41 5 41 12V18 M20 28H32 M20 34H28""/><circle class=""sama-product-icon-accent"" cx=""43"" cy=""43"" r=""10""/>",
+            _ => @"<rect x=""12"" y=""12"" width=""40"" height=""40"" rx=""5""/><path d=""M22 24H42 M22 32H42 M22 40H34""/>",
+        };
+    }
+
     private sealed class ProductFilterCategory
     {
         public string Key { get; set; } = "";
         public string Title { get; set; } = "";
         public MediaWithCrops? Icon { get; set; }
     }
-
     private string ResolveProductCategory(IPublishedContent product, string productTitle)
     {
         var category = product.Value<string>("productCategory");
-
         if (!string.IsNullOrWhiteSpace(category))
         {
             return category;
         }
-
         // fallback موقت برای محصولاتی که هنوز category نگرفته‌اند
         if (productTitle.Contains("حسابداری") || productTitle.Contains("مالی") || productTitle.Contains("خزانه"))
         {
             return "financial";
         }
-
         if (productTitle.Contains("اداری") || productTitle.Contains("دبیرخانه"))
         {
             return "administrative";
         }
-
         if (productTitle.Contains("فروش") || productTitle.Contains("درآمد"))
         {
             return "sales";
         }
-
         if (productTitle.Contains("منابع انسانی"))
         {
             return "humanResources";
         }
-
         if (productTitle.Contains("انبار"))
         {
             return "supplyChain";
         }
-
         return "uncategorized";
     }
 }
+<link rel="stylesheet" href="@Url.Content("~/css/product-cards-v2.css")?v=20261003-1" />
 
 @if (showHero)
 {
@@ -150,9 +136,7 @@
         <div class="container sama-page-hero__inner">
             <div class="sama-page-hero__content">
                 <span class="sama-page-hero__badge">@heroBadgeText</span>
-
                 <h1>@pageTitle</h1>
-
                 @if (!string.IsNullOrWhiteSpace(introText))
                 {
                     <p>@introText</p>
@@ -168,7 +152,6 @@
         </div>
     </section>
 }
-
 @if (products.Count > 0 && productCategories.Count > 0)
 {
     <section class="container products-filter-wrap">
@@ -176,14 +159,9 @@
             @foreach (var category in productCategories)
             {
                 var isActive = category.Key == "all";
-
-                <button
-                    type="button"
-                    class="products-filter__item @(isActive ? "is-active" : "")"
+                <button type="button" class="products-filter__item @(isActive ? "is-active" : "")"
                     data-product-filter="@category.Key">
-
                     <span class="products-filter__label">@category.Title</span>
-
                     @if (category.Icon != null)
                     {
                         <span class="products-filter__icon" aria-hidden="true">
@@ -195,7 +173,6 @@
         </div>
     </section>
 }
-
 <section class="container product-list-page reveal-section">
     @if (products.Count == 0)
     {
@@ -214,133 +191,116 @@
                 {
                     title = product.Name;
                 }
-
                 var summary = product.Value<string>("summary");
                 var icon = FirstMedia(product, "icon");
                 var productCategory = ResolveProductCategory(product, title);
-
-                <a class="product-card product-card-polished product-list-card"
-                    href="@product.Url()"
-                    data-product-category="@productCategory">
-                    <div class="product-icon">
-                        @if (icon != null)
+                <a class="sama-product-card" href="@product.Url()" data-product-category="@productCategory">
+                    <div class="sama-product-card__body">
+                        <div class="sama-product-card__icon" aria-hidden="true">
+                            @if (icon != null)
+                            {
+                                <img src="@icon.MediaUrl()" alt="" loading="lazy" />
+                            }
+                            else
+                            {
+                                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
+                                    stroke-linejoin="round" focusable="false">
+                                    <rect x="12" y="12" width="40" height="40" rx="5" />
+                                    <path d="M22 24H42 M22 32H42 M22 40H34" />
+                                </svg>
+                            }
+                        </div>
+                        <h3 class="sama-product-card__title">@title</h3>
+                        @if (!string.IsNullOrWhiteSpace(summary))
                         {
-                            <img src="@icon.MediaUrl()" alt="@title" />
-                        }
-                        else
-                        {
-                            <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="@title" />
+                            <p class="sama-product-card__summary">@summary</p>
                         }
                     </div>
-
-                    <h3>@title</h3>
-
-                    @if (!string.IsNullOrWhiteSpace(summary))
-                    {
-                        <p>@summary</p>
-                    }
-
-                    <span>مشاهده جزئیات</span>
+                    <div class="sama-product-card__footer">
+                        <span>مشاهده جزئیات</span>
+                        <span class="sama-product-card__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" focusable="false">
+                                <path d="M19 12H5 M11 6L5 12L11 18" />
+                            </svg>
+                        </span>
+                    </div>
                 </a>
             }
         </div>
     }
 </section>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const filter = document.querySelector(".products-filter");
         const filterButtons = Array.from(document.querySelectorAll("[data-product-filter]"));
         const productGrid = document.querySelector(".product-list-grid");
         const productCards = Array.from(document.querySelectorAll("[data-product-category]"));
-
         if (!filter || !filterButtons.length || !productGrid || !productCards.length) {
             return;
         }
-
         let currentCategory =
             document.querySelector(".products-filter__item.is-active")?.getAttribute("data-product-filter") ||
             "all";
-
         let filterTimer = null;
         let heightTimer = null;
-
         function moveActivePill(button) {
             const filterRect = filter.getBoundingClientRect();
             const buttonRect = button.getBoundingClientRect();
-
             const x = buttonRect.left - filterRect.left + filter.scrollLeft;
-
             filter.style.setProperty("--products-filter-active-x", `${Math.round(x)}px`);
             filter.style.setProperty("--products-filter-active-width", `${Math.round(buttonRect.width)}px`);
         }
-
         function setCardsVisibility(selectedCategory) {
             productCards.forEach(function (card) {
                 const productCategory = card.getAttribute("data-product-category");
-
                 const shouldShow =
                     selectedCategory === "all" ||
                     productCategory === selectedCategory;
-
                 card.classList.toggle("is-hidden", !shouldShow);
             });
         }
-
         function applyProductFilter(selectedCategory) {
             window.clearTimeout(filterTimer);
             window.clearTimeout(heightTimer);
-
             const startHeight = productGrid.getBoundingClientRect().height;
-
             productGrid.classList.add("is-height-animating");
             productGrid.classList.add("is-filtering");
             productGrid.style.height = `${startHeight}px`;
-
             filterTimer = window.setTimeout(function () {
                 setCardsVisibility(selectedCategory);
-
                 productGrid.style.height = "auto";
                 const targetHeight = productGrid.getBoundingClientRect().height;
-
                 productGrid.style.height = `${startHeight}px`;
                 productGrid.offsetHeight; // force reflow
-
                 productGrid.style.height = `${targetHeight}px`;
-
                 requestAnimationFrame(function () {
                     productGrid.classList.remove("is-filtering");
                 });
-
                 heightTimer = window.setTimeout(function () {
                     productGrid.style.height = "";
                     productGrid.classList.remove("is-height-animating");
                 }, 300);
             }, 150);
         }
-
         const initialActiveButton =
             document.querySelector(".products-filter__item.is-active") ||
             filterButtons[0];
-
         /*
         * مرحله اول:
         * موقعیت pill در حالی تنظیم می‌شود که هنوز مخفی
         * و بدون transition است.
         */
         moveActivePill(initialActiveButton);
-
         /*
         * باعث می‌شود مرورگر موقعیت تعیین‌شده را همین‌جا اعمال کند.
         */
         void filter.offsetWidth;
-
         /*
         * مرحله دوم:
         * pill مستقیماً در محل صحیح نمایش داده می‌شود.
         */
         filter.classList.add("is-ready");
-
         /*
         * مرحله سوم:
         * transition فقط برای کلیک‌ها و تغییرات بعدی فعال می‌شود.
@@ -348,30 +308,23 @@
         requestAnimationFrame(function () {
             filter.classList.add("is-animated");
         });
-
         filterButtons.forEach(function (button) {
             button.addEventListener("click", function () {
                 const selectedCategory = button.getAttribute("data-product-filter");
-
                 if (selectedCategory === currentCategory) {
                     return;
                 }
-
                 currentCategory = selectedCategory;
-
                 filterButtons.forEach(function (item) {
                     item.classList.remove("is-active");
                 });
-
                 button.classList.add("is-active");
                 moveActivePill(button);
                 applyProductFilter(selectedCategory);
             });
         });
-
         window.addEventListener("resize", function () {
             const activeButton = document.querySelector(".products-filter__item.is-active");
-
             if (activeButton) {
                 moveActivePill(activeButton);
             }

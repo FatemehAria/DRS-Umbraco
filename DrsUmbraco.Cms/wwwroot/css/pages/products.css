@@ -74,7 +74,7 @@
   border-radius: 12px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
   transition:
     color 0.2s ease,
@@ -549,6 +549,7 @@
     white-space: normal;
     text-align: center;
     border-left: 0;
+    font-size: 14px;
   }
 
   .products-filter::before {
@@ -644,7 +645,7 @@
 
 /* عنوان کارت محصول */
 .product-list-page .product-list-card > h3 {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 800;
   line-height: 1.6;
 }
@@ -661,4 +662,70 @@
 .product-list-page .product-list-card > span {
   font-size: 14px;
   font-weight: 700;
+}
+
+/* Equal-height product cards */
+.product-list-page .product-grid.product-grid-polished.product-list-grid {
+  align-items: stretch;
+  grid-auto-rows: 1fr;
+}
+
+.product-list-page .product-card.product-card-polished.product-list-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+
+  height: auto;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Preserve category filtering */
+.product-list-page
+  .product-card.product-card-polished.product-list-card.is-hidden {
+  display: none;
+}
+
+.product-list-page .product-list-card > .product-icon {
+  flex-shrink: 0;
+}
+
+.product-list-page .product-list-card > h3,
+.product-list-page .product-list-card > .product-card-summary {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.product-list-page .product-list-card > .product-card-summary {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.9;
+  margin-block: 12px 0;
+}
+
+/* Keep the details link at the bottom */
+.product-list-page .product-list-card > span {
+  margin-block-start: auto;
+  padding-block-start: 22px;
+}
+
+/* Natural height in the single-column layout */
+@media (max-width: 767px) {
+  .product-list-page .product-grid.product-grid-polished.product-list-grid {
+    grid-auto-rows: auto;
+  }
+}
+
+/* Mobile: right-aligned summary */
+.product-list-page .product-list-card > .product-card-summary {
+  text-align: right;
+  text-align-last: right;
+}
+
+/* Tablet and desktop: justified summary */
+@media (min-width: 768px) {
+  .product-list-page .product-list-card > .product-card-summary {
+    text-align: justify;
+  }
 }

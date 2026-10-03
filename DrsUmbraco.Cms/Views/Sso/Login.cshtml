@@ -23,7 +23,7 @@
         <span>دیدگاه رایانه سما</span>
     </a>
 
-    <a class="login-header__back" href="@Model.PublicHomeUrl/پورتال-مشتریان" data-smart-back>
+    <a class="login-header__back" href="@(Model.PublicHomeUrl.TrimEnd('/') + "/پورتال-مشتریان")" data-smart-back>
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round" />
@@ -120,7 +120,7 @@
                 </a>
             </div> *@
 
-            <input type="hidden" name="SystemName" value="sama" />
+            <input type="hidden" name="SystemName" value="CRM" />
 
             <button class="login-button" type="submit">
                 ورود
