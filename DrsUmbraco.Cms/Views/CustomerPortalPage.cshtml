@@ -267,17 +267,24 @@
 
                     var isPrimary = card.CardType == "support" || card.CardType == "support-login";
 
-                    <a class="customer-portal-card @(isPrimary ? "customer-portal-card--primary" : null)" href="@card.Url"
-                        target="@(card.OpenInNewTab ? "_blank" : null)" rel="@(card.OpenInNewTab ? "noopener" : null)">
-                        <span class="customer-portal-card__icon portal-icon portal-icon--@card.IconKey"
-                            aria-hidden="true"></span>
+                    <a class="sama-portal-card" href="@card.Url" target="@(card.OpenInNewTab ? "_blank" : null)"
+                        rel="@(card.OpenInNewTab ? "noopener" : null)">
 
-                        <span class="customer-portal-card__body">
-                            <strong>@card.Title</strong>
-                            <small>@card.Description</small>
+                        <span class="sama-portal-card__icon portal-icon portal-icon--@card.IconKey" aria-hidden="true"></span>
+
+                        <span class="sama-portal-card__body">
+                            <strong class="sama-portal-card__title">@card.Title</strong>
+                            <span class="sama-portal-card__description">@card.Description</span>
                         </span>
 
-                        <span class="customer-portal-card__button">@card.ButtonText</span>
+                        <span class="sama-portal-card__button">
+                            <span>@card.ButtonText</span>
+
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                <path d="M19 12H5 M11 6L5 12L11 18" />
+                            </svg>
+                        </span>
                     </a>
                 }
             </div>
