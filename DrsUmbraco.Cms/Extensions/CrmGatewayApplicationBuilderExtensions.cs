@@ -36,9 +36,9 @@ public static class CrmGatewayApplicationBuilderExtensions
                 //     path.StartsWithSegments("/login");
 
                 var isLocalRoute =
-                        path.StartsWithSegments("/signin") ||
-                        path.StartsWithSegments("/signout") ||
-                        path.StartsWithSegments("/login") ||
+                        // path.StartsWithSegments("/signin") ||
+                        // path.StartsWithSegments("/signout") ||
+                        // path.StartsWithSegments("/login") ||
                         path.StartsWithSegments("/umbraco");
 
                 if (isLocalRoute)
@@ -65,6 +65,19 @@ public static class CrmGatewayApplicationBuilderExtensions
                         path.StartsWithSegments("/media");
 
                     if (isStaticAssetPath)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    // NEw
+                    var isAnonymousCrmRoute =
+                        path.StartsWithSegments("/signin") ||
+                        path.StartsWithSegments("/login") ||
+                        path.StartsWithSegments(
+                        new PathString(crmOptions.LoginPath));
+
+                    if (isAnonymousCrmRoute)
                     {
                         await next();
                         return;
