@@ -1,5 +1,6 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.Blocks
 @using Umbraco.Extensions
 
 @{
@@ -34,6 +35,37 @@
 
     var demoRequestType = $"درخواست دمو - {title}";
     var consultingRequestType = $"درخواست مشاوره - {title}";
+
+    var productHeroHighlightBadges = Model.Value<BlockListModel>("productHeroHighlightBadges");
+
+    var solutionDescription = Model.Value<string>("solutionDescription");
+    var solutionList = Model.Value<BlockListModel>("solutionList");
+
+    var productDescriptionBadge = Model.Value<string>("productDescriptionBadge");
+    if (string.IsNullOrWhiteSpace(productDescriptionBadge))
+    {
+        productDescriptionBadge = "معرفی محصول";
+    }
+
+    var suitableForBadge = Model.Value<string>("suitableForBadge");
+    if (string.IsNullOrWhiteSpace(suitableForBadge))
+    {
+        suitableForBadge = "مناسب برای";
+    }
+
+    var suitableForTitle = Model.Value<string>("suitableForTitle");
+    if (string.IsNullOrWhiteSpace(suitableForTitle))
+    {
+        suitableForTitle = "این محصول برای چه سازمان‌هایی مناسب است؟";
+    }
+
+    var suitableForBody = Model.Value<string>("suitableForBody");
+    if (string.IsNullOrWhiteSpace(suitableForBody))
+    {
+        suitableForBody = "این راهکار برای سازمان‌هایی مناسب است که می‌خواهند فرآیندهای خود را ساختارمندتر، قابل پیگیری‌تر و گزارش‌پذیرتر مدیریت کنند.";
+    }
+
+    var suitableForList = Model.Value<BlockListModel>("suitableForList");
 }
 
 <section class="inner-page-hero product-detail-hero product-detail-hero-v2">
@@ -50,16 +82,25 @@
             else
             {
                 <p>
-                    راهکاری سازمانی برای مدیریت بهتر اطلاعات، فرایندها و گزارش‌های عملیاتی سازمان.
+                    راهکاری سازمانی برای مدیریت بهتر اطلاعات، فرآیندها و گزارش‌های عملیاتی سازمان.
                 </p>
             }
 
-            <div class="product-detail-badges">
-                <span>طراحی‌شده برای سازمان‌ها</span>
-                <span>قابل توسعه</span>
-                <span>پشتیبانی تخصصی</span>
-            </div>
+            @if (productHeroHighlightBadges != null && productHeroHighlightBadges.Any())
+            {
+                <div class="product-detail-badges">
+                    @foreach (var block in productHeroHighlightBadges)
+                    {
+                        var item = block.Content;
+                        var itemTitle = item.Value<string>("title");
 
+                        @if (!string.IsNullOrWhiteSpace(itemTitle))
+                        {
+                            <span>@itemTitle</span>
+                        }
+                    }
+                </div>
+            }
             <div class="product-detail-actions">
                 <a class="ui-btn ui-btn-primary" href="#demo-form">درخواست دمو</a>
                 <a class="ui-btn ui-btn-outline" href="@productListUrl">بازگشت به محصولات</a>
@@ -70,62 +111,89 @@
             <div class="product-detail-icon">
                 @if (icon != null)
                 {
-                    <img src="@icon.MediaUrl()" alt="@title" />
+                    <img src="@icon.MediaUrl()" alt="" />
                 }
-                <!-- else
-                {
-                    <img src="/assets/sama/uploads/2024/11/finance-2.svg" alt="" />
-                } -->
             </div>
 
             <h2>راهکار @title</h2>
 
+            @if (!string.IsNullOrWhiteSpace(solutionDescription))
+            {
+            <p>@solutionDescription</p>
+            }
+            else
+            {
             <p>
                 مناسب برای سازمان‌هایی که به دنبال مدیریت ساختارمندتر، گزارش‌پذیرتر و قابل پیگیری‌تر هستند.
             </p>
+            }
 
-            <ul>
-                <li>یکپارچگی اطلاعات</li>
-                <li>بهبود فرایندهای داخلی</li>
-                <li>گزارش‌گیری و تصمیم‌گیری بهتر</li>
-            </ul>
+            @if (solutionList != null && solutionList.Any())
+            {
+                <ul>
+                    @foreach (var block in solutionList)
+                    {
+                        var item = block.Content;
+                        var itemTitle = item.Value<string>("title");
+
+                        @if (!string.IsNullOrWhiteSpace(itemTitle))
+                        {
+                            <li>@itemTitle</li>
+                        }
+                    }
+                </ul>
+            }
         </aside>
     </div>
 </section>
 
 <section class="container product-detail-page reveal-section">
     <div class="product-detail-layout-v2">
-        <article class="product-detail-content-card product-detail-main-card">
-            <div class="product-detail-content">
-                <span class="section-mini-badge">معرفی محصول</span>
+        <article class="product-detail-content-card product-detail-main-card sama-detail-card">
+            <div class="product-detail-content sama-detail-card__content">
+                <span class="section-mini-badge">@productDescriptionBadge</span>
 
                 <h2>درباره @title</h2>
 
                 <div class="product-detail-body">
                     @Model.Value("body")
                 </div>
-
-                <div class="article-actions">
-                    <a class="article-back-link" href="@productListUrl">بازگشت به لیست محصولات</a>
-                </div>
             </div>
+
+            <a class="sama-detail-back" href="@productListUrl">
+                <span>بازگشت به لیست محصولات</span>
+
+                <span class="sama-detail-back__arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" focusable="false">
+                        <path d="M19 12H5 M11 6L5 12L11 18" />
+                    </svg>
+                </span>
+            </a>
         </article>
 
         <aside class="product-detail-side-card product-fit-card">
-            <span>مناسب برای</span>
+            <span class="section-mini-badge">@suitableForBadge</span>
 
-            <h3>این محصول برای چه سازمان‌هایی مناسب است؟</h3>
+            <h3>@suitableForTitle</h3>
 
-            <p>
-                این راهکار برای سازمان‌هایی مناسب است که می‌خواهند فرایندهای خود را ساختارمندتر،
-                قابل پیگیری‌تر و گزارش‌پذیرتر مدیریت کنند.
-            </p>
+            <p>@suitableForBody</p>
 
-            <ul class="product-fit-list">
-                <li>سازمان‌های متوسط و بزرگ</li>
-                <li>تیم‌هایی با فرایندهای قابل توسعه</li>
-                <li>مجموعه‌هایی که به گزارش‌گیری دقیق نیاز دارند</li>
-            </ul>
+            @if (suitableForList != null && suitableForList.Any())
+            {
+                <ul class="product-fit-list">
+                    @foreach (var block in suitableForList)
+                    {
+                        var item = block.Content;
+                        var itemTitle = item.Value<string>("title");
+
+                        @if (!string.IsNullOrWhiteSpace(itemTitle))
+                        {
+                            <li>@itemTitle</li>
+                        }
+                    }
+                </ul>
+            }
         </aside>
     </div>
 </section>
@@ -194,8 +262,8 @@
             <textarea name="message" placeholder="نیاز یا سوال خود را کوتاه بنویسید..." maxlength="2000"></textarea>
         </label>
 
-        <button type="submit" data-submit-text="ثبت درخواست مشاوره">
-            ثبت درخواست مشاوره
+        <button type="submit" data-submit-text="ثبت درخواست">
+            ثبت درخواست
         </button>
 
         <div id="consultRequestMessage"></div>

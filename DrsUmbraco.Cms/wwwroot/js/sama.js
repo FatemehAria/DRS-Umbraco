@@ -621,7 +621,7 @@
     const defaultSubmitText =
       submitButton?.dataset.submitText ||
       submitButton?.textContent ||
-      "ثبت درخواست مشاوره";
+      "ثبت درخواست";
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();

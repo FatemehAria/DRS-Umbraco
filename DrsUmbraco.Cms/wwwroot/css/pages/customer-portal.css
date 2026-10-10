@@ -661,3 +661,8 @@
     pointer-events: none;
   }
 }
+
+.customer-portal-options:has(> .sama-portal-card:only-child) {
+  grid-template-columns: minmax(0, 440px);
+  justify-content: center;
+}

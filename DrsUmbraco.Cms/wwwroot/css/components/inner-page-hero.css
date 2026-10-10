@@ -154,8 +154,10 @@
   display: inline-flex;
   margin-bottom: 16px;
   padding: 6px 14px;
-  color: var(--sama-primary);
-  background: rgba(15, 76, 129, 0.08);
+  /* color: var(--sama-primary);
+  background: rgba(15, 76, 129, 0.08); */
+  color: #9a5b00;
+  background: rgba(245, 166, 35, 0.18);
   border-radius: 999px;
   font-size: 13px;
   font-weight: 900;

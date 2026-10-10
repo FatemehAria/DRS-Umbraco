@@ -149,7 +149,7 @@
     var demoMessageLabel = TextOrDefault("demoMessageLabel", "توضیحات");
     var demoMessagePlaceholder = TextOrDefault("demoMessagePlaceholder", "نیاز یا سوال خود را کوتاه بنویسید...");
 
-    var demoSubmitButtonText = TextOrDefault("demoSubmitButtonText", "ثبت درخواست مشاوره");
+    var demoSubmitButtonText = TextOrDefault("demoSubmitButtonText", "ثبت درخواست");
 
     var demoBenefits = new[]
     {
@@ -168,7 +168,7 @@ demoBenefit3
     "طراحی و توسعه سامانه‌های سازمانی در حوزه مالی، منابع انسانی، فروش، درآمد و فرایندهای اداری با تمرکز بر پایداری، پشتیبانی و تجربه کاربری بهتر."
     );
 
-    var heroPrimaryButtonText = TextOrDefault("heroPrimaryButtonText", "درخواست دمو یا مشاوره");
+    var heroPrimaryButtonText = TextOrDefault("heroPrimaryButtonText", "درخواست دمو و مشاوره");
     var heroPrimaryButtonUrl = TextOrDefault("heroPrimaryButtonUrl", "#demo-form");
 
     var heroSecondaryButtonText = TextOrDefault("heroSecondaryButtonText", "مشاهده محصولات");
@@ -193,7 +193,6 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
 }
 };
 }
-
 
 <!-- Hero -->
 @if (showHero)
@@ -241,8 +240,13 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
                 @if (!string.IsNullOrWhiteSpace(heroPrimaryButtonText) &&
                             !string.IsNullOrWhiteSpace(heroPrimaryButtonUrl))
                 {
-                    <a class="ui-btn ui-btn-primary" href="@heroPrimaryButtonUrl">
-                        @heroPrimaryButtonText
+                    <a class="ui-btn ui-btn-primary hero-primary-cta" href="@heroPrimaryButtonUrl">
+                        <span class="hero-primary-cta__label">@heroPrimaryButtonText</span>
+                        @* <svg class="hero-primary-cta__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                            focusable="false">
+                            <path d="M19 12H5 M11 6L5 12L11 18" />
+                        </svg> *@
                     </a>
                 }
 
@@ -285,49 +289,6 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
 
                     <button type="button" class="@dotClass" aria-label="اسلاید @(i + 1)">
                     </button>
-                }
-            </div>
-        }
-    </section>
-}
-
-<!-- Capabilities -->
-@if (showCapabilitySection)
-{
-    <section class="container capability-section reveal-section">
-        @if (capabilityCards?.Any() == true)
-        {
-            <div class="capability-grid">
-                @foreach (var card in capabilityCards)
-                {
-                    var number = card.Content.Value<string>("number");
-                    var title = card.Content.Value<string>("title");
-                    var description = card.Content.Value<string>("description");
-                    var icon = FirstMedia(card.Content, "icon");
-
-                    <article class="capability-card">
-                        @if (!string.IsNullOrWhiteSpace(number))
-                        {
-                            <span class="capability-number">@number</span>
-                        }
-
-                        <div class="capability-icon">
-                            @if (icon != null)
-                            {
-                                <img src="@icon.MediaUrl()" loading="lazy" decoding="async" alt="" />
-                            }
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(title))
-                        {
-                            <h2>@title</h2>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(description))
-                        {
-                            <p>@description</p>
-                        }
-                    </article>
                 }
             </div>
         }
@@ -382,14 +343,13 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
 }
 
 <!-- Products -->
-<!-- Products -->
 @if (showProductsSection && homeProducts.Any())
 {
     <link rel="stylesheet" href="@Url.Content("~/css/product-cards-v2.css")?v=20261003-2" />
 
     <section class="container products-section home-products-v2 reveal-section">
         <div class="section-heading">
-            <span>@productsSectionLabel</span>
+            <span class="demo-badge">@productsSectionLabel</span>
             <h2>@productsSectionTitle</h2>
 
             @if (!string.IsNullOrWhiteSpace(productsSectionDescription))
@@ -451,6 +411,51 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
         </div>
     </section>
 }
+
+<!-- Capabilities -->
+@if (showCapabilitySection && capabilityCards?.Any() == true)
+{
+    <section class="sama-journey reveal-section" aria-labelledby="samaJourneyTitle">
+        <div class="container">
+            <div class="sama-journey__heading">
+                <h2 id="samaJourneyTitle">از انتخاب تا پشتیبانی، کنار شما هستیم</h2>
+                <p>همراه سازمان شما در هر مرحله از همکاری</p>
+            </div>
+
+            <ol class="sama-journey__steps" style="--journey-columns: @capabilityCards.Count;">
+                @for (var i = 0; i < capabilityCards.Count; i++)
+                {
+                    var card = capabilityCards[i];
+                    var title = card.Content.Value<string>("title");
+                    var description = card.Content.Value<string>("description");
+                    var icon = FirstMedia(card.Content, "icon");
+                    var stepNumber = (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    var persianNumber = string.Concat(stepNumber.Select(digit => "۰۱۲۳۴۵۶۷۸۹"[digit - '0']));
+
+                    <li class="sama-journey__step">
+                        <span class="sama-journey__number" aria-hidden="true">@persianNumber</span>
+                        <div class="sama-journey__body">
+                            @if (icon != null)
+                            {
+                                <img class="sama-journey__icon" src="@icon.MediaUrl()" width="44" height="44" loading="lazy"
+                                    decoding="async" alt="" />
+                            }
+                            @if (!string.IsNullOrWhiteSpace(title))
+                            {
+                                <h3>@title</h3>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(description))
+                            {
+                                <p>@description</p>
+                            }
+                        </div>
+                    </li>
+                }
+            </ol>
+        </div>
+    </section>
+}
+
 
 <!-- News -->
 @if (showNewsSection && latestNewsItems.Any())
@@ -514,6 +519,7 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
         </div>
     </section>
 }
+
 
 <!-- Testimonials -->
 @if (showTestimonialsSection && testimonialItems?.Any() == true)
@@ -600,6 +606,7 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
     </section>
 }
 
+
 <!-- Demo Request Form -->
 @if (showDemoSection)
 {
@@ -658,26 +665,36 @@ Label = TextOrDefault("heroStat3Label", "همراه مشتریان")
             </label> *@
 
             <div class="form-field">
-                <label for="contactRequestType">
+                <label for="homeRequestType">
                     @demoRequestTypeLabel
                 </label>
 
                 <select id="homeRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
-                    <option value="ارتباط عمومی">
+
+                    <option value="درخواست دمو">
+                        درخواست دمو
+                    </option>
+
+                    <option value="درخواست مشاوره">
+                        درخواست مشاوره
+                    </option>
+
+
+                    @* <option value="ارتباط عمومی">
                         ارتباط عمومی
-                    </option>
+                    </option> *@
 
-                    <option value="پشتیبانی">
+                    @* <option value="پشتیبانی">
                         خدمات و پشتیبانی
-                    </option>
+                    </option> *@
 
-                    <option value="پیگیری درخواست">
+                    @* <option value="پیگیری درخواست">
                         پیگیری درخواست
                     </option>
 
                     <option value="سایر">
                         سایر موضوعات
-                    </option>
+                    </option> *@
                 </select>
             </div>
 

@@ -38,6 +38,24 @@
         heroBadgeText = "همکاری با ما";
     }
 
+    var recruitmentBadge = Model.Value<string>("recruitmentBadge");
+    if (string.IsNullOrWhiteSpace(recruitmentBadge))
+    {
+        recruitmentBadge = "موقعیت‌های فعال";
+    }
+
+    var recruitmentTitle = Model.Value<string>("recruitmentTitle");
+    if (string.IsNullOrWhiteSpace(recruitmentTitle))
+    {
+        recruitmentTitle = "فرصت‌های همکاری در سما";
+    }
+
+    var recruitmentDescription = Model.Value<string>("recruitmentDescription");
+    if (string.IsNullOrWhiteSpace(recruitmentDescription))
+    {
+        recruitmentDescription = "موقعیت‌های شغلی فعال را بررسی کنید و در صورت علاقه، درخواست همکاری خود را ثبت کنید";
+    }
+
     var heroBackgroundImage = FirstMedia(Model, "heroBackgroundImage");
     var heroBackgroundUrl = heroBackgroundImage?.MediaUrl();
 
@@ -67,10 +85,7 @@
                 }
                 else
                 {
-                    <p>
-                        ما در دیدگاه شبکه سما به دنبال افرادی هستیم که به یادگیری،
-                        حل مسئله و ساخت راهکارهای سازمانی علاقه‌مند باشند.
-                    </p>
+                    <p>ما در دیدگاه رایانه سما به دنبال همکارانی هستیم که به یادگیری، حل مسئله و ساخت نرم‌افزارهای سازمانی علاقه‌مند باشند</p>
                 }
             </div>
         </div>
@@ -79,21 +94,20 @@
 
 <section class="container recruitment-page reveal-section">
     <div class="section-heading">
-        <span>موقعیت‌های فعال</span>
-        <h2>فرصت‌های همکاری در سما</h2>
-        <p>موقعیت‌های شغلی فعال را بررسی کنید و در صورت علاقه، درخواست همکاری خود را ثبت کنید.</p>
+        <span>@recruitmentBadge</span>
+        <h2>@recruitmentTitle</h2>
+        <p>@recruitmentDescription</p>
     </div>
 
     @if (jobs.Count == 0)
     {
         <div class="news-empty-state">
             <h2>در حال حاضر موقعیت شغلی فعالی وجود ندارد</h2>
-            <p>در صورت فعال شدن فرصت‌های جدید، این بخش از طریق Umbraco به‌روزرسانی می‌شود.</p>
         </div>
     }
     else
     {
-        <div class="jobs-grid">
+        <div class="jobs-grid @(jobs.Count == 1 ? "jobs-grid--single" : "")">
             @foreach (var job in jobs)
             {
                 var title = job.Value<string>("title");

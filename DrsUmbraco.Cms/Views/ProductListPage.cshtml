@@ -155,12 +155,13 @@
 @if (products.Count > 0 && productCategories.Count > 0)
 {
     <section class="container products-filter-wrap">
-        <div class="products-filter" aria-label="دسته‌بندی محصولات" dir="rtl">
+        <div class="products-filter" role="group" aria-label="دسته‌بندی محصولات" dir="rtl">
             @foreach (var category in productCategories)
             {
-                var isActive = category.Key == "all";
+                var isActive = string.Equals(category.Key, "all", StringComparison.OrdinalIgnoreCase);
                 <button type="button" class="products-filter__item @(isActive ? "is-active" : "")"
-                    data-product-filter="@category.Key">
+                    data-product-filter="@category.Key" aria-pressed="@(isActive ? "true" : "false")"
+                    aria-controls="productsResultGrid">
                     <span class="products-filter__label">@category.Title</span>
                     @if (category.Icon != null)
                     {
@@ -183,7 +184,8 @@
     }
     else
     {
-        <div class="product-grid product-grid-polished product-list-grid">
+        <p id="productsFilterStatus" class="products-review-status" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div id="productsResultGrid" class="product-grid product-grid-polished product-list-grid">
             @foreach (var product in products)
             {
                 var title = product.Value<string>("title");
@@ -210,7 +212,7 @@
                                 </svg>
                             }
                         </div>
-                        <h3 class="sama-product-card__title">@title</h3>
+                        <h2 class="sama-product-card__title">@title</h2>
                         @if (!string.IsNullOrWhiteSpace(summary))
                         {
                             <p class="sama-product-card__summary">@summary</p>
@@ -259,6 +261,13 @@
                     productCategory === selectedCategory;
                 card.classList.toggle("is-hidden", !shouldShow);
             });
+            const status = document.getElementById("productsFilterStatus");
+            const visibleCount = productCards.filter(card => !card.classList.contains("is-hidden")).length;
+            if (status) {
+                status.textContent = visibleCount
+                    ? `${visibleCount.toLocaleString("fa-IR")} محصول نمایش داده می‌شود.`
+                    : "محصولی در این دسته‌بندی یافت نشد.";
+            }
         }
         function applyProductFilter(selectedCategory) {
             window.clearTimeout(filterTimer);
@@ -291,6 +300,10 @@
         * موقعیت pill در حالی تنظیم می‌شود که هنوز مخفی
         * و بدون transition است.
         */
+        initialActiveButton.classList.add("is-active");
+        filterButtons.forEach(item => item.setAttribute("aria-pressed", item === initialActiveButton ? "true" : "false"));
+        currentCategory = initialActiveButton.getAttribute("data-product-filter");
+        setCardsVisibility(currentCategory);
         moveActivePill(initialActiveButton);
         /*
         * باعث می‌شود مرورگر موقعیت تعیین‌شده را همین‌جا اعمال کند.
@@ -317,8 +330,10 @@
                 currentCategory = selectedCategory;
                 filterButtons.forEach(function (item) {
                     item.classList.remove("is-active");
+                    item.setAttribute("aria-pressed", "false");
                 });
                 button.classList.add("is-active");
+                button.setAttribute("aria-pressed", "true");
                 moveActivePill(button);
                 applyProductFilter(selectedCategory);
             });

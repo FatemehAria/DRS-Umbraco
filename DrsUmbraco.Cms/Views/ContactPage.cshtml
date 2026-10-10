@@ -51,7 +51,38 @@
     var phone = Model.Value<string>("phone");
     var workingHours = Model.Value<string>("workingHours");
 
+    var contactInfoBadgeText = Model.Value<string>("contactInfoBadgeText");
+    if (string.IsNullOrWhiteSpace(contactInfoBadgeText))
+    {
+        contactInfoBadgeText = "اطلاعات تماس";
+    }
+
+    var contactInfoTitleText = Model.Value<string>("contactInfoTitle");
+    if (string.IsNullOrWhiteSpace(contactInfoTitleText))
+    {
+        contactInfoTitleText = "راه‌های ارتباطی";
+    }
+
+    var contactFormBadge = Model.Value<string>("contactFormBadge");
+    if (string.IsNullOrWhiteSpace(contactFormBadge))
+    {
+        contactFormBadge = "فرم تماس";
+    }
+
+    var contactFormTitle = Model.Value<string>("contactFormTitle");
+    if (string.IsNullOrWhiteSpace(contactFormTitle))
+    {
+        contactFormTitle = "ارسال پیام";
+    }
+
+    var contactFormDescription = Model.Value<string>("contactFormDescription");
+    if (string.IsNullOrWhiteSpace(contactFormDescription))
+    {
+        contactFormDescription = "پیام، سوال یا درخواست خود را ارسال کنید. تیم ما پس از بررسی، در صورت نیاز با شما تماس می‌گیرد.";
+    }
+
     var contactInfoBlocks = Model.Value<BlockListModel>("contactInfoItems");
+    var contactFormOptions = Model.Value<BlockListModel>("contactFormOptions");
 }
 
 @if (showHero)
@@ -82,9 +113,9 @@
 <section class="container contact-page reveal-section">
     <div class="contact-grid">
         <div class="contact-info-panel">
-            <span class="section-mini-badge">اطلاعات تماس</span>
+            <span class="section-mini-badge">@contactInfoBadgeText</span>
 
-            <h2>راه‌های ارتباطی</h2>
+            <h2>@contactInfoTitleText</h2>
 
             <div class="contact-info-list">
                 @if (contactInfoBlocks != null && contactInfoBlocks.Any())
@@ -153,13 +184,11 @@
         </div>
 
         <div class="contact-form-panel">
-            <span class="section-mini-badge">فرم تماس</span>
+            <span class="section-mini-badge">@contactFormBadge</span>
 
-            <h2>ارسال پیام</h2>
+            <h2>@contactFormTitle</h2>
 
-            <p>
-                پیام، سوال یا درخواست خود را ارسال کنید. تیم ما پس از بررسی، در صورت نیاز با شما تماس می‌گیرد.
-            </p>
+            <p>@contactFormDescription</p>
 
             <form id="consultRequestForm" class="demo-form sama-consult-form contact-form"
                 data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد." novalidate>
@@ -194,22 +223,40 @@
                         موضوع پیام
                     </label>
 
-                    <select id="contactRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
-                        <option value="ارتباط عمومی">
-                            ارتباط عمومی
-                        </option>
+                    <select id="contactRequestType"
+                            class="js-tom-select"
+                            name="requestType"
+                            dir="rtl"
+                            required>
+                        @if (contactFormOptions != null && contactFormOptions.Any())
+                        {
+                            foreach (var block in contactFormOptions)
+                            {
+                                var item = block.Content;
+                                var isVisible = item.GetProperty("isVisible") == null ||
+                                                item.Value<bool>("isVisible");
 
-                        <option value="پشتیبانی">
-                            خدمات و پشتیبانی
-                        </option>
+                                if (!isVisible)
+                                {
+                                    continue;
+                                }
 
-                        <option value="پیگیری درخواست">
-                            پیگیری درخواست
-                        </option>
+                                var title = item.Value<string>("title");
+                                var value = item.Value<string>("value");
 
-                        <option value="سایر">
-                            سایر موضوعات
-                        </option>
+                                if (string.IsNullOrWhiteSpace(title) ||
+                                    string.IsNullOrWhiteSpace(value))
+                                {
+                                    continue;
+                                }
+
+                                <option value="@value">@title</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="ارتباط عمومی">ارتباط عمومی</option>
+                        }
                     </select>
                 </div>
                 

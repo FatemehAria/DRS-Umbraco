@@ -69,6 +69,23 @@
 }
 
 .header-phone {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 5px 10px;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    var(--sama-primary),
+    var(--sama-primary-dark)
+  );
+  border-radius: 999px;
+  box-shadow: var(--sama-shadow-sm);
+}
+/* .header-phone {
   min-width: 210px;
   display: flex;
   align-items: center;
@@ -84,7 +101,7 @@
   );
   border-radius: 999px;
   box-shadow: var(--sama-shadow-sm);
-}
+} */
 
 body.is-scrolled .site-header {
   box-shadow: 0 12px 34px rgba(15, 23, 42, 0.1);
@@ -266,6 +283,20 @@ body.is-scrolled .logo img {
 }
 
 .header-portal-btn {
+  /* min-width: 205px; */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--sama-primary);
+}
+
+/* .header-portal-btn {
   min-width: 205px;
   display: inline-flex;
   align-items: center;
@@ -285,9 +316,9 @@ body.is-scrolled .logo img {
     border-color 0.25s ease,
     transform 0.25s ease,
     box-shadow 0.25s ease;
-}
+} */
 
-.header-portal-btn:hover,
+/* .header-portal-btn:hover,
 .header-portal-btn.is-active {
   color: #fff;
   background: linear-gradient(135deg, #0f4c81, #082f55);
@@ -303,4 +334,159 @@ body.is-scrolled .logo img {
 .header-phone {
   min-width: 205px;
   padding: 13px 22px;
+} */
+
+/* Final header actions: load after all existing header/mobile styles. */
+.site-header .header-actions {
+  align-items: center;
+  gap: 18px;
+}
+
+.site-header .header-portal-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  min-height: 48px;
+  padding: 10px 22px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--sama-primary-dark, #082f55);
+  color: #fff;
+  box-shadow: none;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.6;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 180ms ease;
+}
+
+.site-header .header-portal-btn span {
+  color: inherit;
+}
+
+.site-header .header-portal-btn:hover,
+.site-header .header-portal-btn.is-active {
+  background: var(--sama-primary, #0f4c81);
+  color: #fff;
+  transform: none;
+}
+
+.site-header .header-phone {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  direction: ltr;
+  min-width: 0;
+  min-height: 44px;
+  width: auto;
+  margin: 0;
+  padding: 6px 0;
+  gap: 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  color: var(--sama-primary-dark, #082f55);
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: nowrap;
+  text-decoration: none;
+  transform: none;
+}
+
+.site-header .header-phone strong {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-weight: 800;
+}
+
+.site-header .header-phone span {
+  order: -1;
+  font-size: 20px;
+}
+
+.site-header .header-phone:hover {
+  color: var(--sama-primary, #0f4c81);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.site-header .header-phone:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.site-header .header-actions a:focus-visible {
+  outline: 2px solid var(--sama-primary, #0f4c81);
+  outline-offset: 4px;
+}
+
+@media (min-width: 1181px) {
+  .site-header .header-inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: clamp(20px, 2vw, 32px);
+  }
+
+  .site-header .main-nav {
+    gap: clamp(20px, 2.7vw, 48px);
+  }
+
+  .site-header .main-nav a {
+    white-space: nowrap;
+  }
+}
+
+/* Preserve existing menu-open rules; do not force hidden actions visible. */
+@media (max-width: 1180px) {
+  .site-header .header-actions {
+    gap: 8px;
+  }
+
+  .site-header .header-portal-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 10px 18px;
+  }
+
+  .site-header .header-phone {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header .header-portal-btn {
+    transition: none;
+  }
+}
+
+@media (min-width: 1181px) {
+  .site-header .header-portal-btn {
+    min-width: 160px;
+    min-height: 44px;
+    padding: 9px 18px;
+    font-size: 15px;
+  }
+
+  .site-header .header-phone {
+    font-size: 17px;
+    gap: 8px;
+  }
+
+  .site-header .header-phone span {
+    font-size: 18px;
+  }
+
+  .site-header .header-actions {
+    gap: 20px;
+  }
 }

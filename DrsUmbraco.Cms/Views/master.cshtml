@@ -62,7 +62,7 @@
     var siteLogo = FirstSiteMedia("siteLogo");
 
     var siteLogoUrl = siteLogo != null
-    ? siteLogo.MediaUrl()
+        ? siteLogo.MediaUrl()
     : "/assets/sama/uploads/2024/11/Sama-Logo.webp";
 
     var footerLicenseLogos = siteSettings?
@@ -75,7 +75,7 @@
     var footerAddress = SettingOrDefault(
     "footerAddress",
     "خیابان کارگر شمالی بالاتر از پمپ بنزین پلاک ۲۵۱"
-    );
+        );
 
     var footerPhoneText = SettingOrDefault("footerPhoneText", "۰۲۱-۸۸۳۳۴۱۱۷");
     var footerPhoneLink = SettingOrDefault("footerPhoneLink", "tel:+982188334117");
@@ -83,7 +83,7 @@
     var copyrightText = SettingOrDefault(
     "copyrightText",
     "کلیه حقوق مادی و معنوی این سایت متعلق به شرکت دیدگاه رایانه سما می باشد."
-    );
+        );
 
     var eitaaUrl = SettingOrDefault("eitaaUrl", "https://eitaa.com/YOUR_EITAA_ID");
     var baleUrl = SettingOrDefault("baleUrl", "https://ble.ir/YOUR_BALE_ID");
@@ -116,7 +116,7 @@
     var canonicalUrl = $"{baseUrl}{Model.Url()}";
 
     var ogImageUrl = seoImage != null
-    ? $"{baseUrl}{seoImage.MediaUrl()}"
+        ? $"{baseUrl}{seoImage.MediaUrl()}"
     : null;
 
     var is404Page = Model.ContentType.Alias == "page404";
@@ -241,7 +241,7 @@
 
         portalOpenInNewTab = openInNewTab;
     }
-
+    var showFooterSocial = siteSettings?.Value<bool>("showFooterSocial") ?? false;
 }
 
 <!DOCTYPE html>
@@ -312,7 +312,7 @@
 
                 <!-- @if (!string.IsNullOrWhiteSpace(siteTagline))
                     {
-                                                                <small>@siteTagline</small>
+                                                                                <small>@siteTagline</small>
                     }
  -->
                 <!-- </span> -->
@@ -367,19 +367,20 @@
                 <div class="header-actions">
                     @if (!isCustomerPortalPage)
                     {
-                        <a class="header-portal-btn @(IsActiveNavLink(portalLinkUrl) ? "is-active" : null)"
+                        @* <a class="header-portal-btn @(IsActiveNavLink(portalLinkUrl) ? "is-active" : null)" *@
+                                <a class="header-portal-btn @(IsActiveNavLink(portalLinkUrl) ? "is-active" : null)"
                             href="@portalLinkUrl" aria-current="@(IsActiveNavLink(portalLinkUrl) ? "page" : null)"
                             target="@(portalOpenInNewTab ? "_blank" : null)" rel="@(portalOpenInNewTab ? "noopener" : null)">
                             <span>پورتال مشتریان</span>
                         </a>
                     }
 
-                    @if (!string.IsNullOrWhiteSpace(headerPhoneText) &&
-                                    !string.IsNullOrWhiteSpace(headerPhoneLink))
+                    @if (!string.IsNullOrWhiteSpace(headerPhoneText) && !string.IsNullOrWhiteSpace(headerPhoneLink))
                     {
-                        <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
-                            <span>☎</span>
+                        @* <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName"> *@
+                                <a class="header-phone" href="@headerPhoneLink" aria-label="تماس با @siteName">
                             <strong>@headerPhoneText</strong>
+                            <span>☎</span>
                         </a>
                     }
                 </div>
@@ -445,23 +446,27 @@
                     </p>
                 }
 
-                <div class="footer-social">
-                    <div class="footer-social-links">
-                        @if (!string.IsNullOrWhiteSpace(eitaaUrl))
-                        {
-                            <a href="@eitaaUrl" target="_blank" rel="noopener" aria-label="ایتا @siteName">
-                                <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.webp" alt="ایتا" />
-                            </a>
-                        }
+                @if (showFooterSocial)
+                {
+                    <div class="footer-social">
+                        <div class="footer-social-links">
+                            @if (!string.IsNullOrWhiteSpace(eitaaUrl))
+                            {
+                                <a href="@eitaaUrl" target="_blank" rel="noopener" aria-label="ایتا @siteName">
+                                    <img src="/assets/sama/uploads/2024/11/Eitaa-Logo.webp" alt="ایتا" />
+                                </a>
+                            }
 
-                        @if (!string.IsNullOrWhiteSpace(baleUrl))
-                        {
-                            <a href="@baleUrl" target="_blank" rel="noopener" aria-label="بله @siteName">
-                                <img src="/assets/sama/uploads/2024/11/Bale-Logo.webp" alt="بله" />
-                            </a>
-                        }
+                            @if (!string.IsNullOrWhiteSpace(baleUrl))
+                            {
+                                <a href="@baleUrl" target="_blank" rel="noopener" aria-label="بله @siteName">
+                                    <img src="/assets/sama/uploads/2024/11/Bale-Logo.webp" alt="بله" />
+                                </a>
+                            }
+                        </div>
                     </div>
-                </div>
+                }
+
             </div>
 
             <div>
@@ -502,7 +507,7 @@
 
         <script src="/js/chatbot.js"></script>
     }
-    
+
     <script src="~/lib/tom-select/tom-select.complete.min.js" asp-append-version="true"></script>
 
     <script src="/js/sama.js"></script>

@@ -29,9 +29,27 @@
     ViewData["PageTitle"] = pageTitle;
 
     var introText = Model.Value<string>("introText");
+
+    var aboutHeader = Model.Value<string>("aboutHeader");
+    if (string.IsNullOrWhiteSpace(aboutHeader))
+    {
+        aboutHeader = "معرفی شرکت";   
+    }
+
+    var aboutTitle = Model.Value<string>("aboutTitle");
+    if (string.IsNullOrWhiteSpace("aboutTitle"))
+    {
+        aboutTitle = "ما چه کاری انجام می‌دهیم؟";   
+    }
+
     var body = Model.Value("body");
     var missionText = Model.Value<string>("missionText");
+    var missionTitle = Model.Value<string>("missionTitle");
     var visionText = Model.Value<string>("visionText");
+    var visionTitle = Model.Value<string>("visionTitle");
+    var approachText = Model.Value<string>("approachText");
+    var approachTitle = Model.Value<string>("approachTitle");
+
     var heroImage = Model.Value<MediaWithCrops>("heroImage");
 
     var showHero = Model.GetProperty("showHero") == null || Model.Value<bool>("showHero");
@@ -67,7 +85,7 @@
                 else
                 {
                     <p>
-                        شرکت دیدبان شبکه سما با تکیه بر دانش فنی، تجربه و شناخت نیازهای
+                        شرکت دیدگاه رایانه سما با تکیه بر دانش فنی، تجربه و شناخت نیازهای
                         سازمانی، راهکارهای نرم‌افزاری قابل اعتماد و توسعه‌پذیر ارائه می‌دهد.
                     </p>
                 }
@@ -79,9 +97,9 @@
 <section class="container about-page reveal-section">
     <div class="about-layout">
         <article class="about-content-card">
-            <span class="section-mini-badge">معرفی شرکت</span>
+            <span class="section-mini-badge">@aboutHeader</span>
 
-            <h2>ما چه کاری انجام می‌دهیم؟</h2>
+            <h2>@aboutTitle</h2>
 
             <div class="about-body">
                 @body
@@ -110,8 +128,16 @@
 <section class="container about-values-section reveal-section">
     <div class="about-values-grid">
         <article class="about-value-card">
-            <span>ماموریت</span>
-            <h3>ارائه راهکارهای قابل اعتماد</h3>
+            <span class="section-mini-badge">ماموریت</span>
+
+            @if (!string.IsNullOrWhiteSpace(missionTitle))
+            {
+                <h3>@missionTitle</h3>
+            }
+            else
+            {
+                <h3>ارائه راهکارهای قابل اعتماد</h3>
+            }
 
             @if (!string.IsNullOrWhiteSpace(missionText))
             {
@@ -124,8 +150,16 @@
         </article>
 
         <article class="about-value-card">
-            <span>چشم‌انداز</span>
-            <h3>همراهی با تحول دیجیتال سازمان‌ها</h3>
+            <span class="section-mini-badge">چشم‌انداز</span>
+
+            @if (!string.IsNullOrWhiteSpace(visionTitle))
+            {
+                <h3>@visionTitle</h3>
+            }
+            else
+            {
+                <h3>همراهی با تحول دیجیتال سازمان‌ها</h3>
+            }
 
             @if (!string.IsNullOrWhiteSpace(visionText))
             {
@@ -138,11 +172,25 @@
         </article>
 
         <article class="about-value-card">
-            <span>رویکرد</span>
-            <h3>تمرکز بر نیاز واقعی سازمان</h3>
-            <p>
-                ما تلاش می‌کنیم راهکارها فقط از نظر فنی مناسب نباشند، بلکه با فرایندها و نیازهای واقعی سازمان نیز هماهنگ باشند.
-            </p>
+            <span class="section-mini-badge">رویکرد</span>
+
+            @if (!string.IsNullOrWhiteSpace(approachTitle))
+            {
+                <h3>@approachTitle</h3>
+            }
+            else
+            {
+                <h3>تمرکز بر نیاز واقعی سازمان</h3>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(approachText))
+            {
+                <p>@approachText</p>
+            }
+            else
+            {
+                <p>ما تلاش می‌کنیم راهکارها، علاوه بر برخورداری از قابلیت‌های فنی، با فرایندها و نیازهای واقعی هر سازمان نیز هماهنگ باشند.</p>
+            }
         </article>
     </div>
 </section>

@@ -1,0 +1,339 @@
+/* Load after sama.bundle.min.css and all existing responsive rules. */
+
+#demo-form,
+#demo-form .demo-form,
+#demo-form .demo-form * {
+  box-sizing: border-box;
+}
+
+#demo-form > *,
+#demo-form .form-row > *,
+#demo-form .form-field,
+#demo-form .ts-wrapper {
+  min-width: 0;
+}
+
+#demo-form .demo-form input,
+#demo-form .demo-form select,
+#demo-form .demo-form textarea,
+#demo-form .ts-wrapper {
+  max-width: 100%;
+}
+
+/* The button is the touch target; ::before draws the small visible dot. */
+.hero-showcase .slider-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  bottom: 7px;
+}
+
+.hero-showcase .slider-dots button,
+.hero-showcase .slider-dots button.is-active {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.hero-showcase .slider-dots button::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  transition:
+    width 160ms ease,
+    background-color 160ms ease;
+}
+
+.hero-showcase .slider-dots button.is-active::before {
+  width: 28px;
+  background: #fff;
+}
+
+.hero-showcase .slider-dots button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+@media (max-width: 980px) {
+  #demo-form {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 28px;
+  }
+
+  #demo-form .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Keep the final hero layout from being overridden by older rules. */
+  .hero-slider.hero-showcase {
+    min-height: auto;
+    padding: 92px 0 96px;
+  }
+
+  .hero-showcase .hero-content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    margin-inline: auto;
+    padding-inline: 10px;
+  }
+
+  .hero-showcase .hero-content h1 {
+    font-size: clamp(28px, 7vw, 40px);
+  }
+
+  .hero-showcase .hero-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-showcase .slider-dots {
+    bottom: 3px;
+  }
+}
+
+@media (max-width: 640px) {
+  #demo-form {
+    padding: 16px;
+    gap: 24px;
+  }
+
+  #demo-form .demo-form {
+    padding: 14px;
+    gap: 16px;
+  }
+
+  #demo-form .demo-form input,
+  #demo-form .demo-form select,
+  #demo-form .demo-form textarea,
+  #demo-form .ts-control,
+  #demo-form .ts-control input {
+    font-size: 16px;
+  }
+
+  #demo-form .demo-form button[type="submit"] {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: normal;
+  }
+
+  .hero-slider.hero-showcase {
+    min-height: auto;
+    padding: 78px 0 92px;
+  }
+
+  .hero-showcase .hero-content h1 {
+    font-size: clamp(24px, 7vw, 31px);
+    line-height: 1.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-showcase .slider-dots button::before {
+    transition: none;
+  }
+}
+
+/* Section labels */
+.section-heading > span,
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 14px;
+  color: #9a5b00;
+  background: rgba(245, 166, 35, 0.18);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.7;
+}
+
+.sama-journey {
+  padding-block: 48px 52px;
+  margin-block: 40px 56px;
+  /* background: #eef6fc; */
+  background: #FFFFFF;
+  color: var(--sama-primary-dark, #082f55);
+  direction: rtl;
+}
+
+.sama-journey,
+.sama-journey * {
+  box-sizing: border-box;
+}
+
+.sama-journey__heading {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.sama-journey__heading::before {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 4px;
+  margin: 0 auto 16px;
+  border-radius: 999px;
+  background: var(--sama-accent, #f5a623);
+}
+
+.sama-journey__heading h2 {
+  margin: 0;
+  font-size: clamp(23px, 2.5vw, 34px);
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+.sama-journey__heading p {
+  margin: 10px 0 0;
+  color: var(--sama-muted, #64748b);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.sama-journey__steps {
+  display: grid;
+  grid-template-columns: repeat(var(--journey-columns, 3), minmax(0, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+.sama-journey__step {
+  position: relative;
+  min-width: 0;
+  text-align: center;
+  padding-inline: 20px;
+}
+
+.sama-journey__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  inset-inline-start: calc(50% + 26px);
+  width: calc(100% - 52px);
+  height: 2px;
+  background: #c9dbea;
+}
+
+.sama-journey__number {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-inline: auto;
+  border-radius: 50%;
+  background: var(--sama-primary-dark, #082f55);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.sama-journey__body {
+  padding-top: 18px;
+}
+
+.sama-journey__icon {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+}
+
+.sama-journey__body h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.7;
+}
+
+.sama-journey__body p {
+  max-width: 290px;
+  margin: 8px auto 0;
+  color: var(--sama-muted, #64748b);
+  font-size: 14px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .sama-journey {
+    padding-block: 32px;
+    margin-block: 28px 40px;
+  }
+
+  .sama-journey__heading {
+    margin-bottom: 28px;
+  }
+
+  .sama-journey__steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sama-journey__step {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 16px;
+    text-align: right;
+    padding: 0 0 28px;
+  }
+
+  .sama-journey__step:last-child {
+    padding-bottom: 0;
+  }
+
+  .sama-journey__step:not(:last-child)::after {
+    top: 48px;
+    inset-inline-start: 20px;
+    width: 2px;
+    height: calc(100% - 54px);
+  }
+
+  .sama-journey__body {
+    padding-top: 0;
+  }
+
+  .sama-journey__icon {
+    margin: 0 0 8px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .sama-journey__body p {
+    max-width: none;
+    margin-inline: 0;
+  }
+}

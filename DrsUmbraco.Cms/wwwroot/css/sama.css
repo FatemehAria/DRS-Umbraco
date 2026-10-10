@@ -20,6 +20,7 @@
 @import url("./layout/footer.css");
 @import url("./components/back-to-top.css");
 @import url("./responsive/global.css");
+@import url("./responsive/home-responsive-fixes.css");
 @import url("./components/inner-page-hero.css");
 @import url("./pages/news.css");
 @import url("./pages/products.css");
@@ -38,3 +39,4 @@
 @import url("./pages/login-portal.css");
 @import url("./components/product-card-final-overrides.css");
 @import url("./components/form-validation.css");
+@import url("./components/detail-back-link.css");

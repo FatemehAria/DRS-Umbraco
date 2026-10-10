@@ -210,3 +210,22 @@
     line-height: 2;
   }
 }
+
+@media (min-width: 1201px) {
+  .sama-page-hero--contact {
+    background-position:
+      center center,
+      center top;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .sama-page-hero--contact {
+    background-size:
+      100% 100%,
+      cover;
+    background-position:
+      center center,
+      center top;
+  }
+}
