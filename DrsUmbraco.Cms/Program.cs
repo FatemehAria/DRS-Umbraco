@@ -16,6 +16,10 @@ using DrsUmbraco.Cms.Features.ConsultRequests;
 using DrsUmbraco.Cms.Features.ConsultRequests.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using DrsUmbraco.Cms.Features.ConsultRequests.Security;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Web.Common.ApplicationBuilder;
 
 DateTime managedEntryAtUtc = DateTime.UtcNow;
 
@@ -272,6 +276,14 @@ applicationServiceRegistrationStopwatch.Stop();
 
 Stopwatch umbracoCompositionStopwatch = Stopwatch.StartNew();
 
+builder.Services.Configure<UmbracoPipelineOptions>(options =>
+{
+    options.AddFilter(
+        new UmbracoPipelineFilter(
+            "SigninRateLimiter",
+            postRouting: app => app.UseRateLimiter()));
+});
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
@@ -285,6 +297,34 @@ umbracoCompositionStopwatch.Stop();
 serviceRegistrationStopwatch.Stop();
 
 Stopwatch webApplicationBuildStopwatch = Stopwatch.StartNew();
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("signin", context =>
+    {
+        var clientIp =
+            context.Connection.RemoteIpAddress?.ToString()
+            ?? "unknown";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: clientIp,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+});
 
 WebApplication app = builder.Build();
 

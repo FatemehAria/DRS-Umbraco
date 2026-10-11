@@ -11,11 +11,9 @@ public static class CrmGatewayApplicationBuilderExtensions
         // تنظیمات و MapWhen فعلی اینجا منتقل می‌شود.
         var crmOptions = app.Services.GetRequiredService<IOptions<CrmOptions>>().Value;
 
-        var crmGatewayHosts =
-            crmOptions.GatewayHosts;
+        var crmGatewayHosts = crmOptions.GatewayHosts;
 
-        var crmGatewayPorts =
-            crmOptions.GatewayPorts;
+        var crmGatewayPorts = crmOptions.GatewayPorts;
 
         app.MapWhen(
             context =>
@@ -36,9 +34,9 @@ public static class CrmGatewayApplicationBuilderExtensions
                 //     path.StartsWithSegments("/login");
 
                 var isLocalRoute =
-                        // path.StartsWithSegments("/signin") ||
-                        // path.StartsWithSegments("/signout") ||
-                        // path.StartsWithSegments("/login") ||
+                        path.StartsWithSegments("/signin") ||
+                        path.StartsWithSegments("/signout") ||
+                        path.StartsWithSegments("/login") ||
                         path.StartsWithSegments("/umbraco");
 
                 if (isLocalRoute)
@@ -70,35 +68,18 @@ public static class CrmGatewayApplicationBuilderExtensions
                         return;
                     }
 
-                    // NEw
-                    var isAnonymousCrmRoute =
-                        path.StartsWithSegments("/signin") ||
-                        path.StartsWithSegments("/login") ||
-                        path.StartsWithSegments(
-                        new PathString(crmOptions.LoginPath));
-
-                    if (isAnonymousCrmRoute)
-                    {
-                        await next();
-                        return;
-                    }
-
-                    var hasGatewaySession =
-                        context.Request.Cookies.ContainsKey(
-                            "CrmGatewaySession");
+                    var hasGatewaySession = context.Request.Cookies.ContainsKey("CrmGatewaySession");
 
                     if (!hasGatewaySession)
                     {
                         if (path.StartsWithSegments("/api"))
                         {
-                            context.Response.StatusCode =
-                                StatusCodes.Status401Unauthorized;
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
 
                             return;
                         }
 
-                        context.Response.Redirect(
-                            "/signin?expired=1");
+                        context.Response.Redirect("/signin?expired=1");
 
                         return;
                     }
@@ -106,8 +87,7 @@ public static class CrmGatewayApplicationBuilderExtensions
                     await next();
                 });
 
-                proxyApp.UseMiddleware<
-                    CrmGatewayHtmlInjectionMiddleware>();
+                proxyApp.UseMiddleware<CrmGatewayHtmlInjectionMiddleware>();
 
                 proxyApp.UseEndpoints(endpoints =>
                 {

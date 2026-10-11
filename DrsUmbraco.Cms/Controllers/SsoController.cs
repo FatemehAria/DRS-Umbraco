@@ -3,6 +3,7 @@ using DrsUmbraco.Cms.Services;
 using Microsoft.AspNetCore.Mvc;
 using DrsUmbraco.Cms.Options;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DrsUmbraco.Cms.Controllers;
 
@@ -43,6 +44,7 @@ public sealed class SsoController : Controller
     }
 
     [HttpPost("~/signin")]
+    [EnableRateLimiting("signin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(
         [FromForm] LoginRequestModel model,
