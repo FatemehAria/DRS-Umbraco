@@ -193,6 +193,10 @@
             <form id="consultRequestForm" class="demo-form sama-consult-form contact-form"
                 data-success-message="پیام شما با موفقیت ثبت شد. تیم ما در صورت نیاز با شما تماس می‌گیرد." novalidate>
                 <input type="hidden" name="formName" value="contact_form" />
+                <div class="form-honeypot" aria-hidden="true">
+                    <label for="website">Website</label>
+                    <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+                </div>
                 <div class="form-row">
                     <label>
                         نام و نام خانوادگی
@@ -223,18 +227,14 @@
                         موضوع پیام
                     </label>
 
-                    <select id="contactRequestType"
-                            class="js-tom-select"
-                            name="requestType"
-                            dir="rtl"
-                            required>
+                    <select id="contactRequestType" class="js-tom-select" name="requestType" dir="rtl" required>
                         @if (contactFormOptions != null && contactFormOptions.Any())
                         {
                             foreach (var block in contactFormOptions)
                             {
                                 var item = block.Content;
                                 var isVisible = item.GetProperty("isVisible") == null ||
-                                                item.Value<bool>("isVisible");
+                                item.Value<bool>("isVisible");
 
                                 if (!isVisible)
                                 {
@@ -245,7 +245,7 @@
                                 var value = item.Value<string>("value");
 
                                 if (string.IsNullOrWhiteSpace(title) ||
-                                    string.IsNullOrWhiteSpace(value))
+                                string.IsNullOrWhiteSpace(value))
                                 {
                                     continue;
                                 }
@@ -259,7 +259,7 @@
                         }
                     </select>
                 </div>
-                
+
                 <label>
                     پیام شما
                     <textarea name="message" placeholder="پیام یا سوال خود را بنویسید..." maxlength="2000"

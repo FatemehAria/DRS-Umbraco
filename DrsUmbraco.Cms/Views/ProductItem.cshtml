@@ -119,13 +119,13 @@
 
             @if (!string.IsNullOrWhiteSpace(solutionDescription))
             {
-            <p>@solutionDescription</p>
+                <p>@solutionDescription</p>
             }
             else
             {
-            <p>
-                مناسب برای سازمان‌هایی که به دنبال مدیریت ساختارمندتر، گزارش‌پذیرتر و قابل پیگیری‌تر هستند.
-            </p>
+                <p>
+                    مناسب برای سازمان‌هایی که به دنبال مدیریت ساختارمندتر، گزارش‌پذیرتر و قابل پیگیری‌تر هستند.
+                </p>
             }
 
             @if (solutionList != null && solutionList.Any())
@@ -218,6 +218,10 @@
 
     <form id="consultRequestForm" class="demo-form sama-consult-form" novalidate>
         <input type="hidden" name="formName" value="product_demo_form" />
+        <div class="form-honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
         <div class="form-row">
             <label>
                 نام و نام خانوادگی

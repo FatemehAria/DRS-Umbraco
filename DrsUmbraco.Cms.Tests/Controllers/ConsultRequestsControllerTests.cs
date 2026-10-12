@@ -166,6 +166,22 @@ public sealed class ConsultRequestsControllerTests
         Assert.Equal(1, service.CallCount);
     }
 
+    [Fact]
+    public async Task Create_with_honeypot_value_returns_bad_request()
+    {
+        var service = new FakeElementorSubmissionService();
+
+        var controller = CreateController(service);
+
+        var model = CreateValidModel("consult_form");
+        model.Website = "https://spam.example";
+
+        var result = await controller.Create(model, CancellationToken.None);
+
+        Assert.IsType<BadRequestResult>(result);
+        Assert.Equal(0, service.CallCount);
+    }
+    
     private static ConsultRequestsController CreateController(
         FakeElementorSubmissionService service)
     {

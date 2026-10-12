@@ -24,4 +24,7 @@ public sealed class ConsultRequestCreateModel
     [StringLength(80)]
     public string FormName { get; set; } = string.Empty;
     public IFormFile? ResumeFile { get; set; }
+
+    [StringLength(100)]
+    public string? Website { get; set; }
 }

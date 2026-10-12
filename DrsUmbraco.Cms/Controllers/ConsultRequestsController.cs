@@ -41,6 +41,11 @@ public sealed class ConsultRequestsController : ControllerBase
         [FromForm] ConsultRequestCreateModel model,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(model.Website))
+        {
+            return BadRequest();
+        }
+        
         if (!ModelState.IsValid)
         {
             return ValidationProblem(ModelState);
