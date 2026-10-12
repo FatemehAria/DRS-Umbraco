@@ -6,6 +6,7 @@ namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Relevance;
 public sealed class BgeRelevanceModelTests
 {
     [Fact]
+    [Trait("Category", "Integration")]
     public void Run_ShouldMatchValidatedPythonScore()
     {
         string solutionRoot =

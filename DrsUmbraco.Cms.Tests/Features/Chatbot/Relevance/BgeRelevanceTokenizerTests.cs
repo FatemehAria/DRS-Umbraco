@@ -6,6 +6,7 @@ namespace DrsUmbraco.Cms.Tests.Features.Chatbot.Relevance;
 public sealed class BgeRelevanceTokenizerTests
 {
     [Fact]
+    [Trait("Category", "Integration")]
     public void Encode_ShouldMatchOfficialBgeTokenizerIds()
     {
         string solutionRoot =

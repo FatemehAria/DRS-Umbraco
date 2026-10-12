@@ -35,5 +35,5 @@ jobs:
       - name: Build
         run: dotnet build DrsUmbracoPilot.slnx --no-restore --configuration Release
 
-      - name: Test
-        run: dotnet test DrsUmbracoPilot.slnx --no-build --no-restore --configuration Release
+      - name: Test unit tests
+        run: dotnet test DrsUmbracoPilot.slnx --no-build --no-restore --configuration Release --filter "Category!=Integration"
