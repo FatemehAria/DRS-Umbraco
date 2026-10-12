@@ -12,7 +12,9 @@
     <PackageReference Include="Microsoft.ML.OnnxRuntime" />
     <PackageReference Include="Microsoft.ML.Tokenizers" />
     <PackageReference Include="Umbraco.Cms" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+      <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" />
+    </ItemGroup>
     <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
 
