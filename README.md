@@ -1,164 +1,121 @@
-# DRS Umbraco CMS Pilot
+# DRS Corporate Website
 
-A CMS-driven corporate website pilot built with **Umbraco CMS**, **ASP.NET Core**, and **SQL Server**.
+[![CI](https://github.com/FatemehAria/DRS-Umbraco/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/FatemehAria/DRS-Umbraco/actions/workflows/ci.yml)
 
-This project was created as a migration and modernization pilot from a WordPress/Elementor-based website to a more maintainable .NET-based CMS architecture.
+A production-oriented corporate website built with **Umbraco CMS**, **ASP.NET Core**, and **SQL Server**.
 
-## Highlights
+**Live website:** [drs.ir](https://drs.ir)
 
-- Migrated a WordPress/Elementor-style corporate website concept into an Umbraco CMS pilot.
-- Built reusable Razor templates with a shared master layout.
-- Created dynamic CMS-managed sections for products, news, recruitment, and job details.
-- Implemented a custom ASP.NET Core API for form submissions.
-- Integrated form submissions with existing legacy Elementor database tables.
-- Added SEO metadata, sitemap.xml, robots.txt, custom 404 page, and responsive navigation.
-- Documented deployment and final QA checklists for production readiness.
+The project modernizes a WordPress/Elementor-based website into a maintainable .NET CMS application, while preserving compatibility with legacy form-submission data.
 
-## Project Goal
+## Key Highlights
 
-The goal of this project is to rebuild a company website using Umbraco CMS while keeping the content editable for non-technical users and preparing the codebase for future backend extensions.
-
-The website includes dynamic content pages, reusable layouts, custom styling, form submission handling, and integration with existing legacy WordPress/Elementor database tables.
+- CMS-managed content using Umbraco Backoffice
+- Reusable Razor views and shared layouts
+- Dynamic products, news, recruitment, and job-detail pages
+- Persian RTL responsive interface and mobile navigation
+- Custom ASP.NET Core endpoints for consultation and recruitment forms
+- Integration with legacy Elementor submission tables during migration
+- Customer portal gateway using YARP reverse proxy
+- Anti-forgery protection, rate limiting, secure cookies, HSTS, and security headers
+- SEO essentials: metadata, canonical URLs, `sitemap.xml`, `robots.txt`, and a custom 404 page
+- GitHub Actions workflow for restore, build, and test validation
 
 ## Tech Stack
 
-- ASP.NET Core
+- ASP.NET Core / .NET
 - Umbraco CMS
 - SQL Server
 - Razor Views
-- HTML / CSS / JavaScript
-- IIS-ready deployment structure
-- Git version control
+- HTML, CSS, and JavaScript
+- PostCSS and Tom Select
+- YARP Reverse Proxy
+- IIS
+- GitHub Actions
 
-## Main Features
-
-- CMS-managed homepage content
-- Shared master layout for header and footer
-- Dynamic news listing page
-- Dynamic news detail pages
-- Dynamic product listing page
-- Dynamic product detail pages
-- About page
-- Contact page
-- Recruitment page
-- Job detail pages
-- Custom 404 error page
-- Responsive mobile navigation
-- RTL Persian UI
-- Custom CSS design system
-- Form submission API
-- SQL Server integration
-- Legacy Elementor form table integration
-
-## Pages
-
-The current website structure includes:
-
-- `/`
-- `/products/`
-- `/products/{product-name}/`
-- `/about-us/`
-- `/contact-us/`
-- `/recruitment/`
-- `/recruitment/{job-opening}/`
-- Custom 404 page
-
-## Architecture Overview
-
-The project uses Umbraco for managing website content and ASP.NET Core for custom backend behavior.
+## Architecture
 
 ```text
 Browser
-  ↓
-Umbraco CMS Website
-  ↓
-Razor Templates
-  ↓
-Custom CSS / JavaScript
-  ↓
-ASP.NET Core API
-  ↓
+  │
+  ▼
+IIS
+  │
+  ▼
+ASP.NET Core + Umbraco CMS
+  ├── Razor views and static assets
+  ├── Custom form APIs
+  ├── Customer portal gateway
+  └── SEO and security middleware
+  │
+  ▼
 SQL Server
+  ├── Umbraco content database
+  └── Legacy Elementor submission tables
 ```
 
-## Content Management
+## Features
 
-Content editors can manage the following through Umbraco Backoffice:
+### Content management
 
-- Homepage content
-- News articles
-- Product pages
-- Contact page content
-- About page content
-- Recruitment opportunities
-- Job descriptions
-- 404 page content
+Non-technical editors can manage content through Umbraco Backoffice, including:
 
-## Custom API
-
-The project includes a custom API endpoint for form submissions:
-
-```text
-POST /api/consult-requests
-```
-
-This endpoint currently handles:
-
-- Demo requests
-- Contact messages
-- Job interest submissions
-
-The submitted data is stored in existing legacy Elementor-related tables:
-
-```text
-wp_e_submissions
-wp_e_submissions_values
-```
-
-This was done to keep compatibility with the existing WordPress database structure during the migration pilot.
-
-## Responsive UI
-
-The website includes responsive layouts for:
-
-- Header and mobile navigation
 - Homepage sections
-- Product cards
-- News cards
-- Contact form
-- Recruitment pages
-- Footer
-- Custom 404 page
+- Products and product details
+- News and news details
+- About and contact pages
+- Recruitment opportunities and job details
+- Custom 404 page content
 
-## Security Notes
+### Forms and portal
 
-Sensitive configuration files are excluded from Git:
+- Consultation, contact, and recruitment request forms
+- Server-side validation and anti-forgery validation
+- Legacy WordPress/Elementor submission-table compatibility
+- Customer portal sign-in gateway backed by an internal CRM service
 
-```text
-appsettings.json
-appsettings.Development.json
-appsettings.Production.json
-appsettings.*.json
-```
+### Security and SEO
 
-A safe sample configuration file should be used instead:
-
-```text
-appsettings.example.json
-```
-
-Real connection strings, passwords, and environment-specific settings must not be committed to the repository.
+- HTTPS and HSTS
+- Secure, HttpOnly, and SameSite cookies
+- Anti-forgery token validation for sign-in and forms
+- Rate limiting for sign-in requests
+- Security headers for content type, framing, referrer policy, and browser permissions
+- `robots.txt`, `sitemap.xml`, canonical URLs, and custom 404 handling
 
 ## Local Development
 
-Run the project:
+### Prerequisites
 
-```bash
-cd DrsUmbraco.Cms
-dotnet run
+- .NET SDK version required by the solution
+- Node.js 22+
+- SQL Server
+- An Umbraco-compatible database configuration
+
+### Configuration
+
+Copy the safe configuration template and fill in local values:
+
+```text
+DrsUmbraco.Cms/appsettings.example.json
 ```
 
-Local URLs:
+Do not commit connection strings, passwords, API credentials, HMAC keys, or production URLs.
+
+### Run locally
+
+```powershell
+git clone https://github.com/FatemehAria/DRS-Umbraco.git
+cd DRS-Umbraco\DrsUmbraco.Cms
+
+npm ci
+
+cd ..
+dotnet restore .\DrsUmbracoPilot.slnx
+dotnet run --project .\DrsUmbraco.Cms\DrsUmbraco.Cms.csproj
+```
+
+The local application normally runs on:
 
 ```text
 http://localhost:26200
@@ -168,39 +125,18 @@ https://localhost:44398
 Umbraco Backoffice:
 
 ```text
-http://localhost:26200/umbraco
+https://localhost:44398/umbraco
 ```
 
-## Database
+## Tests
 
-The project uses SQL Server as the Umbraco database provider.
+Run automated tests, excluding tests that require local AI model files:
 
-The pilot also connects to existing WordPress/Elementor tables for form submission compatibility.
+```powershell
+dotnet test .\DrsUmbracoPilot.slnx --configuration Release --filter "Category!=Integration"
+```
 
-## Current Status
-
-Completed:
-
-- CMS setup
-- Main website pages
-- Dynamic news section
-- Dynamic products section
-- Contact page
-- About page
-- Recruitment pages
-- Job detail pages
-- Custom 404 page
-- Responsive mobile navigation
-- Custom form submission API
-- CSS refactor step 1
-
-Planned improvements:
-
-- Separate APIs for contact messages and job applications
-- Resume upload support for recruitment forms
-- SEO metadata improvements
-- Production deployment on IIS
-- Further CSS component refactoring
+The GitHub Actions workflow validates dependency restore, frontend dependency installation, build, and tests for pushes and pull requests to `main`.
 
 ## Screenshots
 
@@ -212,55 +148,42 @@ Planned improvements:
 
 ![Products](docs/screenshots/products.png)
 
-### Product Detail
+### Product detail
 
-![Product Detail](docs/screenshots/product-detail.png)
+![Product detail](docs/screenshots/product-detail.png)
 
-### Contact Page
+### Contact page
 
-![Contact Page](docs/screenshots/contact.png)
+![Contact page](docs/screenshots/contacts.png)
 
-### Recruitment Page
+### Recruitment page
 
-![Recruitment Page](docs/screenshots/recruitment.png)
+![Recruitment page](docs/screenshots/recruitment.png)
 
-### Mobile Menu
+### Recruitment Detail
 
-![Mobile Menu](docs/screenshots/mobile-menu.png)
+![Recruitment detail](docs/screenshots/recruitment-detail.png)
 
-### Custom 404 Page
+### Mobile navigation
 
-![404 Page](docs/screenshots/404-page.png)
+![Mobile navigation](docs/screenshots/mobile-menu.png)
 
-```text
-docs/screenshots/
-```
+### Custom 404 page
 
-Suggested screenshots:
+![Custom 404 page](docs/screenshots/404-page.png)
 
-- Homepage
-- Product list
-- Product detail
-- News list
-- Contact page
-- Recruitment page
-- Mobile menu
-- 404 page
+## Project Scope
 
-## What I Practiced in This Project
+This repository contains the CMS website application, tests, documentation, and deployment-oriented configuration.
 
-- Building a real CMS-driven website with Umbraco
-- Designing reusable Razor templates
-- Creating dynamic content structures
-- Working with SQL Server
-- Building custom ASP.NET Core APIs
-- Handling form submissions
-- Migrating concepts from WordPress to Umbraco
-- Structuring a maintainable project
-- Improving responsive UI
-- Using Git safely with environment-specific configuration
+Experimental AI models, benchmark datasets, generated binaries, local credentials, and production configuration are intentionally excluded from source control.
 
-## Chatbot Research
+## License
 
-Evaluation scripts, benchmark datasets, and model experiments are maintained in the
-[DRS Umbraco Chatbot Research repository](https://github.com/FatemehAria/DRS-Umbraco-Chatbot-Research).
+This repository is shared as a portfolio project. All rights reserved.
+
+## Related Research
+
+Chatbot evaluation scripts, benchmark datasets, and model experiments are maintained in the companion repository:
+
+[DRS Umbraco Chatbot Research](https://github.com/FatemehAria/DRS-Umbraco-Chatbot-Research)
