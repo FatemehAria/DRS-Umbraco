@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install frontend dependencies
+        working-directory: DrsUmbraco.Cms
+        run: npm ci --no-audit --no-fund
+
+      - name: Restore .NET dependencies
+        run: dotnet restore DrsUmbracoPilot.slnx
+
+      - name: Build
+        run: dotnet build DrsUmbracoPilot.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test DrsUmbracoPilot.slnx --no-build --no-restore --configuration Release
