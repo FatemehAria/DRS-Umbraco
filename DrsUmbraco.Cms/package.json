@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "css:build": "postcss wwwroot/css/sama.css --output wwwroot/css/sama.bundle.min.css",
-    "css:watch": "postcss wwwroot/css/sama.css --output wwwroot/css/sama.bundle.min.css --watch"
+    "css:watch": "postcss wwwroot/css/sama.css --output wwwroot/css/sama.bundle.min.css --watch",
+    "vendor:tom-select": "node ./scripts/sync-tom-select.mjs",
+    "postinstall": "npm run vendor:tom-select"
+  },
+  "dependencies": {
+    "tom-select": "2.6.2"
   },
   "keywords": [],
   "author": "",
