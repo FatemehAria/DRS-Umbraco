@@ -76,3 +76,29 @@
     flex-direction: column;
   }
 }
+
+/* =====================================================
+   Responsive refinements
+   ===================================================== */
+
+@media (max-width: 640px) {
+  .copyright {
+    width: calc(100% - 32px);
+    margin: 24px auto 0;
+    padding: 14px 8px 0;
+    font-size: 12px;
+    line-height: 2;
+  }
+}
+
+/* فاصلهٔ تیک‌ها از متن در Hero جزئیات محصول */
+@media (max-width: 980px) {
+  .product-detail-hero-v2 .product-detail-hero-panel li {
+    padding-inline-start: 40px;
+    padding-inline-end: 12px;
+  }
+
+  .product-detail-hero-v2 .product-detail-hero-panel li::before {
+    right: 14px;
+  }
+}

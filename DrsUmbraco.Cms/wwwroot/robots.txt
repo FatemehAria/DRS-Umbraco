@@ -4,4 +4,4 @@ Allow: /
 Disallow: /umbraco/
 Disallow: /api/
 
-Sitemap: https://localhost:44398/sitemap.xml
+Sitemap: https://drs.ir/sitemap.xml

@@ -45,32 +45,37 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
     position: sticky;
   }
 
-  .header-inner {
+  .site-header .header-inner {
     width: min(var(--container-width), calc(100% - 42px));
-    min-height: 72px;
-
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-areas:
       "toggle empty logo"
       "nav nav nav"
       "actions actions actions";
-
     align-items: center;
     gap: 12px 18px;
     margin-inline: auto;
-    padding: 10px 0;
-
-    /*
-      چیدمان فیزیکی ستون‌ها را قابل پیش‌بینی می‌کند:
-      toggle چپ، logo راست
-    */
     direction: ltr;
+  }
+
+  /* هدر بسته: فقط یک ردیف واقعی دارد */
+  body:not(.mobile-nav-open) .site-header .header-inner,
+  body.is-scrolled:not(.mobile-nav-open) .site-header .header-inner {
+    height: 64px;
+    min-height: 64px;
+    padding-block: 0;
+
+    grid-template-areas: "toggle empty logo";
+    grid-template-rows: 1fr;
+    row-gap: 0;
+    column-gap: 18px;
   }
 
   .logo.site-brand {
     grid-area: logo;
     justify-self: end;
+    align-self: center;
     display: inline-flex;
     align-items: center;
     min-width: 0;
@@ -78,8 +83,9 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   }
 
   .logo.site-brand img {
+    display: block;
     width: auto;
-    max-height: 50px;
+    max-height: 44px;
     margin: 0;
   }
 
@@ -112,9 +118,11 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
   }
 
   .main-nav a {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 13px 14px;
-    text-align: right;
+    text-align: center;
     border-radius: 14px;
   }
 
@@ -147,11 +155,30 @@ body.mobile-nav-open .mobile-menu-toggle span:nth-child(3) {
     justify-content: center;
   }
 
-  body.is-scrolled .header-inner {
-    min-height: 68px;
+  /* هدر باز: سه ردیف برای منو و اکشن‌ها */
+  body.mobile-nav-open .site-header .header-inner {
+    height: auto;
+    min-height: 64px;
+    padding-block: 8px;
+
+    grid-template-areas:
+      "toggle empty logo"
+      "nav nav nav"
+      "actions actions actions";
+    grid-template-rows: auto auto auto;
+    row-gap: 12px;
+    column-gap: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  body:not(.mobile-nav-open) .site-header .header-inner,
+  body.is-scrolled:not(.mobile-nav-open) .site-header .header-inner {
+    height: 60px;
+    min-height: 60px;
   }
 
-  body.is-scrolled .logo img {
-    max-height: 46px;
+  .logo.site-brand img {
+    max-height: 42px;
   }
 }

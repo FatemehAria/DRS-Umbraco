@@ -20,6 +20,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Web.Common.ApplicationBuilder;
+using Microsoft.AspNetCore.Antiforgery;
 
 DateTime managedEntryAtUtc = DateTime.UtcNow;
 
@@ -304,6 +305,12 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
+builder.Services.PostConfigure<AntiforgeryOptions>(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -326,6 +333,11 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.Secure = CookieSecurePolicy.Always;
+});
+
 WebApplication app = builder.Build();
 
 webApplicationBuildStopwatch.Stop();
@@ -333,6 +345,16 @@ webApplicationBuildStopwatch.Stop();
 Stopwatch umbracoBootStopwatch = Stopwatch.StartNew();
 
 await app.BootUmbracoAsync();
+
+var antiforgeryOptions =
+    app.Services
+        .GetRequiredService<IOptions<AntiforgeryOptions>>()
+        .Value;
+
+app.Logger.LogInformation(
+    "Antiforgery: SecurePolicy={SecurePolicy}; SameSite={SameSite}",
+    antiforgeryOptions.Cookie.SecurePolicy,
+    antiforgeryOptions.Cookie.SameSite);
 
 umbracoBootStopwatch.Stop();
 
@@ -346,6 +368,8 @@ Stopwatch pipelineConfigurationStopwatch = Stopwatch.StartNew();
 Stopwatch applicationPipelineStopwatch = Stopwatch.StartNew();
 
 app.UseResponseCompression();
+
+app.UseCookiePolicy();
 
 app.UseStaticFiles();
 
