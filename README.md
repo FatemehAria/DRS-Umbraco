@@ -259,3 +259,8 @@ Suggested screenshots:
 - Structuring a maintainable project
 - Improving responsive UI
 - Using Git safely with environment-specific configuration
+
+## Chatbot Research
+
+Evaluation scripts, benchmark datasets, and model experiments are maintained in the
+[DRS Umbraco Chatbot Research repository](https://github.com/FatemehAria/DRS-Umbraco-Chatbot-Research).
