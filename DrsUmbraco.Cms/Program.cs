@@ -44,6 +44,54 @@ Stopwatch createBuilderStopwatch = Stopwatch.StartNew();
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+bool checkStagingConfig =
+    builder.Configuration.GetValue<bool>("CheckStagingConfig");
+
+if (builder.Environment.IsDevelopment() || checkStagingConfig)
+{
+    if (!builder.Environment.IsDevelopment())
+        throw new InvalidOperationException(
+            "Staging check requires the Development environment.");
+
+    var stagingConnection =
+        new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(
+            builder.Configuration.GetConnectionString("umbracoDbDSN")
+            ?? throw new InvalidOperationException(
+                "Database connection is missing."));
+
+    bool expectedDatabase =
+        string.Equals(
+            stagingConnection.DataSource,
+            "tcp:172.18.2.153,1433",
+            StringComparison.OrdinalIgnoreCase)
+        && string.Equals(
+            stagingConnection.InitialCatalog,
+            "DrsUmbraco_Staging",
+            StringComparison.OrdinalIgnoreCase)
+        && !stagingConnection.IntegratedSecurity
+        && string.Equals(
+            stagingConnection.UserID,
+            "drs_staging_app",
+            StringComparison.OrdinalIgnoreCase);
+
+    if (!expectedDatabase)
+        throw new InvalidOperationException(
+            "Development database target is not the approved staging database.");
+
+    if (checkStagingConfig)
+    {
+        Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+        Console.WriteLine($"Server: {stagingConnection.DataSource}");
+        Console.WriteLine($"Database: {stagingConnection.InitialCatalog}");
+        Console.WriteLine($"Login: {stagingConnection.UserID}");
+        Console.WriteLine(
+            $"UpgradeUnattended: {builder.Configuration.GetValue<bool>(
+                "Umbraco:CMS:Unattended:UpgradeUnattended")}");
+
+        return;
+    }
+}
+
 createBuilderStopwatch.Stop();
 
 Stopwatch serviceRegistrationStopwatch = Stopwatch.StartNew();
